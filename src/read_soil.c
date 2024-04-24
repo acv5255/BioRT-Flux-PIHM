@@ -1,17 +1,17 @@
 #include "pihm.h"
 
-void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
+void ReadSoil(const char *filename, SoilEntry *soiltbl)
 {
-    FILE           *soil_file;
-    int             i;
-    char            cmdstr[MAXSTRING];
-    int             match;
-    int             index;
-    int             texture;
-    const int       TOPSOIL = 1;
-    const int       SUBSOIL = 0;
-    int             ptf_used = 0;
-    int             lno = 0;
+    FILE *soil_file;
+    int i;
+    char cmdstr[MAXSTRING];
+    int match;
+    int index;
+    int texture;
+    const int TOPSOIL = 1;
+    const int SUBSOIL = 0;
+    int ptf_used = 0;
+    int lno = 0;
 
     soil_file = fopen(filename, "r");
     CheckFile(soil_file, filename);
@@ -46,19 +46,19 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
     {
         NextLine(soil_file, cmdstr, &lno);
         match = sscanf(cmdstr,
-            "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index, &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i],
-            &soiltbl->bd[i],
-            &soiltbl->kinfv[i], &soiltbl->ksatv[i], &soiltbl->ksath[i],
-            &soiltbl->smcmax[i], &soiltbl->smcmin[i],
-            &soiltbl->alpha[i], &soiltbl->beta[i],
-            &soiltbl->areafh[i], &soiltbl->areafv[i],
-            &soiltbl->dmac[i], &soiltbl->qtz[i]);
+                       "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+                       &index, &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i],
+                       &soiltbl->bd[i],
+                       &soiltbl->kinfv[i], &soiltbl->ksatv[i], &soiltbl->ksath[i],
+                       &soiltbl->smcmax[i], &soiltbl->smcmin[i],
+                       &soiltbl->alpha[i], &soiltbl->beta[i],
+                       &soiltbl->areafh[i], &soiltbl->areafv[i],
+                       &soiltbl->dmac[i], &soiltbl->qtz[i]);
 
         if (match != 16 || i != index - 1)
         {
             PIHMprintf(VL_ERROR,
-                "Error reading properties of the %dth soil type.\n", i + 1);
+                       "Error reading properties of the %dth soil type.\n", i + 1);
             PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
             PIHMexit(EXIT_FAILURE);
         }
@@ -71,13 +71,13 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
         if (soiltbl->kinfv[i] < 0.0)
         {
             soiltbl->kinfv[i] = PtfKv(soiltbl->silt[i], soiltbl->clay[i],
-                soiltbl->om[i], soiltbl->bd[i], TOPSOIL);
+                                      soiltbl->om[i], soiltbl->bd[i], TOPSOIL);
             ptf_used = 1;
         }
         if (soiltbl->ksatv[i] < 0.0)
         {
             soiltbl->ksatv[i] = PtfKv(soiltbl->silt[i], soiltbl->clay[i],
-                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
+                                      soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->ksath[i] < 0.0)
@@ -88,7 +88,7 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
         if (soiltbl->smcmax[i] < 0.0)
         {
             soiltbl->smcmax[i] = PtfThetas(soiltbl->silt[i], soiltbl->clay[i],
-                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
+                                           soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->smcmin[i] < 0.0)
@@ -99,13 +99,13 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
         if (soiltbl->alpha[i] < 0.0)
         {
             soiltbl->alpha[i] = PtfAlpha(soiltbl->silt[i], soiltbl->clay[i],
-                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
+                                         soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->beta[i] < 0.0)
         {
             soiltbl->beta[i] = PtfBeta(soiltbl->silt[i], soiltbl->clay[i],
-                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
+                                       soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->qtz[i] < 0.0)
@@ -117,9 +117,9 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
 
         /* Calculate field capacity and wilting point */
         soiltbl->smcref[i] = FieldCapacity(soiltbl->beta[i], soiltbl->ksatv[i],
-            soiltbl->smcmax[i], soiltbl->smcmin[i]);
+                                           soiltbl->smcmax[i], soiltbl->smcmin[i]);
         soiltbl->smcwlt[i] = WiltingPoint(soiltbl->smcmax[i],
-            soiltbl->smcmin[i], soiltbl->alpha[i], soiltbl->beta[i]);
+                                          soiltbl->smcmin[i], soiltbl->alpha[i], soiltbl->beta[i]);
     }
 
     NextLine(soil_file, cmdstr, &lno);
@@ -134,17 +134,17 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
     if (ptf_used)
     {
         PIHMprintf(VL_NORMAL,
-            "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
-            "TYPE", "KINFV", "KSATV", "KSATH", "SMCMAX", "SMCMIN", "ALPHA",
-            "BETA", "QTZ");
+                   "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
+                   "TYPE", "KINFV", "KSATV", "KSATH", "SMCMAX", "SMCMIN", "ALPHA",
+                   "BETA", "QTZ");
         for (i = 0; i < soiltbl->number; i++)
         {
             PIHMprintf(VL_NORMAL,
-                "%-7d\t%-15.3le\t%-15.3le\t%-15.3le\t%-7.3lf\t%-7.3lf\t"
-                "%-7.3lf\t%-7.3lf\t%-7.3lf\n",
-                i + 1, soiltbl->kinfv[i], soiltbl->ksatv[i],
-                soiltbl->ksath[i], soiltbl->smcmax[i], soiltbl->smcmin[i],
-                soiltbl->alpha[i], soiltbl->beta[i], soiltbl->qtz[i]);
+                       "%-7d\t%-15.3le\t%-15.3le\t%-15.3le\t%-7.3lf\t%-7.3lf\t"
+                       "%-7.3lf\t%-7.3lf\t%-7.3lf\n",
+                       i + 1, soiltbl->kinfv[i], soiltbl->ksatv[i],
+                       soiltbl->ksath[i], soiltbl->smcmax[i], soiltbl->smcmin[i],
+                       soiltbl->alpha[i], soiltbl->beta[i], soiltbl->qtz[i]);
         }
     }
 

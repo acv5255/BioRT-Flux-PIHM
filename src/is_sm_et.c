@@ -2,7 +2,7 @@
 
 #if !defined(_NOAH_)
 void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
-    const calib_struct *cal)
+    const CalibrationParameters *cal)
 {
     int             i;
     const double    TSNOW = -3.0;

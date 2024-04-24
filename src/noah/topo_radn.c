@@ -1,11 +1,11 @@
 #include "pihm.h"
 
 double TopoRadn(const topo_struct *topo, double sdir, double sdif,
-    double zenith, double azimuth180)
+                double zenith, double azimuth180)
 {
-    double          incidence;    /* Sun incidence angle (degree) */
-    double          tcf;          /* terrain configuration factor (-) */
-    double          soldown;
+    double incidence; /* Sun incidence angle (degree) */
+    double tcf;       /* terrain configuration factor (-) */
+    double soldown;
 
     azimuth180 = Mod((360.0 + azimuth180), 360.0);
 
@@ -17,8 +17,8 @@ double TopoRadn(const topo_struct *topo, double sdir, double sdif,
 
     /* Calculate Sun incidence angle */
     incidence = acos(cos(zenith * PI / 180.0) * cos(topo->slope * PI / 180.0) +
-        sin(zenith * PI / 180.0) * sin(topo->slope * PI / 180.0) *
-        cos((azimuth180 - topo->aspect) * PI / 180.0));
+                     sin(zenith * PI / 180.0) * sin(topo->slope * PI / 180.0) *
+                         cos((azimuth180 - topo->aspect) * PI / 180.0));
     incidence *= 180.0 / PI;
     incidence = (incidence > 90.0) ? 90.0 : incidence;
 
@@ -29,16 +29,16 @@ double TopoRadn(const topo_struct *topo, double sdir, double sdif,
     tcf = (tcf < 0.0) ? 0.0 : tcf;
 
     soldown = sdir * cos(incidence * PI / 180.0) +
-        topo->svf * sdif + 0.2 * tcf * (sdir * cos(zenith * PI / 180.0) + sdif);
+              topo->svf * sdif + 0.2 * tcf * (sdir * cos(zenith * PI / 180.0) + sdif);
     soldown = (soldown < 0.0) ? 0.0 : soldown;
 
     return soldown;
 }
 
-void SunPos(const siteinfo_struct *siteinfo, int t, spa_data *spa)
+void SunPos(const SiteInfo *siteinfo, int t, spa_data *spa)
 {
-    int             spa_result;
-    pihm_t_struct   pihm_time;
+    int spa_result;
+    PihmTime pihm_time;
 
     pihm_time = PIHMTime(t);
 
@@ -71,5 +71,4 @@ void SunPos(const siteinfo_struct *siteinfo, int t, spa_data *spa)
         PIHMprintf(VL_ERROR, "Error with spa error code: %d.\n", spa_result);
         PIHMexit(EXIT_FAILURE);
     }
-
 }

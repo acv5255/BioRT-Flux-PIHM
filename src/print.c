@@ -1,10 +1,10 @@
 #include "pihm.h"
 
-#define TEC_HEADER          "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\""
-#define WB_HEADER           "VARIABLES = \"TIME (s)\" \"SRC (m)\" \"SNK (m)\" \"STRG (m)\""
-#define RIVER_TEC_HEADER2   "ZONE T = \"Water Depth River\""
-#define RIVER_TEC_HEADER3   "StrandID=1, SolutionTime="
-#define ELEM_TEC_HEADER3    "VARSHARELIST = ([1, 2, 3, 4]=1), CONNECTIVITYSHAREZONE = 1"
+#define TEC_HEADER "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\""
+#define WB_HEADER "VARIABLES = \"TIME (s)\" \"SRC (m)\" \"SNK (m)\" \"STRG (m)\""
+#define RIVER_TEC_HEADER2 "ZONE T = \"Water Depth River\""
+#define RIVER_TEC_HEADER3 "StrandID=1, SolutionTime="
+#define ELEM_TEC_HEADER3 "VARSHARELIST = ([1, 2, 3, 4]=1), CONNECTIVITYSHAREZONE = 1"
 
 void StartupScreen(void)
 {
@@ -41,45 +41,45 @@ void StartupScreen(void)
     if (1 == corr_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "    Surface elevation correction mode turned on.\n");
+                   "    Surface elevation correction mode turned on.\n");
     }
     if (1 == debug_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "    Debug mode turned on.\n");
+                   "    Debug mode turned on.\n");
     }
     if (1 == tecplot)
     {
         PIHMprintf(VL_NORMAL,
-            "    Tecplot output turned on.\n");
+                   "    Tecplot output turned on.\n");
     }
     if (VL_BRIEF == verbose_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "    Brief mode turned on.\n");
+                   "    Brief mode turned on.\n");
     }
     if (VL_VERBOSE == verbose_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "    Verbose mode turned on.\n");
+                   "    Verbose mode turned on.\n");
     }
     if (1 == append_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "    Append mode turned on.\n");
+                   "    Append mode turned on.\n");
     }
 }
 
-void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
-    int ascii)
+void InitOutputFile(PrintStructure *print, const char *outputdir, int watbal,
+                    int ascii)
 {
-    char            ascii_fn[MAXSTRING];
-    char            dat_fn[MAXSTRING];
-    char            watbal_fn[MAXSTRING];
-    char            perf_fn[MAXSTRING];
-    int             i;
-    char            mode[2];
-    char            bin_mode[3];
+    char ascii_fn[2 * MAXSTRING];
+    char dat_fn[2 * MAXSTRING];
+    char watbal_fn[2 * MAXSTRING];
+    char perf_fn[2 * MAXSTRING];
+    int i;
+    char mode[2];
+    char bin_mode[3];
 
     if (append_mode)
     {
@@ -108,9 +108,9 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
         CheckFile(print->cvodeperf_file, perf_fn);
         /* Print header lines */
         fprintf(print->cvodeperf_file,
-            "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
-            "step", "cpu_dt", "cputime", "maxstep",
-            "nsteps", "niters", "nevals", "nefails", "ncfails");
+                "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
+                "step", "cpu_dt", "cputime", "maxstep",
+                "nsteps", "niters", "nevals", "nefails", "ncfails");
     }
 
     /*
@@ -135,7 +135,7 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     {
         for (i = 0; i < print->ntpprint; i++)
         {
-            int             j;
+            int j;
 
             sprintf(dat_fn, "%s.plt", print->tp_varctrl[i].name);
             print->tp_varctrl[i].datfile = fopen(dat_fn, mode);
@@ -145,41 +145,41 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
             {
                 fprintf(print->tp_varctrl[i].datfile, "%s \n", TEC_HEADER);
                 fprintf(print->tp_varctrl[i].datfile,
-                    "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, "
-                    "SOLUTIONTIME=%lf, ZONETYPE=%s\n",
-                    print->tp_varctrl[i].name, print->tp_varctrl[i].nnodes,
-                    print->tp_varctrl[i].nvar, "POINT", 0.0000, "FETRIANGLE");
+                        "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, "
+                        "SOLUTIONTIME=%lf, ZONETYPE=%s\n",
+                        print->tp_varctrl[i].name, print->tp_varctrl[i].nnodes,
+                        print->tp_varctrl[i].nvar, "POINT", 0.0000, "FETRIANGLE");
 
                 for (j = 0; j < print->tp_varctrl[i].nnodes; j++)
                 {
                     fprintf(print->tp_varctrl[i].datfile,
-                        "%lf %lf %lf %lf %lf\n",
-                        print->tp_varctrl[i].x[j], print->tp_varctrl[i].y[j],
-                        print->tp_varctrl[i].zmin[j],
-                        print->tp_varctrl[i].zmax[j],
-                        0.000001);
+                            "%lf %lf %lf %lf %lf\n",
+                            print->tp_varctrl[i].x[j], print->tp_varctrl[i].y[j],
+                            print->tp_varctrl[i].zmin[j],
+                            print->tp_varctrl[i].zmax[j],
+                            0.000001);
                 }
                 for (j = 0; j < print->tp_varctrl[i].nvar; j++)
                 {
                     fprintf(print->tp_varctrl[i].datfile, "%d %d %d\n",
-                        print->tp_varctrl[i].node0[j],
-                        print->tp_varctrl[i].node1[j],
-                        print->tp_varctrl[i].node2[j]);
+                            print->tp_varctrl[i].node0[j],
+                            print->tp_varctrl[i].node1[j],
+                            print->tp_varctrl[i].node2[j]);
                 }
             }
         }
     }
 }
 
-void UpdPrintVar(varctrl_struct *varctrl, int nprint, int module_step)
+void UpdPrintVar(PrintVariables *varctrl, int nprint, int module_step)
 {
-    int             i;
+    int i;
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nprint; i++)
     {
-        int             j;
+        int j;
 
         if (varctrl[i].upd_intvl == module_step)
         {
@@ -193,36 +193,33 @@ void UpdPrintVar(varctrl_struct *varctrl, int nprint, int module_step)
     }
 }
 
-void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
+void PrintData(PrintVariables *varctrl, int nprint, int t, int lapse, int ascii)
 {
-    int             i;
-    pihm_t_struct   pihm_time;
+    int i;
+    PihmTime pihm_time;
 
     pihm_time = PIHMTime(t);
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nprint; i++)
     {
-        int             j;
-        double          outval;
-        double          outtime;
+        int j;
+        double outval;
+        double outtime;
 
-        if(PrintNow(varctrl[i].intvl, lapse, &pihm_time))
+        if (PrintNow(varctrl[i].intvl, lapse, &pihm_time))
         {
             if (ascii)
             {
                 fprintf(varctrl[i].txtfile, "\"%s\"", pihm_time.str);
                 for (j = 0; j < varctrl[i].nvar; j++)
                 {
-                    outval = (varctrl[i].counter > 0) ?
-                        varctrl[i].buffer[j] / (double)varctrl[i].counter :
-                        varctrl[i].buffer[j];
+                    outval = (varctrl[i].counter > 0) ? varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
 
                     fprintf(varctrl[i].txtfile,
-                        (outval == 0.0 || fabs(outval) > 1.0E-3) ?
-                        "\t%lf" : "\t%lE", outval);
+                            (outval == 0.0 || fabs(outval) > 1.0E-3) ? "\t%lf" : "\t%lE", outval);
                 }
                 fprintf(varctrl[i].txtfile, "\n");
                 fflush(varctrl[i].txtfile);
@@ -232,9 +229,7 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
             fwrite(&outtime, sizeof(double), 1, varctrl[i].datfile);
             for (j = 0; j < varctrl[i].nvar; j++)
             {
-                outval = (varctrl[i].counter > 0) ?
-                    varctrl[i].buffer[j] / (double)varctrl[i].counter :
-                    varctrl[i].buffer[j];
+                outval = (varctrl[i].counter > 0) ? varctrl[i].buffer[j] / (double)varctrl[i].counter : varctrl[i].buffer[j];
 
                 fwrite(&outval, sizeof(double), 1, varctrl[i].datfile);
 
@@ -247,23 +242,23 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
 }
 
 void PrintInit(const elem_struct *elem, const river_struct *river,
-    const char *outputdir, int t, int starttime, int endtime, int intvl)
+               const char *outputdir, int t, int starttime, int endtime, int intvl)
 {
-    pihm_t_struct   pihm_time;
+    PihmTime pihm_time;
 
     pihm_time = PIHMTime(t);
 
-    if(PrintNow(intvl, t - starttime, &pihm_time) || t == endtime)
+    if (PrintNow(intvl, t - starttime, &pihm_time) || t == endtime)
     {
-        FILE           *init_file;
-        char            fn[MAXSTRING];
-        int             i;
+        FILE *init_file;
+        char file_name[2 * MAXSTRING];
+        int i;
 
-        sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project,
-            pihm_time.strshort);
+        sprintf(file_name, "%s/restart/%s.%s.ic", outputdir, project,
+                pihm_time.strshort);
 
-        init_file = fopen(fn, "wb");
-        CheckFile(init_file, fn);
+        init_file = fopen(file_name, "wb");
+        CheckFile(init_file, file_name);
 
         for (i = 0; i < nelem; i++)
         {
@@ -284,7 +279,7 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
             fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
             fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);
 
-            int             j;
+            int j;
 
             for (j = 0; j < MAXLYR; j++)
             {
@@ -312,22 +307,22 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
     }
 }
 
-void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
+void PrintDataTecplot(PrintVariables *varctrl, int nprint, int t, int lapse)
 {
-    int             i;
-    pihm_t_struct   pihm_time;
-    double         *hnodes;    /* h at nodes */
-    int            *inodes;
+    int i;
+    PihmTime pihm_time;
+    double *hnodes; /* h at nodes */
+    int *inodes;
 
     pihm_time = PIHMTime(t);
 
     for (i = 0; i < nprint; i++)
     {
-        int             j;
-        double          outval;
-        double          outtime;
+        int j;
+        double outval;
+        double outtime;
 
-        if(PrintNow(varctrl[i].intvl, lapse, &pihm_time))
+        if (PrintNow(varctrl[i].intvl, lapse, &pihm_time))
         {
             outtime = (double)t;
 
@@ -342,7 +337,7 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                     if (varctrl[i].counter > 0)
                     {
                         outval = varctrl[i].buffer[j] /
-                            (double)varctrl[i].counter;
+                                 (double)varctrl[i].counter;
                     }
                     else
                     {
@@ -350,8 +345,8 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                     }
 
                     fprintf(varctrl[i].datfile, "%lf %lf %lf %lf %lf\n",
-                        varctrl[i].x[j], varctrl[i].y[j],
-                        varctrl[i].zmin[j], varctrl[i].zmax[j], outval);
+                            varctrl[i].x[j], varctrl[i].y[j],
+                            varctrl[i].zmin[j], varctrl[i].zmax[j], outval);
                     varctrl[i].buffer[j] = 0.0;
                 }
             }
@@ -366,17 +361,17 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                     inodes[j] = 0;
                 }
                 fprintf(varctrl[i].datfile,
-                    "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, "
-                    "SOLUTIONTIME=%lf, ZONETYPE=%s\n",
-                    varctrl[i].name, varctrl[i].nnodes, varctrl[i].nvar,
-                    "POINT", outtime, "FETRIANGLE");
+                        "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, "
+                        "SOLUTIONTIME=%lf, ZONETYPE=%s\n",
+                        varctrl[i].name, varctrl[i].nnodes, varctrl[i].nvar,
+                        "POINT", outtime, "FETRIANGLE");
                 fprintf(varctrl[i].datfile, "%s\n", ELEM_TEC_HEADER3);
                 for (j = 0; j < varctrl[i].nvar; j++)
                 {
                     if (varctrl[i].counter > 0)
                     {
                         outval = varctrl[i].buffer[j] /
-                            (double)varctrl[i].counter;
+                                 (double)varctrl[i].counter;
                     }
                     else
                     {
@@ -400,7 +395,7 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                     else
                     {
                         fprintf(varctrl[i].datfile, "%8.6f\n",
-                            hnodes[j] / inodes[j]);
+                                hnodes[j] / inodes[j]);
                     }
                 }
 
@@ -415,12 +410,12 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
 }
 
 void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
-    double cputime, double maxstep, FILE *perf_file)
+               double cputime, double maxstep, FILE *perf_file)
 {
-    static double   dt;
+    static double dt;
     static long int nst0, nfe0, nni0, ncfn0, netf0;
-    long int        nst, nfe, nni, ncfn, netf;
-    int             cv_flag;
+    long int nst, nfe, nni, ncfn, netf;
+    int cv_flag;
 
     /* Gets the cumulative number of internal steps taken by the solver (total
      * so far) */
@@ -444,9 +439,9 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
     CheckCVodeFlag(cv_flag);
 
     fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f",
-        t - starttime, cputime_dt, cputime, maxstep);
+            t - starttime, cputime_dt, cputime, maxstep);
     fprintf(perf_file, "%-8ld%-8ld%-8ld%-8ld%-8ld\n",
-        nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
+            nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
     fflush(perf_file);
 
     dt = 0.0;
@@ -461,12 +456,12 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
 }
 
 void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
-    const elem_struct *elem, const river_struct *river)
+                   const elem_struct *elem, const river_struct *river)
 {
-    int             i;
-    double          tot_src = 0.0, tot_snk = 0.0, tot_strg = 0.0;
-    static double   tot_strg_prev = 0.0;
-    static double   error = 0.0;
+    int i;
+    double tot_src = 0.0, tot_snk = 0.0, tot_strg = 0.0;
+    static double tot_strg_prev = 0.0;
+    static double error = 0.0;
 
     if (t == tstart + dt)
     {
@@ -478,24 +473,24 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
         tot_src += elem[i].wf.prcp * elem[i].topo.area * dt;
 #if defined(_NOAH_)
         tot_src += (elem[i].wf.dew + elem[i].wf.snomlt) *
-            elem[i].topo.area * dt;
+                   elem[i].topo.area * dt;
 #endif
 
         tot_snk += (elem[i].wf.edir + elem[i].wf.ett + elem[i].wf.ec) *
-            elem[i].topo.area * dt;
+                   elem[i].topo.area * dt;
 #if defined(_NOAH_)
         tot_snk += elem[i].wf.esnow * elem[i].topo.area * dt;
 #endif
 
 #if defined(_CYCLES_)
         tot_strg += (elem[i].ws.flatResidueWater + elem[i].ws.stanResidueWater +
-            elem[i].ws.sneqv + elem[i].ws.surf +
-            (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
-            elem[i].topo.area;
+                     elem[i].ws.sneqv + elem[i].ws.surf +
+                     (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
+                    elem[i].topo.area;
 #else
         tot_strg += (elem[i].ws.cmc + elem[i].ws.sneqv + elem[i].ws.surf +
-            (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
-            elem[i].topo.area;
+                     (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
+                    elem[i].topo.area;
 #endif
     }
 
@@ -516,8 +511,8 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
         error += tot_src - tot_snk - (tot_strg - tot_strg_prev);
 
         fprintf(watbal_file, "%d %lg %lg %lg %lg %lg\n", t - tstart,
-            tot_src, tot_snk, tot_strg - tot_strg_prev,
-            tot_src - tot_snk - (tot_strg - tot_strg_prev), error);
+                tot_src, tot_snk, tot_strg - tot_strg_prev,
+                tot_src - tot_snk - (tot_strg - tot_strg_prev), error);
         fflush(watbal_file);
     }
 
@@ -526,12 +521,12 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
 
 void PrintCVodeFinalStats(void *cvode_mem)
 {
-    int             cv_flag;
-    long int        nst;
-    long int        nfe;
-    long int        netf;
-    long int        nni;
-    long int        ncfn;
+    int cv_flag;
+    long int nst;
+    long int nfe;
+    long int netf;
+    long int nni;
+    long int ncfn;
 
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
     CheckCVodeFlag(cv_flag);
@@ -550,53 +545,53 @@ void PrintCVodeFinalStats(void *cvode_mem)
 
     PIHMprintf(VL_NORMAL, "\n");
     PIHMprintf(VL_NORMAL,
-        "num of steps = %-6ld num of rhs evals = %-6ld\n", nst, nfe);
+               "num of steps = %-6ld num of rhs evals = %-6ld\n", nst, nfe);
     PIHMprintf(VL_NORMAL,
-        "num of nonlin solv iters = %-6ld "
-        "num of nonlin solv conv fails = %-6ld "
-        "num of err test fails = %-6ld\n",
-        nni, ncfn, netf);
+               "num of nonlin solv iters = %-6ld "
+               "num of nonlin solv conv fails = %-6ld "
+               "num of err test fails = %-6ld\n",
+               nni, ncfn, netf);
 }
 
-int PrintNow(int intvl, int lapse, const pihm_t_struct *pihm_time)
+int PrintNow(int intvl, int lapse, const PihmTime *pihm_time)
 {
-    int             print = 0;
+    int print = 0;
 
     if (intvl != 0)
     {
         switch (intvl)
         {
-            case YEARLY_OUTPUT:
-                if (pihm_time->month == 1 && pihm_time->day == 1 &&
-                    pihm_time->hour == 0 && pihm_time->minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case MONTHLY_OUTPUT:
-                if (pihm_time->day == 1 && pihm_time->hour == 0 &&
-                    pihm_time->minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case DAILY_OUTPUT:
-                if (pihm_time->hour == 0 && pihm_time->minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case HOURLY_OUTPUT:
-                if (pihm_time->minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            default:
-                if (lapse % intvl == 0)
-                {
-                    print = 1;
-                }
+        case YEARLY_OUTPUT:
+            if (pihm_time->month == 1 && pihm_time->day == 1 &&
+                pihm_time->hour == 0 && pihm_time->minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case MONTHLY_OUTPUT:
+            if (pihm_time->day == 1 && pihm_time->hour == 0 &&
+                pihm_time->minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case DAILY_OUTPUT:
+            if (pihm_time->hour == 0 && pihm_time->minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case HOURLY_OUTPUT:
+            if (pihm_time->minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        default:
+            if (lapse % intvl == 0)
+            {
+                print = 1;
+            }
         }
     }
 
@@ -605,7 +600,7 @@ int PrintNow(int intvl, int lapse, const pihm_t_struct *pihm_time)
 
 void ProgressBar(int progress)
 {
-    int             i;
+    int i;
 
     PIHMprintf(VL_NORMAL, "  [");
 

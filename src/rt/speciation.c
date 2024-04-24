@@ -4,7 +4,7 @@
 
 #define TOL 1E-7
 
-void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+void Speciation(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
                 river_struct river[])
 {
 
@@ -26,7 +26,7 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
 }
 
-int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+int _Speciation(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
                 int speciation_flg, chmstate_struct *chms)
 {
     /* if speciation flg = 1, pH is defined

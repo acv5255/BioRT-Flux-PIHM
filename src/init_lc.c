@@ -1,12 +1,12 @@
 #include "pihm.h"
 
-void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
-    const calib_struct *cal)
+void InitLc(elem_struct *elem, const LandCoverEntry *lctbl,
+            const CalibrationParameters *cal)
 {
-    int             i;
+    int i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
 #if defined(_LUMPED_)
     for (i = 0; i < nelem + 1; i++)
@@ -18,10 +18,10 @@ void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
     }
 }
 
-void _InitLc(elem_struct *elem_ptr, const lctbl_struct *lctbl,
-    const calib_struct *cal)
+void _InitLc(elem_struct *elem_ptr, const LandCoverEntry *lctbl,
+             const CalibrationParameters *cal)
 {
-    int             lc_ind;
+    int lc_ind;
 
     lc_ind = elem_ptr->attrib.lc_type - 1;
 
@@ -47,29 +47,35 @@ void _InitLc(elem_struct *elem_ptr, const lctbl_struct *lctbl,
     elem_ptr->lc.cfactr = lctbl->cfactr;
     elem_ptr->lc.bare =
         (IGBP_BARREN == elem_ptr->attrib.lc_type ||
-        NLCD40_BARREN == elem_ptr->attrib.lc_type) ? 1 : 0;
+         NLCD40_BARREN == elem_ptr->attrib.lc_type)
+            ? 1
+            : 0;
     elem_ptr->lc.shdfac = (1 == elem_ptr->lc.bare) ? 0.0 : elem_ptr->lc.shdfac;
 #if defined(_NOAH_)
     elem_ptr->lc.snup = lctbl->snup[lc_ind];
     elem_ptr->lc.isurban =
         (IGBP_URBAN_BUILDUP == elem_ptr->attrib.lc_type ||
-        NLCD40_DEVELOPED_OPEN == elem_ptr->attrib.lc_type ||
-        NLCD40_DEVELOPED_LOW == elem_ptr->attrib.lc_type ||
-        NLCD40_DEVELOPED_MID == elem_ptr->attrib.lc_type ||
-        NLCD40_DEVELOPED_HIGH == elem_ptr->attrib.lc_type) ? 1 : 0;
+         NLCD40_DEVELOPED_OPEN == elem_ptr->attrib.lc_type ||
+         NLCD40_DEVELOPED_LOW == elem_ptr->attrib.lc_type ||
+         NLCD40_DEVELOPED_MID == elem_ptr->attrib.lc_type ||
+         NLCD40_DEVELOPED_HIGH == elem_ptr->attrib.lc_type)
+            ? 1
+            : 0;
     elem_ptr->lc.glacier =
         (IGBP_SNOW_ICE == elem_ptr->attrib.lc_type ||
-        NLCD40_SNOW_ICE == elem_ptr->attrib.lc_type) ? 1 : 0;
+         NLCD40_SNOW_ICE == elem_ptr->attrib.lc_type)
+            ? 1
+            : 0;
     elem_ptr->lc.shdmin = 0.01;
     elem_ptr->lc.shdmax = 0.96;
 #endif
 
 #if defined(_NOAH_)
-# if !defined(_CYCLES_)
+#if !defined(_CYCLES_)
     elem_ptr->epc.rgl *= cal->rgl;
     elem_ptr->epc.hs *= cal->hs;
     elem_ptr->epc.rsmin *= cal->rsmin;
-# endif
+#endif
     elem_ptr->lc.cmcfactr *= cal->cmcmax;
     elem_ptr->lc.cfactr *= cal->cfactr;
 #endif

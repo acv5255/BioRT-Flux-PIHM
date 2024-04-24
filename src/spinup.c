@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem,
-    SUNLinearSolver *sun_ls)
+void Spinup(PihmData pihm, N_Vector CV_Y, void *cvode_mem,
+            SUNLinearSolver *sun_ls)
 {
-    int             spinyears = 0;
-    int             first_spin_cycle = 1;
-    int             steady;
-    int             metyears;
-    ctrl_struct    *ctrl;
+    int spinyears = 0;
+    int first_spin_cycle = 1;
+    int steady;
+    int metyears;
+    RunParameters *ctrl;
 
     ctrl = &pihm->ctrl;
 
@@ -33,29 +33,29 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem,
 
 #if defined(_BGC_)
         steady = CheckSteadyState(pihm->elem, pihm->siteinfo.area,
-            first_spin_cycle, ctrl->endtime - ctrl->starttime,
-            spinyears);
+                                  first_spin_cycle, ctrl->endtime - ctrl->starttime,
+                                  spinyears);
 #else
         steady = CheckSteadyState(pihm->elem, pihm->siteinfo.area,
-            first_spin_cycle, spinyears);
+                                  first_spin_cycle, spinyears);
 #endif
 
         first_spin_cycle = 0;
     } while (spinyears < ctrl->maxspinyears &&
-        ((!fixed_length && !steady) || fixed_length));
+             ((!fixed_length && !steady) || fixed_length));
 }
 
 #if defined(_BGC_)
 void ResetSpinupStat(elem_struct *elem)
 {
-    int             i;
+    int i;
 
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-# if defined(_OPENMP)
-#  pragma omp parallel for
-# endif
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
 #endif
     {
@@ -67,25 +67,25 @@ void ResetSpinupStat(elem_struct *elem)
 
 #if defined(_BGC_)
 int CheckSteadyState(const elem_struct *elem, double total_area,
-    int first_cycle, int totalt, int spinyears)
+                     int first_cycle, int totalt, int spinyears)
 #else
 int CheckSteadyState(const elem_struct *elem, double total_area,
-    int first_cycle, int spinyears)
+                     int first_cycle, int spinyears)
 #endif
 {
-    int             i;
-    double          totalw = 0.0;
-    static double   totalw_prev = 0.0;
-    int             steady;
+    int i;
+    double totalw = 0.0;
+    static double totalw_prev = 0.0;
+    int steady;
 #if defined(_BGC_)
-    double          t1 = 0.0;
-    double          soilc = 0.0;
-    double          totalc = 0.0;
-    static double   soilc_prev = 0.0;
+    double t1 = 0.0;
+    double soilc = 0.0;
+    double totalc = 0.0;
+    static double soilc_prev = 0.0;
 #endif
 #if defined(_FBR_)
-    double          fbrgw = 0.0;
-    static double   fbrgw_prev = 0.0;
+    double fbrgw = 0.0;
+    static double fbrgw_prev = 0.0;
 #endif
 
 #if defined(_LUMPED_)
@@ -95,11 +95,11 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
 #endif
     {
         totalw += (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity *
-            elem[i].topo.area / total_area;
+                  elem[i].topo.area / total_area;
 
 #if defined(_FBR_)
         totalw += (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
-            elem[i].geol.porosity * elem[i].topo.area / total_area;
+                  elem[i].geol.porosity * elem[i].topo.area / total_area;
 
         fbrgw += elem[i].ws.fbr_gw * elem[i].topo.area / total_area;
 #endif
@@ -107,9 +107,9 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
 #if defined(_BGC_)
         /* Convert soilc and totalc to average daily soilc */
         soilc += elem[i].spinup.soilc * elem[i].topo.area /
-            (double)(totalt / DAYINSEC) / total_area;
+                 (double)(totalt / DAYINSEC) / total_area;
         totalc += elem[i].spinup.totalc * elem[i].topo.area /
-            (double)(totalt / DAYINSEC) / total_area;
+                  (double)(totalt / DAYINSEC) / total_area;
         t1 = (soilc - soilc_prev) / (double)(totalt / DAYINSEC / 365);
 #endif
     }
@@ -127,14 +127,14 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
 
         PIHMprintf(VL_BRIEF, "spinyears = %d ", spinyears);
         PIHMprintf(VL_BRIEF, "totalw_prev = %lg totalw = %lg wdif = %lg\n",
-            totalw_prev, totalw, totalw - totalw_prev);
+                   totalw_prev, totalw, totalw - totalw_prev);
 #if defined(_FBR_)
         PIHMprintf(VL_BRIEF, "fbrgw_prev = %lg fbrgw = %lg wdif = %lg\n",
-            fbrgw_prev, fbrgw, fbrgw - fbrgw_prev);
+                   fbrgw_prev, fbrgw, fbrgw - fbrgw_prev);
 #endif
 #if defined(_BGC_)
         PIHMprintf(VL_BRIEF, "soilc_prev = %lg soilc = %lg pdif = %lg\n",
-            soilc_prev, soilc, t1);
+                   soilc_prev, soilc, t1);
 #endif
     }
     else
@@ -153,7 +153,7 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
     if (steady)
     {
         PIHMprintf(VL_BRIEF, "Reaches steady state after %d year.\n",
-            spinyears);
+                   spinyears);
     }
 
     return steady;

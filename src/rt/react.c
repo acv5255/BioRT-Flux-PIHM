@@ -3,8 +3,8 @@
 #define TOL 1E-7
 #define SKIP_JACOB 1
 
-void Reaction(double stepsize, const chemtbl_struct chemtbl[],
-              const kintbl_struct kintbl[], const rttbl_struct *rttbl, elem_struct elem[])
+void Reaction(double stepsize, const ChemicalEntry chemtbl[],
+              const KineticEntry kintbl[], const ReactionNetwork *rttbl, elem_struct elem[])
 {
 
 #if defined(_OPENMP)
@@ -122,8 +122,8 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
     }
 }
 
-int _React(double stepsize, const chemtbl_struct chemtbl[],
-           const kintbl_struct kintbl[], const rttbl_struct *rttbl, double satn,
+int _React(double stepsize, const ChemicalEntry chemtbl[],
+           const KineticEntry kintbl[], const ReactionNetwork *rttbl, double satn,
            chmstate_struct *chms)
 {
     int i, j, k;
@@ -563,8 +563,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     return 0;
 }
 
-void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
-                  const rttbl_struct *rttbl, double stepsize, double vol, double satn,
+void ReactControl(const ChemicalEntry chemtbl[], const KineticEntry kintbl[],
+                  const ReactionNetwork *rttbl, double stepsize, double vol, double satn,
                   chmstate_struct *chms, double react_flux[])
 {
     double t_conc0[MAXSPS];

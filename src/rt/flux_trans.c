@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+void Transport(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
                elem_struct elem[], river_struct river[])
 {
     /*
@@ -162,7 +162,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                                     ((elem[i].wf.infil > 0.0) ? elem[i].prcps.t_conc[k] * rttbl->Condensation : 0.0);
 
             /* Interface between unsaturated zone and groundwater */
-            elem[i].chmf.rechg[k] = AdvDiffDisp(chemtbl[k].DiffCoe,
+            elem[i].chmf.rechg[k] = AdvDiffDisp(chemtbl[k].diffusion_coeff,
                                                 chemtbl[k].DispCoe, rttbl->Cementation,
                                                 elem[i].chms_unsat.t_conc[k], elem[i].chms_gw.t_conc[k],
                                                 elem[i].soil.smcmax, 0.5 * elem[i].soil.depth,
@@ -182,7 +182,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Unsaturated zone diffusion */
                     elem[i].chmf.unsatflux[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
+                        AdvDiffDisp(chemtbl[k].diffusion_coeff, chemtbl[k].DispCoe,
                                     rttbl->Cementation, elem[i].chms_unsat.t_conc[k],
                                     nabr->chms_unsat.t_conc[k],
                                     0.5 * elem[i].soil.smcmax + 0.5 * nabr->soil.smcmax,
@@ -193,7 +193,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Groundwater advection, diffusion, and dispersion */
                     elem[i].chmf.subflux[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
+                        AdvDiffDisp(chemtbl[k].diffusion_coeff, chemtbl[k].DispCoe,
                                     rttbl->Cementation, elem[i].chms_gw.t_conc[k],
                                     nabr->chms_gw.t_conc[k],
                                     0.5 * elem[i].soil.smcmax + 0.5 * nabr->soil.smcmax,
@@ -216,7 +216,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                                         elem[i].topo.area * ((elem[i].wf.fbr_infil > 0.0) ? elem[i].chms_gw.t_conc[k] : elem[i].chms_fbrgw.t_conc[k]);
 
             /* Interface between unsaturated bedrock and deep groundwater */
-            elem[i].chmf.fbr_rechg[k] = AdvDiffDisp(chemtbl[k].DiffCoe,
+            elem[i].chmf.fbr_rechg[k] = AdvDiffDisp(chemtbl[k].diffusion_coeff,
                                                     chemtbl[k].DispCoe, rttbl->Cementation,
                                                     elem[i].chms_fbrunsat.t_conc[k], elem[i].chms_fbrgw.t_conc[k],
                                                     elem[i].geol.smcmax, 0.5 * elem[i].geol.depth,
@@ -246,7 +246,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Unsaturated zone diffusion */
                     elem[i].chmf.fbr_unsatflux[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
+                        AdvDiffDisp(chemtbl[k].diffusion_coeff, chemtbl[k].DispCoe,
                                     rttbl->Cementation, elem[i].chms_fbrunsat.t_conc[k],
                                     nabr->chms_fbrunsat.t_conc[k],
                                     0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
@@ -257,7 +257,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Groundwater advection, diffusion, and dispersion */
                     elem[i].chmf.fbrflow[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
+                        AdvDiffDisp(chemtbl[k].diffusion_coeff, chemtbl[k].DispCoe,
                                     rttbl->Cementation, elem[i].chms_fbrgw.t_conc[k],
                                     nabr->chms_fbrgw.t_conc[k],
                                     0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
@@ -404,7 +404,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
 }
 
-double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
+double AdvDiffDisp(double diffusion_coeff, double DispCoe, double cementation,
                    double conc_up, double conc_down, double porosity, double distance,
                    double area, double wflux)
 {
@@ -421,7 +421,7 @@ double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
     diff_conc = conc_up - conc_down;
 
     /* Diffusion flux, effective diffusion coefficient  */
-    diff_flux = DiffCoe * area * pow(porosity, cementation) *
+    diff_flux = diffusion_coeff * area * pow(porosity, cementation) *
                 inv_dist * diff_conc;
 
     /* Longitudinal dispersion */

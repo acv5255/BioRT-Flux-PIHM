@@ -1,11 +1,11 @@
 #include "pihm.h"
 
-void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
+void Hydrol(elem_struct *elem, river_struct *river, const RunParameters *ctrl)
 {
-    int             i;
+    int i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -26,10 +26,10 @@ void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
 
 void EtExtract(elem_struct *elem)
 {
-    int             i;
+    int i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -71,7 +71,7 @@ void EtExtract(elem_struct *elem)
         /* Source of transpiration */
 #if defined(_NOAH_)
         elem[i].ps.gwet = GwTransp(elem[i].wf.ett, elem[i].wf.et,
-            elem[i].ps.nwtbl, elem[i].ps.nroot);
+                                   elem[i].ps.nwtbl, elem[i].ps.nroot);
         elem[i].wf.ett_unsat = (1.0 - elem[i].ps.gwet) * elem[i].wf.ett;
         elem[i].wf.ett_gw = elem[i].ps.gwet * elem[i].wf.ett;
 #else
@@ -100,7 +100,7 @@ double SurfH(double surfeqv)
      *   surfeqv = (1 / 2 * DEPRSTG) * surfh ^ 2, i.e.
      *   surfh = sqrt(2 * DEPRSTG * surfeqv)
      */
-    double          surfh;
+    double surfh;
 
     if (DEPRSTG == 0.0)
     {

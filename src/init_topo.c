@@ -1,14 +1,14 @@
 #include "pihm.h"
 
-void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
+void InitTopo(elem_struct *elem, const MeshEntry *meshtbl)
 {
-    int             i, j;
-    double          x[NUM_EDGE];
-    double          y[NUM_EDGE];
-    double          zmin[NUM_EDGE];
-    double          zmax[NUM_EDGE];
+    int i, j;
+    double x[NUM_EDGE];
+    double y[NUM_EDGE];
+    double zmin[NUM_EDGE];
+    double zmax[NUM_EDGE];
 #if defined(_FBR_)
-    double          zbed[NUM_EDGE];
+    double zbed[NUM_EDGE];
 #endif
 
     for (i = 0; i < nelem; i++)
@@ -25,7 +25,7 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
         }
 
         elem[i].topo.area = 0.5 *
-            ((x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]));
+                            ((x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]));
         /* Calculate centroid of triangle */
         elem[i].topo.x = (x[0] + x[1] + x[2]) / 3.0;
         elem[i].topo.y = (y[0] + y[1] + y[2]) / 3.0;
@@ -49,25 +49,25 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
 }
 
 #if defined(_NOAH_)
-void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
+void CalcSlopeAspect(elem_struct *elem, const MeshEntry *meshtbl)
 {
-    const int       XCOMP = 0;
-    const int       YCOMP = 1;
-    const int       ZCOMP = 2;
-    double          x[NUM_EDGE];
-    double          y[NUM_EDGE];
-    double          zmax[NUM_EDGE];
-    double          edge_vector[2][NUM_EDGE];
-    double          normal_vector[NUM_EDGE];
-    double          vector[NUM_EDGE];
-    double          h, c;
-    double          se, ce;
-    int             nodes[2];
-    double          x1, y1, z1, x2, y2, z2, xc, yc, zc;
-    double          c1, c2, ce1, ce2, se1, se2, phi1, phi2;
-    double          integrable;
-    int             ind, ind1, ind2;
-    int             i, j, k;
+    const int XCOMP = 0;
+    const int YCOMP = 1;
+    const int ZCOMP = 2;
+    double x[NUM_EDGE];
+    double y[NUM_EDGE];
+    double zmax[NUM_EDGE];
+    double edge_vector[2][NUM_EDGE];
+    double normal_vector[NUM_EDGE];
+    double vector[NUM_EDGE];
+    double h, c;
+    double se, ce;
+    int nodes[2];
+    double x1, y1, z1, x2, y2, z2, xc, yc, zc;
+    double c1, c2, ce1, ce2, se1, se2, phi1, phi2;
+    double integrable;
+    int ind, ind1, ind2;
+    int i, j, k;
 
     for (i = 0; i < nelem; i++)
     {
@@ -88,11 +88,11 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
 
         /* Calculate normal vector */
         normal_vector[XCOMP] = edge_vector[0][YCOMP] * edge_vector[1][ZCOMP] -
-            edge_vector[0][ZCOMP] * edge_vector[1][YCOMP];
+                               edge_vector[0][ZCOMP] * edge_vector[1][YCOMP];
         normal_vector[YCOMP] = edge_vector[0][ZCOMP] * edge_vector[1][XCOMP] -
-            edge_vector[0][XCOMP] * edge_vector[1][ZCOMP];
+                               edge_vector[0][XCOMP] * edge_vector[1][ZCOMP];
         normal_vector[ZCOMP] = edge_vector[0][XCOMP] * edge_vector[1][YCOMP] -
-            edge_vector[0][YCOMP] * edge_vector[1][XCOMP];
+                               edge_vector[0][YCOMP] * edge_vector[1][XCOMP];
 
         if (normal_vector[ZCOMP] < 0.0)
         {
@@ -103,7 +103,7 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
 
         /* Calculate slope */
         c = sqrt(normal_vector[XCOMP] * normal_vector[XCOMP] +
-            normal_vector[YCOMP] * normal_vector[YCOMP]);
+                 normal_vector[YCOMP] * normal_vector[YCOMP]);
         elem[i].topo.slope = atan(c / normal_vector[ZCOMP]) * 180.0 / PI;
 
         /* Calculate aspect */
@@ -136,18 +136,18 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
             {
                 switch (k)
                 {
-                    case 0:
-                        nodes[0] = 1;
-                        nodes[1] = 2;
-                        break;
-                    case 1:
-                        nodes[0] = 0;
-                        nodes[1] = 2;
-                        break;
-                    case 2:
-                        nodes[0] = 0;
-                        nodes[1] = 1;
-                        break;
+                case 0:
+                    nodes[0] = 1;
+                    nodes[1] = 2;
+                    break;
+                case 1:
+                    nodes[0] = 0;
+                    nodes[1] = 2;
+                    break;
+                case 2:
+                    nodes[0] = 0;
+                    nodes[1] = 1;
+                    break;
                 }
                 x1 = meshtbl->x[elem[j].node[nodes[0]] - 1];
                 y1 = meshtbl->y[elem[j].node[nodes[0]] - 1];
@@ -164,7 +164,7 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
                 vector[YCOMP] = yc - elem[i].topo.y;
                 vector[ZCOMP] = zc - elem[i].topo.zmax;
                 c = sqrt(vector[XCOMP] * vector[XCOMP] +
-                    vector[YCOMP] * vector[YCOMP]);
+                         vector[YCOMP] * vector[YCOMP]);
                 /* Unobstructed angle of the kth edge of the jth grid */
                 h = atan(c / vector[ZCOMP]) * 180.0 / PI;
                 h = (h < 0.0) ? 90.0 : h;
@@ -178,9 +178,9 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
                 edge_vector[1][ZCOMP] = z2 - elem[i].topo.zmax;
 
                 c1 = sqrt(edge_vector[0][XCOMP] * edge_vector[0][XCOMP] +
-                    edge_vector[0][YCOMP] * edge_vector[0][YCOMP]);
+                          edge_vector[0][YCOMP] * edge_vector[0][YCOMP]);
                 c2 = sqrt(edge_vector[1][XCOMP] * edge_vector[1][XCOMP] +
-                    edge_vector[1][YCOMP] * edge_vector[1][YCOMP]);
+                          edge_vector[1][YCOMP] * edge_vector[1][YCOMP]);
 
                 ce1 = edge_vector[0][XCOMP] / c1;
                 se1 = edge_vector[0][YCOMP] / c1;
@@ -241,12 +241,12 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
         for (ind = 0; ind < 36; ind++)
         {
             integrable = sin(elem[i].topo.slope * PI / 180.0) *
-                cos((ind * 10.0 + 5.0 - elem[i].topo.aspect) * PI / 180.0);
+                         cos((ind * 10.0 + 5.0 - elem[i].topo.aspect) * PI / 180.0);
             integrable *= elem[i].topo.h_phi[ind] * PI / 180.0 -
-                sin(elem[i].topo.h_phi[ind] * PI / 180.0) *
-                cos(elem[i].topo.h_phi[ind] * PI / 180.0);
+                          sin(elem[i].topo.h_phi[ind] * PI / 180.0) *
+                              cos(elem[i].topo.h_phi[ind] * PI / 180.0);
             integrable += cos(elem[i].topo.slope * PI / 180.0) *
-                pow(sin(elem[i].topo.h_phi[ind] * PI / 180.0), 2);
+                          pow(sin(elem[i].topo.h_phi[ind] * PI / 180.0), 2);
 
             elem[i].topo.svf += 0.5 / PI * integrable * 10.0 / 180.0 * PI;
         }

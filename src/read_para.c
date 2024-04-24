@@ -1,12 +1,12 @@
 #include "pihm.h"
 
-void ReadPara(const char *filename, ctrl_struct *ctrl)
+void ReadPara(const char *filename, RunParameters *ctrl)
 {
-    FILE           *para_file;    /* Pointer to .para file */
-    char            cmdstr[MAXSTRING];
-    int             i;
-    int             lno = 0;
-    pihm_t_struct   pihm_time1, pihm_time2;
+    FILE *para_file; /* Pointer to .para file */
+    char cmdstr[MAXSTRING];
+    int i;
+    int lno = 0;
+    PihmTime pihm_time1, pihm_time2;
 
     for (i = 0; i < MAXPRINT; i++)
     {
@@ -62,8 +62,8 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
             pihm_time1.minute != pihm_time2.minute)
         {
             PIHMprintf(VL_ERROR,
-                "Error: In BGC spinup mode, "
-                "simulation period should be full years.\n");
+                       "Error: In BGC spinup mode, "
+                       "simulation period should be full years.\n");
             PIHMprintf(VL_ERROR, "Please check your .para input file.\n");
             PIHMexit(EXIT_FAILURE);
         }
@@ -71,7 +71,7 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "MAX_SPINUP_YEAR", &ctrl->maxspinyears, 'i', filename,
-        lno);
+                lno);
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize, 'i', filename, lno);
@@ -87,7 +87,7 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "INIT_SOLVER_STEP", &ctrl->initstep, 'd', filename,
-        lno);
+                lno);
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", &ctrl->nncfn, 'd', filename, lno);
@@ -133,7 +133,7 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     NextLine(para_file, cmdstr, &lno);
     ctrl->prtvrbl[RECHARGE_CTRL] = ReadPrtCtrl(cmdstr, "RECHARGE", filename,
-        lno);
+                                               lno);
 
     NextLine(para_file, cmdstr, &lno);
     ctrl->prtvrbl[EC_CTRL] = ReadPrtCtrl(cmdstr, "EC", filename, lno);
@@ -176,7 +176,7 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     NextLine(para_file, cmdstr, &lno);
     ctrl->prtvrbl[RIVFLX10_CTRL] = ReadPrtCtrl(cmdstr, "RIVFLX10", filename,
-        lno);
+                                               lno);
 
     NextLine(para_file, cmdstr, &lno);
     ctrl->prtvrbl[SUBFLX_CTRL] = ReadPrtCtrl(cmdstr, "SUBFLX", filename, lno);
@@ -192,8 +192,8 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
         PIHMprintf(VL_ERROR,
-            "Error: Land surface model (ET) step size "
-            "should be an integral multiple of model step size.\n");
+                   "Error: Land surface model (ET) step size "
+                   "should be an integral multiple of model step size.\n");
         PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
         PIHMexit(EXIT_FAILURE);
     }

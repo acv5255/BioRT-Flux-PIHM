@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-double GetNdep(tsdata_struct *ndep_ts, int t)
+double GetNdep(TimeSeriesData *ndep_ts, int t)
 {
-    double          ndep;
+    double ndep;
 
     IntrplForc(ndep_ts, t, 1, INTRPL);
 

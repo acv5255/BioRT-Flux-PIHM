@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
-    ndepcontrol_struct *ndepctrl, cninit_struct * cninit, char *co2_fn,
-    char *ndep_fn)
+void ReadBgc(const char *fn, RunParameters *ctrl, co2control_struct *co2,
+             ndepcontrol_struct *ndepctrl, cninit_struct *cninit, char *co2_fn,
+             char *ndep_fn)
 {
-    FILE           *bgc_file;
-    char            cmdstr[MAXSTRING];
-    int             lno = 0;
-    int             acc_flag = 0;
+    FILE *bgc_file;
+    char cmdstr[MAXSTRING];
+    int lno = 0;
+    int acc_flag = 0;
 
     /* Read bgc simulation control file */
     bgc_file = fopen(fn, "r");
@@ -131,11 +131,11 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
 
 void ReadEpc(epctbl_struct *epctbl)
 {
-    int             i;
-    char            fn[MAXSTRING];
-    double          t1, t2, t3, t4, r1;
-    FILE           *epc_file;
-    char            cmdstr[MAXSTRING];
+    int i;
+    char fn[MAXSTRING];
+    double t1, t2, t3, t4, r1;
+    FILE *epc_file;
+    char cmdstr[MAXSTRING];
 
     epctbl->woody = (int *)malloc(NLCTYPE * sizeof(int));
     epctbl->evergreen = (int *)malloc(NLCTYPE * sizeof(int));
@@ -191,37 +191,37 @@ void ReadEpc(epctbl_struct *epctbl)
     {
         switch (i + 1)
         {
-            case IGBP_ENF:
-                strcpy(fn, "input/epc/enf.epc");
-                epc_file = fopen(fn, "r");
-                break;
-            case IGBP_EBF:
-                strcpy(fn, "input/epc/ebf.epc");
-                epc_file = fopen(fn, "r");
-                break;
-            case IGBP_DNF:
-                strcpy(fn, "input/epc/dnf.epc");
-                epc_file = fopen(fn, "r");
-                break;
-            case IGBP_DBF:
-                strcpy(fn, "input/epc/dbf.epc");
-                epc_file = fopen(fn, "r");
-                break;
-            case IGBP_GRASS:
-                strcpy(fn, "input/epc/c3grass.epc");
-                epc_file = fopen(fn, "r");
-                break;
-            case IGBP_CLOSE_SHRUB:
-                strcpy(fn, "input/epc/shrub.epc");
-                epc_file = fopen(fn, "r");
-                break;
-            case IGBP_OPEN_SHRUB:
-                strcpy(fn, "input/epc/shrub.epc");
-                epc_file = fopen(fn, "r");
-                break;
-            default:
-                strcpy(fn, "N/A");
-                epc_file = NULL;
+        case IGBP_ENF:
+            strcpy(fn, "input/epc/enf.epc");
+            epc_file = fopen(fn, "r");
+            break;
+        case IGBP_EBF:
+            strcpy(fn, "input/epc/ebf.epc");
+            epc_file = fopen(fn, "r");
+            break;
+        case IGBP_DNF:
+            strcpy(fn, "input/epc/dnf.epc");
+            epc_file = fopen(fn, "r");
+            break;
+        case IGBP_DBF:
+            strcpy(fn, "input/epc/dbf.epc");
+            epc_file = fopen(fn, "r");
+            break;
+        case IGBP_GRASS:
+            strcpy(fn, "input/epc/c3grass.epc");
+            epc_file = fopen(fn, "r");
+            break;
+        case IGBP_CLOSE_SHRUB:
+            strcpy(fn, "input/epc/shrub.epc");
+            epc_file = fopen(fn, "r");
+            break;
+        case IGBP_OPEN_SHRUB:
+            strcpy(fn, "input/epc/shrub.epc");
+            epc_file = fopen(fn, "r");
+            break;
+        default:
+            strcpy(fn, "N/A");
+            epc_file = NULL;
         }
 
         if (strcasecmp(fn, "N/A") != 0)
@@ -297,7 +297,7 @@ void ReadEpc(epctbl_struct *epctbl)
             if (epctbl->leaflitr_cn[i] < epctbl->leaf_cn[i])
             {
                 PIHMprintf(VL_ERROR,
-                    "Error: leaf litter C:N must be >= leaf C:N.\n");
+                           "Error: leaf litter C:N must be >= leaf C:N.\n");
                 PIHMprintf(VL_ERROR, "Change the values in epc file %s.\n", fn);
                 PIHMexit(EXIT_FAILURE);
             }
@@ -314,7 +314,7 @@ void ReadEpc(epctbl_struct *epctbl)
             if (epctbl->deadwood_cn[i] < epctbl->livewood_cn[i])
             {
                 PIHMprintf(VL_ERROR,
-                    "Error: livewood C:N must be >= deadwood C:N.\n");
+                           "Error: livewood C:N must be >= deadwood C:N.\n");
                 PIHMprintf(VL_ERROR, "Change the values in epc file %s.\n", fn);
                 PIHMexit(EXIT_FAILURE);
             }
@@ -334,10 +334,10 @@ void ReadEpc(epctbl_struct *epctbl)
             if (fabs(t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
             {
                 PIHMprintf(VL_ERROR,
-                    "Error: leaf litter proportions of labile, cellulose, "
-                    "and lignin\n");
+                           "Error: leaf litter proportions of labile, cellulose, "
+                           "and lignin\n");
                 PIHMprintf(VL_ERROR,
-                    "must sum to 1.0. Check epc file %s and try again.\n", fn);
+                           "must sum to 1.0. Check epc file %s and try again.\n", fn);
                 PIHMexit(EXIT_FAILURE);
             }
             /* Calculate shielded and unshielded cellulose fraction */
@@ -374,10 +374,10 @@ void ReadEpc(epctbl_struct *epctbl)
             if (fabs(t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
             {
                 PIHMprintf(VL_ERROR,
-                    "Error: froot litter proportions of labile, cellulose, "
-                    "and lignin\n");
+                           "Error: froot litter proportions of labile, cellulose, "
+                           "and lignin\n");
                 PIHMprintf(VL_ERROR,
-                    "must sum to 1.0. Check epc file %s and try again.\n", fn);
+                           "must sum to 1.0. Check epc file %s and try again.\n", fn);
                 PIHMexit(EXIT_FAILURE);
             }
             /* Calculate shielded and unshielded cellulose fraction */
@@ -409,10 +409,10 @@ void ReadEpc(epctbl_struct *epctbl)
             if (fabs(t1 + t2 - 1.0) > FLT_COND_TOL)
             {
                 PIHMprintf(VL_ERROR,
-                    "Error: deadwood proportions of cellulose and lignin "
-                    "must sum\n");
+                           "Error: deadwood proportions of cellulose and lignin "
+                           "must sum\n");
                 PIHMprintf(VL_ERROR,
-                    "to 1.0. Check epc file %s and try again.\n", fn);
+                           "to 1.0. Check epc file %s and try again.\n", fn);
                 PIHMexit(EXIT_FAILURE);
             }
             /* Calculate shielded and unshielded cellulose fraction */
@@ -512,14 +512,14 @@ void ReadEpc(epctbl_struct *epctbl)
     }
 }
 
-void ReadAnnFile(tsdata_struct *ts, const char *fn)
+void ReadAnnFile(TimeSeriesData *ts, const char *fn)
 {
-    FILE           *fid;
-    char            timestr[MAXSTRING];
-    char            cmdstr[MAXSTRING];
-    int             i;
-    int             match;
-    int             lno = 0;
+    FILE *fid;
+    char timestr[MAXSTRING];
+    char cmdstr[MAXSTRING];
+    int i;
+    int match;
+    int lno = 0;
 
     fid = fopen(fn, "r");
     CheckFile(fid, fn);
@@ -540,7 +540,7 @@ void ReadAnnFile(tsdata_struct *ts, const char *fn)
         {
             PIHMprintf(VL_ERROR, "Error reading %s.\n", fn);
             PIHMprintf(VL_ERROR,
-                "Please check file format near Line %s.\n", lno);
+                       "Please check file format near Line %s.\n", lno);
             PIHMexit(EXIT_FAILURE);
         }
 

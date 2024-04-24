@@ -1,10 +1,10 @@
 #include "pihm.h"
 
 void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
-    const calib_struct *cal)
+             const CalibrationParameters *cal)
 {
-    int             i;
-    int             epc_ind;
+    int i;
+    int epc_ind;
 
     PIHMprintf(VL_VERBOSE, "BGC: Initializing BGC structures\n");
 
@@ -24,8 +24,8 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
             epc_ind != IGBP_CLOSE_SHRUB - 1 && epc_ind != IGBP_OPEN_SHRUB - 1)
         {
             PIHMprintf(VL_ERROR,
-                "Error: Land cover type %d not defined in Flux-PIHM-BGC.\n",
-                elem[i].attrib.lc_type);
+                       "Error: Land cover type %d not defined in Flux-PIHM-BGC.\n",
+                       elem[i].attrib.lc_type);
             PIHMexit(EXIT_FAILURE);
         }
 
@@ -81,7 +81,7 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
 
 void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 {
-    int             i;
+    int i;
 
 #if defined(_LUMPED_)
     i = LUMPED;
@@ -90,7 +90,7 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #endif
     {
         RestartInput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
-            &elem[i].restart_input);
+                     &elem[i].restart_input);
 
         ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary, &elem[i].nsol);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;

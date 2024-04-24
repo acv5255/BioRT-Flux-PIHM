@@ -1,11 +1,11 @@
 #include "pihm.h"
 
-void ReadTecplot(const char *filename, ctrl_struct *ctrl)
+void ReadTecplot(const char *filename, RunParameters *ctrl)
 {
-    FILE           *tecplot_file;
-    char            cmdstr[MAXSTRING];
-    int             i;
-    int             lno = 0;
+    FILE *tecplot_file;
+    char cmdstr[MAXSTRING];
+    int i;
+    int lno = 0;
 
     for (i = 0; i < MAXPRINT; i++)
     {

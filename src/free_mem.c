@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void FreeMem(pihm_struct pihm)
+void FreeMem(PihmData pihm)
 {
-    int             i;
+    int i;
 
     FreeRivtbl(&pihm->rivtbl);
 
@@ -62,7 +62,7 @@ void FreeMem(pihm_struct pihm)
     free(pihm->river);
 }
 
-void FreeRivtbl(rivtbl_struct *rivtbl)
+void FreeRivtbl(RiverTile *rivtbl)
 {
     free(rivtbl->fromnode);
     free(rivtbl->tonode);
@@ -75,14 +75,14 @@ void FreeRivtbl(rivtbl_struct *rivtbl)
     free(rivtbl->rsvr);
 }
 
-void FreeShptbl(shptbl_struct *shptbl)
+void FreeShptbl(RiverShape *shptbl)
 {
     free(shptbl->depth);
     free(shptbl->intrpl_ord);
     free(shptbl->coeff);
 }
 
-void FreeMatltbl(matltbl_struct *matltbl)
+void FreeMatltbl(RiverMaterial *matltbl)
 {
     free(matltbl->rough);
     free(matltbl->cwr);
@@ -91,9 +91,9 @@ void FreeMatltbl(matltbl_struct *matltbl)
     free(matltbl->bedthick);
 }
 
-void FreeMeshtbl(meshtbl_struct *meshtbl)
+void FreeMeshtbl(MeshEntry *meshtbl)
 {
-    int             i;
+    int i;
 
     for (i = 0; i < nelem; i++)
     {
@@ -111,9 +111,9 @@ void FreeMeshtbl(meshtbl_struct *meshtbl)
 #endif
 }
 
-void FreeAtttbl(atttbl_struct *atttbl)
+void FreeAtttbl(ElementAttribute *atttbl)
 {
-    int             i;
+    int i;
 
     /* Free attribute input structure */
     for (i = 0; i < nelem; i++)
@@ -135,7 +135,7 @@ void FreeAtttbl(atttbl_struct *atttbl)
     free(atttbl->source);
 }
 
-void FreeSoiltbl(soiltbl_struct *soiltbl)
+void FreeSoiltbl(SoilEntry *soiltbl)
 {
     free(soiltbl->silt);
     free(soiltbl->clay);
@@ -157,7 +157,7 @@ void FreeSoiltbl(soiltbl_struct *soiltbl)
 }
 
 #if defined(_FBR_)
-void FreeGeoltbl(geoltbl_struct *geoltbl)
+void FreeGeoltbl(GeologyEntry *geoltbl)
 {
     free(geoltbl->ksatv);
     free(geoltbl->ksath);
@@ -168,7 +168,7 @@ void FreeGeoltbl(geoltbl_struct *geoltbl)
 }
 #endif
 
-void FreeLctbl(lctbl_struct *lctbl)
+void FreeLctbl(LandCoverEntry *lctbl)
 {
     /* Free landcover input structure */
     free(lctbl->laimax);
@@ -188,9 +188,9 @@ void FreeLctbl(lctbl_struct *lctbl)
     free(lctbl->rzd);
 }
 
-void FreeForc(forc_struct *forc)
+void FreeForc(Forcing *forc)
 {
-    int             i, j;
+    int i, j;
 
     if (forc->nriverbc > 0)
     {
@@ -360,7 +360,7 @@ void FreeEpctbl(epctbl_struct *epctbl)
 }
 #endif
 
-void FreeCtrl(ctrl_struct *ctrl)
+void FreeCtrl(RunParameters *ctrl)
 {
     free(ctrl->tout);
 }

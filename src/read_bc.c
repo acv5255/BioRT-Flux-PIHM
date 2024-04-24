@@ -1,27 +1,27 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void ReadBc(const char *filename, forc_struct *forc,
-    const atttbl_struct *atttbl, const rttbl_struct *rttbl,
-    const chemtbl_struct chemtbl[])
+void ReadBc(const char *filename, Forcing *forc,
+            const ElementAttribute *atttbl, const ReactionNetwork *rttbl,
+            const ChemicalEntry chemtbl[])
 #else
-void ReadBc(const char *filename, forc_struct *forc,
-    const atttbl_struct *atttbl)
+void ReadBc(const char *filename, Forcing *forc,
+            const ElementAttribute *atttbl)
 #endif
 {
-    int             i, j;
-    FILE           *bc_file;    /* Pointer to .ibc file */
-    int             read_bc = 0;
-    char            cmdstr[MAXSTRING];
-    int             match;
-    int             index;
-    int             lno = 0;
+    int i, j;
+    FILE *bc_file; /* Pointer to .ibc file */
+    int read_bc = 0;
+    char cmdstr[MAXSTRING];
+    int match;
+    int index;
+    int lno = 0;
 #if defined(_RT_)
-    int             bytes_now;
-    int             bytes_consumed = 0;
-    int             ind[MAXSPS];
-    char            chemn[MAXSTRING];
-    double          bcval[MAXSPS + 1];
+    int bytes_now;
+    int bytes_consumed = 0;
+    int ind[MAXSPS];
+    char chemn[MAXSTRING];
+    double bcval[MAXSPS + 1];
 #endif
 
 #if defined(_RT_)
@@ -41,8 +41,8 @@ void ReadBc(const char *filename, forc_struct *forc,
                 break;
             }
 #if defined(_FBR_)
-             if (atttbl->fbr_bc[i][j] != 0)
-             {
+            if (atttbl->fbr_bc[i][j] != 0)
+            {
                 read_bc = 1;
                 break;
             }
@@ -66,37 +66,39 @@ void ReadBc(const char *filename, forc_struct *forc,
         if (forc->nbc > 0)
         {
             forc->bc =
-                (tsdata_struct *)malloc(forc->nbc * sizeof(tsdata_struct));
+                (TimeSeriesData *)malloc(forc->nbc * sizeof(TimeSeriesData));
 
             NextLine(bc_file, cmdstr, &lno);
             for (i = 0; i < forc->nbc; i++)
             {
                 match = sscanf(cmdstr, "%*s %d %*s %d",
-                    &index, &forc->bc[i].bc_type);
+                               &index, &forc->bc[i].bc_type);
                 if (match != 2 || i != index - 1)
                 {
                     PIHMprintf(VL_ERROR,
-                        "Error reading the %dth boundary condition "
-                        "time series.\n", i + 1);
+                               "Error reading the %dth boundary condition "
+                               "time series.\n",
+                               i + 1);
                     PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
-                        filename, lno);
+                               filename, lno);
                     PIHMexit(EXIT_FAILURE);
                 }
                 if (forc->bc[i].bc_type != DIRICHLET &&
                     forc->bc[i].bc_type != NEUMANN)
                 {
                     PIHMprintf(VL_ERROR,
-                        "Error reading the %dth boundary condition "
-                        "time series.\n", i + 1);
+                               "Error reading the %dth boundary condition "
+                               "time series.\n",
+                               i + 1);
                     PIHMprintf(VL_ERROR,
-                        "Boundary condition type should be "
-                        "either Dirichlet (1) or Neumann (2).\n");
+                               "Boundary condition type should be "
+                               "either Dirichlet (1) or Neumann (2).\n");
                     PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
-                        filename, lno);
+                               filename, lno);
                     PIHMexit(EXIT_FAILURE);
                 }
 #if defined(_RT_)
-                int             k;
+                int k;
 
                 /* When reactive transport is turned on, the header line
                  * contains the names of species that need to be read */
@@ -109,7 +111,7 @@ void ReadBc(const char *filename, forc_struct *forc,
                 for (k = 0; k < rttbl->NumStc; k++)
                 {
                     if (sscanf(cmdstr + bytes_consumed, "%s%n", chemn,
-                        &bytes_now) == 1)
+                               &bytes_now) == 1)
                     {
                         bytes_consumed += bytes_now;
 
@@ -118,14 +120,14 @@ void ReadBc(const char *filename, forc_struct *forc,
                         if (ind[k] < 0)
                         {
                             PIHMprintf(VL_ERROR, "Error finding chemical %s.\n",
-                                chemn);
+                                       chemn);
                             PIHMexit(EXIT_FAILURE);
                         }
                     }
                     else
                     {
                         PIHMprintf(VL_ERROR,
-                            "Error reading primary species concentrations.\n");
+                                   "Error reading primary species concentrations.\n");
                         PIHMexit(EXIT_FAILURE);
                     }
                 }
@@ -164,22 +166,22 @@ void ReadBc(const char *filename, forc_struct *forc,
                     NextLine(bc_file, cmdstr, &lno);
 #if defined(_RT_)
                     if (!ReadTS(cmdstr, &forc->bc[i].ftime[j],
-                        bcval, rttbl->NumStc + 1))
+                                bcval, rttbl->NumStc + 1))
 #else
                     if (!ReadTS(cmdstr, &forc->bc[i].ftime[j],
-                        &forc->bc[i].data[j][0], 1))
+                                &forc->bc[i].data[j][0], 1))
 #endif
                     {
                         PIHMprintf(VL_ERROR,
-                            "Error reading boundary condition.");
+                                   "Error reading boundary condition.");
                         PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
-                            filename, lno);
+                                   filename, lno);
                         PIHMexit(EXIT_FAILURE);
                     }
 #if defined(_RT_)
                     else
                     {
-                        int             k;
+                        int k;
 
                         forc->bc[i].data[j][0] = bcval[0];
 
@@ -189,9 +191,7 @@ void ReadBc(const char *filename, forc_struct *forc,
                             {
                                 /* Convert pH to H+ concentration */
                                 forc->bc[i].data[j][k + 1] =
-                                    (bcval[1 + ind[k]] < 7.0) ?
-                                    pow(10, -bcval[1 + ind[k]]) :
-                                    -pow(10, -bcval[1 + ind[k]] - 14);
+                                    (bcval[1 + ind[k]] < 7.0) ? pow(10, -bcval[1 + ind[k]]) : -pow(10, -bcval[1 + ind[k]] - 14);
                             }
                             else
                             {

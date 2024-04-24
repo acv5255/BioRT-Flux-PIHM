@@ -11,7 +11,6 @@ void DailyVar(int t, int start_time, elem_struct *elem)
 #endif
     for (int i = 0; i < nelem; i++)
     {
-        int k;
 
         /* Air temperature */
         elem[i].daily.avg_sfctmp += elem[i].es.sfctmp;
@@ -19,7 +18,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
         elem[i].daily.tmin = (elem[i].daily.tmin < elem[i].es.sfctmp) ? elem[i].daily.tmin : elem[i].es.sfctmp;
 
         /* Soil moisture, temperature, and ET */
-        for (k = 0; k < elem[i].ps.nsoil; k++)
+        for (int k = 0; k < elem[i].ps.nsoil; k++)
         {
             elem[i].daily.avg_stc[k] += elem[i].es.stc[k];
             elem[i].daily.avg_sh2o[k] += elem[i].ws.sh2o[k];

@@ -1,16 +1,16 @@
 #include "pihm.h"
 
-void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
-    double dt)
+void Noah(elem_struct *elem, const LandCoverEntry *lctbl, const CalibrationParameters *cal,
+          double dt)
 {
-    int             i;
+    int i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             j;
+        int j;
 
         if (elem[i].lc.glacier == 1 && elem[i].ps.iceh <= 0.0)
         {
@@ -37,12 +37,9 @@ void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
         for (j = 0; j < elem[i].ps.nsoil; j++)
         {
             elem[i].ws.smc[j] =
-                (elem[i].ws.smc[j] > elem[i].soil.smcmin + SH2OMIN) ?
-                elem[i].ws.smc[j] : elem[i].soil.smcmin + SH2OMIN;
-            elem[i].ws.smc[j] = (elem[i].ws.smc[j] < elem[i].soil.smcmax) ?
-                elem[i].ws.smc[j] : elem[i].soil.smcmax;
-            elem[i].ws.sh2o[j] = (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
-                elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
+                (elem[i].ws.smc[j] > elem[i].soil.smcmin + SH2OMIN) ? elem[i].ws.smc[j] : elem[i].soil.smcmin + SH2OMIN;
+            elem[i].ws.smc[j] = (elem[i].ws.smc[j] < elem[i].soil.smcmax) ? elem[i].ws.smc[j] : elem[i].soil.smcmax;
+            elem[i].ws.sh2o[j] = (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ? elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
         }
 
         /*
@@ -51,17 +48,17 @@ void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
         if (elem[i].lc.glacier == 1)
         {
             SFlxGlacial(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef,
-                &elem[i].ps, &elem[i].lc, &elem[i].soil, dt);
+                        &elem[i].ps, &elem[i].lc, &elem[i].soil, dt);
         }
         else
         {
 #if defined(_CYCLES_)
             SFlx(&elem[i].cs, dt, &elem[i].soil, &elem[i].lc, elem[i].crop,
-                &elem[i].ps, &elem[i].ws, &elem[i].wf, &elem[i].es,
-                &elem[i].ef);
+                 &elem[i].ps, &elem[i].ws, &elem[i].wf, &elem[i].es,
+                 &elem[i].ef);
 #else
             SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef,
-                &elem[i].ps, &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
+                 &elem[i].ps, &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
 #endif
         }
 
@@ -74,38 +71,35 @@ void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
 
 void NoahHydrol(elem_struct *elem, double dt)
 {
-    int             i;
+    int i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             k;
+        int k;
 #if defined(_CYCLES_)
-        double          wflux[MAXLYR + 1];
+        double wflux[MAXLYR + 1];
 #endif
 
         /* Find water table position */
         elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
-            elem[i].ws.gw, elem[i].ps.satdpth);
+                                          elem[i].ws.gw, elem[i].ps.satdpth);
 
         for (k = 0; k < elem[i].ps.nsoil; k++)
         {
             elem[i].ws.smc[k] =
-                (elem[i].ws.smc[k] > elem[i].soil.smcmin + SH2OMIN) ?
-                elem[i].ws.smc[k] : elem[i].soil.smcmin + SH2OMIN;
+                (elem[i].ws.smc[k] > elem[i].soil.smcmin + SH2OMIN) ? elem[i].ws.smc[k] : elem[i].soil.smcmin + SH2OMIN;
             elem[i].ws.smc[k] =
-                (elem[i].ws.smc[k] < elem[i].soil.smcmax) ?
-                elem[i].ws.smc[k] : elem[i].soil.smcmax;
+                (elem[i].ws.smc[k] < elem[i].soil.smcmax) ? elem[i].ws.smc[k] : elem[i].soil.smcmax;
             elem[i].ws.sh2o[k] =
-                (elem[i].ws.sh2o[k] < elem[i].ws.smc[k]) ?
-                elem[i].ws.sh2o[k] : elem[i].ws.smc[k];
+                (elem[i].ws.sh2o[k] < elem[i].ws.smc[k]) ? elem[i].ws.sh2o[k] : elem[i].ws.smc[k];
         }
 
 #if defined(_CYCLES_)
         SmFlx(&elem[i].soil, &elem[i].cs, dt, &elem[i].ps, &elem[i].ws,
-            &elem[i].wf);
+              &elem[i].wf);
 #else
         SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil, dt);
 #endif
@@ -138,33 +132,33 @@ void NoahHydrol(elem_struct *elem, double dt)
         }
 
         SoluteTransport(elem[i].ps.nsoil, 0.0, 0.0, wflux, elem[i].soil.bd,
-            elem[i].ps.sldpth, elem[i].ws.smc, elem[i].ns.no3);
+                        elem[i].ps.sldpth, elem[i].ws.smc, elem[i].ns.no3);
 
         SoluteTransport(elem[i].ps.nsoil, 5.6, 0.0, wflux, elem[i].soil.bd,
-            elem[i].ps.sldpth, elem[i].ws.smc, elem[i].ns.nh4);
+                        elem[i].ps.sldpth, elem[i].ws.smc, elem[i].ns.nh4);
 
-# if defined(_DEBUG_)
-    for (k = 0; k < elem[i].ps.nsoil; k++)
-    {
-        if (isnan(elem[i].ns.no3[k]))
+#if defined(_DEBUG_)
+        for (k = 0; k < elem[i].ps.nsoil; k++)
         {
-            PIHMexit(EXIT_FAILURE);
+            if (isnan(elem[i].ns.no3[k]))
+            {
+                PIHMexit(EXIT_FAILURE);
+            }
         }
-    }
-# endif
+#endif
 #endif
     }
 
 #if TEMP_DISABLED
-# if defined(_DEBUG_)
+#if defined(_DEBUG_)
     for (i = 0; i < nelem; i++)
     {
-        int             k;
-        double          pihm_soilm, noah_soilm;
+        int k;
+        double pihm_soilm, noah_soilm;
 
-        pihm_soilm = ((elem[i].ws.unsat + elem[i].ws.gw > elem[i].soil.depth) ?
-            elem[i].soil.depth : elem[i].ws.unsat + elem[i].ws.gw) *
-            elem[i].soil.porosity + elem[i].soil.depth * elem[i].soil.smcmin;
+        pihm_soilm = ((elem[i].ws.unsat + elem[i].ws.gw > elem[i].soil.depth) ? elem[i].soil.depth : elem[i].ws.unsat + elem[i].ws.gw) *
+                         elem[i].soil.porosity +
+                     elem[i].soil.depth * elem[i].soil.smcmin;
         noah_soilm = elem[i].ws.smc[0] * elem[i].ps.sldpth[0];
         for (k = 1; k < elem[i].ps.nsoil; k++)
         {
@@ -172,18 +166,18 @@ void NoahHydrol(elem_struct *elem, double dt)
         }
         PIHMprintf(VL_NORMAL, "%d: %lf, %lf\n", i + 1, pihm_soilm, noah_soilm);
     }
-# endif
+#endif
 #endif
 }
 
 #if defined(_CYCLES_)
 void SFlx(const cstate_struct *cs, double dt, soil_struct *soil, lc_struct *lc,
-    crop_struct crop[], pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
-    estate_struct *es, eflux_struct *ef)
+          crop_struct crop[], pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
+          estate_struct *es, eflux_struct *ef)
 #else
 void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
-    soil_struct *soil, double dt)
+          eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
+          soil_struct *soil, double dt)
 #endif
 {
     /*
@@ -192,34 +186,34 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * temperature, skin temperature, snowpack water content, snowdepth, and all
      * terms of the surface energy balance, modified for Flux-PIHM
      */
-    int             frzgra;             /* Flag that indicates freezing rain (-)
-                                         */
-    int             snowng;             /* Flag that indicates snow (-) */
-    const int       IZ0TLND = 0;        /* Option to turn on (IZ0TLND=1) or off
-                                         * (IZ0TLND=0) the vegetation-category-
-                                         * dependent calculation of the
-                                         * Zilitinkivich coefficient CZIL in the
-                                         * SfcDif subroutines */
-    double          df1;                /* Thermal conductivity of surface
-                                         * mediums (W m-1 K-1) */
-    double          df1a;               /* Thermal conductivity of surface snow
-                                         * mediums (W m-1 K-1) */
-    double          dsoil;              /* Soil thickness for soil heat flux
-                                         * calculation (m) */
-    double          dtot;               /* Soil thickness plus snow depth for
-                                         * soil heat flux calculation (m) */
-    double          frcsno, frcsoi;
-    double          t1v;
-    double          th2v;
-    double          t2v;
-    double          t24;
-    double          interp_fraction;
-    double          sn_new;
-    double          prcpf;
-    double          soilwm;
-    double          soilww;
-    double          smav[MAXLYR];
-    int             k;
+    int frzgra;            /* Flag that indicates freezing rain (-)
+                            */
+    int snowng;            /* Flag that indicates snow (-) */
+    const int IZ0TLND = 0; /* Option to turn on (IZ0TLND=1) or off
+                            * (IZ0TLND=0) the vegetation-category-
+                            * dependent calculation of the
+                            * Zilitinkivich coefficient CZIL in the
+                            * SfcDif subroutines */
+    double df1;            /* Thermal conductivity of surface
+                            * mediums (W m-1 K-1) */
+    double df1a;           /* Thermal conductivity of surface snow
+                            * mediums (W m-1 K-1) */
+    double dsoil;          /* Soil thickness for soil heat flux
+                            * calculation (m) */
+    double dtot;           /* Soil thickness plus snow depth for
+                            * soil heat flux calculation (m) */
+    double frcsno, frcsoi;
+    double t1v;
+    double th2v;
+    double t2v;
+    double t24;
+    double interp_fraction;
+    double sn_new;
+    double prcpf;
+    double soilwm;
+    double soilww;
+    double smav[MAXLYR];
+    int k;
 
     /*
      * Initialization
@@ -287,11 +281,11 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
             /* Scale emissivity and LAI between emissmin and emissmax by
              * interp_fraction */
             ps->embrd = ((1.0 - interp_fraction) * lc->emissmin) +
-                (interp_fraction * lc->emissmax);
+                        (interp_fraction * lc->emissmax);
             ps->alb = ((1.0 - interp_fraction) * lc->albedomax) +
-                (interp_fraction * lc->albedomin);
+                      (interp_fraction * lc->albedomin);
             ps->z0brd = ((1.0 - interp_fraction) * lc->z0min) +
-                (interp_fraction * lc->z0max);
+                        (interp_fraction * lc->z0max);
         }
         else
         {
@@ -320,7 +314,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         if (ps->sndens > 1.0)
         {
             PIHMprintf(VL_ERROR,
-                "Error: Physical snow depth is less than snow water equiv.\n");
+                       "Error: Physical snow depth is less than snow water equiv.\n");
             PIHMexit(EXIT_FAILURE);
         }
 
@@ -413,7 +407,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * Vol 102(D4))
      */
     df1 = TDfCnd(ws->smc[0], soil->quartz, soil->smcmax, soil->smcmin,
-        ws->sh2o[0]);
+                 ws->sh2o[0]);
 
     /* Urban */
     df1 = (lc->isurban) ? 3.24 : df1;
@@ -450,8 +444,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * Determine surface roughness over snowpack using snow condition from the
      * previous timestep.
      */
-    ps->z0 = (ps->sncovr > 0.0) ?
-        Snowz0(ps->sncovr, ps->z0brd, ps->snowh) : ps->z0brd;
+    ps->z0 = (ps->sncovr > 0.0) ? Snowz0(ps->sncovr, ps->z0brd, ps->snowh) : ps->z0brd;
 
     /*
      * Next call function SfcDif to calculate the sfc exchange coef (ch) for
@@ -525,7 +518,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     {
 #if defined(_CYCLES_)
         SnoPac(soil, lc, cs, snowng, dt, t24, prcpf, df1, crop, ps, ws, wf, es,
-            ef);
+               ef);
 #else
         SnoPac(ws, wf, es, ef, ps, lc, soil, snowng, dt, t24, prcpf, df1);
 #endif
@@ -585,9 +578,9 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         for (k = 1; k < ps->nroot; k++)
         {
             soilwm += (soil->smcmax - soil->smcwlt) *
-                (ps->zsoil[k - 1] - ps->zsoil[k]);
+                      (ps->zsoil[k - 1] - ps->zsoil[k]);
             soilww += (ws->smc[k] - soil->smcwlt) *
-                (ps->zsoil[k - 1] - ps->zsoil[k]);
+                      (ps->zsoil[k - 1] - ps->zsoil[k]);
         }
     }
 
@@ -611,10 +604,10 @@ void AlCalc(pstate_struct *ps, double dt, int snowng)
      * into SFlx, and adapted from the satellite-based maximum snow albedo
      * fields provided by D. Robinson and G. Kukla (1985, JCAM, Vol 24, 402-411)
      */
-    double          snoalb2;
-    double          snoalb1;
-    const double    SNACCA = 0.94;
-    const double    SNACCB = 0.58;
+    double snoalb2;
+    double snoalb1;
+    const double SNACCA = 0.94;
+    const double SNACCB = 0.58;
 
     ps->albedo = ps->alb + ps->sncovr * (ps->snoalb - ps->alb);
     ps->emissi = ps->embrd + ps->sncovr * (EMISSI_S - ps->embrd);
@@ -647,25 +640,25 @@ void AlCalc(pstate_struct *ps, double dt, int snowng)
 
 void CalHum(pstate_struct *ps, estate_struct *es)
 {
-    const double    A2 = 17.67;
-    const double    A3 = 273.15;
-    const double    A4 = 29.65;
-    const double    ELWV = 2.501e6;
-    double          a23m4;
-    const double    E0 = 611.0;
-    const double    RVV = 461.0;
-    const double    EPSILON = 0.622;
-    double          e;
-    double          esat;
-    double          svp;
-    const double    SVP1 = 611.2;
-    const double    SVP2 = 17.67;
-    const double    SVP3 = 29.65;
-    const double    SVPT0 = 273.15;
+    const double A2 = 17.67;
+    const double A3 = 273.15;
+    const double A4 = 29.65;
+    const double ELWV = 2.501e6;
+    double a23m4;
+    const double E0 = 611.0;
+    const double RVV = 461.0;
+    const double EPSILON = 0.622;
+    double e;
+    double esat;
+    double svp;
+    const double SVP1 = 611.2;
+    const double SVP2 = 17.67;
+    const double SVP3 = 29.65;
+    const double SVPT0 = 273.15;
 
-    double          t2v;
-    double          rho;
-    double          rh;
+    double t2v;
+    double rho;
+    double rh;
 
     rh = ps->rh / 100.0;
 
@@ -691,8 +684,8 @@ void CalHum(pstate_struct *ps, estate_struct *es)
 void CanRes(const estate_struct *es, pstate_struct *ps)
 #else
 void CanRes(const wstate_struct *ws, const estate_struct *es,
-    const eflux_struct *ef, pstate_struct *ps, const soil_struct *soil,
-    const epconst_struct *epc)
+            const eflux_struct *ef, pstate_struct *ps, const soil_struct *soil,
+            const epconst_struct *epc)
 #endif
 {
     /*
@@ -705,17 +698,17 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
      * See also: Chen et al. (1996, JGR, Vol 101(D3), 7251-7268), Eqns 12-14
      * and Table 2 of Sec. 3.1.2
      */
-    double          delta;
-    double          rr;
+    double delta;
+    double rr;
 #if !defined(_CYCLES_)
-    double          ff;
-    double          gx;
-    int             k;
-    double          part[MAXLYR];
+    double ff;
+    double gx;
+    int k;
+    double part[MAXLYR];
 #endif
-    const double    SLV = 2.501000e6;
+    const double SLV = 2.501000e6;
 #if defined(_CYCLES_)
-    const double    RC = 70.0;
+    const double RC = 70.0;
 #endif
 
 #if defined(_CYCLES_)
@@ -770,7 +763,8 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
 #endif
         /* Use soil depth as weighting factor */
         part[k] = ((ps->zsoil[k] - ps->zsoil[k - 1]) /
-            ps->zsoil[ps->nroot - 1]) * gx;
+                   ps->zsoil[ps->nroot - 1]) *
+                  gx;
     }
 
     for (k = 0; k < ps->nroot; k++)
@@ -785,11 +779,12 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
      *   pc * linearized Penman potential evap =
      *   Penman-Monteith actual evaporation (containing rc term). */
     ps->rc = epc->rsmin /
-        (ps->proj_lai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
+             (ps->proj_lai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
 #endif
 
     rr = (4.0 * ps->emissi * SIGMA * RD / CP) * pow(es->sfctmp, 4.0) /
-        (ps->sfcprs * ps->ch) + 1.0;
+             (ps->sfcprs * ps->ch) +
+         1.0;
 
     delta = (SLV / CP) * ps->dqsdt2;
 
@@ -801,9 +796,9 @@ double CSnow(double dsnow)
     /*
      * Calculate snow thermal conductivity
      */
-    double          c;
-    double          sncond;
-    const double    UNIT = 0.11631;
+    double c;
+    double sncond;
+    const double UNIT = 0.11631;
 
     /* Sncond in units of cal/(cm*hr*c), returned in W/(m*C)
      * Csnow in units of cal/(cm*hr*c), returned in W/(m*C)
@@ -829,12 +824,12 @@ double CSnow(double dsnow)
 }
 
 void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
-    const lc_struct *lc, const soil_struct *soil)
+           const lc_struct *lc, const soil_struct *soil)
 {
     /*
      * Calculate direct soil evaporation
      */
-    double          fx, sratio;
+    double fx, sratio;
 
     /* Direct evap a function of relative soil moisture availability, linear
      * when fxexp = 1.
@@ -858,12 +853,12 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 
 #if defined(_CYCLES_)
 void Evapo(const soil_struct *soil, const lc_struct *lc,
-    const pstate_struct *ps, const estate_struct *es,
-    const cstate_struct *cs, double dt, crop_struct crop[], wstate_struct *ws,
-    wflux_struct *wf)
+           const pstate_struct *ps, const estate_struct *es,
+           const cstate_struct *cs, double dt, crop_struct crop[], wstate_struct *ws,
+           wflux_struct *wf)
 #else
 void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
-    const lc_struct *lc, const soil_struct *soil, double dt)
+           const lc_struct *lc, const soil_struct *soil, double dt)
 #endif
 {
     /*
@@ -873,8 +868,8 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
      * Frozen ground version: new states added: sh2o, and frozen ground
      * correction factor, frzfact and parameter slope.
      */
-    int             k;
-    double          cmc2ms;
+    int k;
+    double cmc2ms;
 
     /* Executable code begins here if the potential evapotranspiration is
      * greater than zero. */
@@ -899,7 +894,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 #if defined(_CYCLES_)
         /* Evaporation from residue (Cycles function) */
         ResidueEvaporation(wf->etp * RHOH2O * dt, dt, ps->sncovr, crop, ps, cs,
-            ws, wf);
+                           ws, wf);
 #endif
 
         if (lc->shdfac > 0.0)
@@ -921,9 +916,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
              * evaporation */
             /* Calculate canopy evaporation.
              * If statements to avoid tangent linear problems near cmc = 0.0. */
-            wf->ec = (ws->cmc > 0.0) ?
-                (lc->shdfac * pow((ws->cmc / ws->cmcmax > 1.0) ?
-                1.0 : ws->cmc / ws->cmcmax, lc->cfactr) * wf->etp) : 0.0;
+            wf->ec = (ws->cmc > 0.0) ? (lc->shdfac * pow((ws->cmc / ws->cmcmax > 1.0) ? 1.0 : ws->cmc / ws->cmcmax, lc->cfactr) * wf->etp) : 0.0;
 
             /* Ec should be limited by the total amount of available water on
              * the canopy */
@@ -939,7 +932,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 
 double FrozRain(double prcp, double sfctmp)
 {
-    double          ffrozp;
+    double ffrozp;
 
     ffrozp = (prcp > 0.0 && sfctmp < TFREEZ) ? 1.0 : 0.0;
 
@@ -965,18 +958,18 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
      * In Flux-PIHM, van Genuchten parameters are used. See Technical
      * Documentation for details
      */
-    double          denom;
-    double          df;
-    double          dswl;
-    double          fk;
-    double          swl;
-    double          swlk;
-    double          satn;
-    int             nlog, kcount;
-    const double    CK = 8.0;
-    const double    TOL = 0.005;
-    double          mx;
-    double          freew;
+    double denom;
+    double df;
+    double dswl;
+    double fk;
+    double swl;
+    double swlk;
+    double satn;
+    int nlog, kcount;
+    const double CK = 8.0;
+    const double TOL = 0.005;
+    double mx;
+    double freew;
 
     nlog = 0;
     kcount = 0;
@@ -1009,12 +1002,13 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
                 mx = soil->beta / (1.0 - soil->beta);
 
                 df = log(GRAV / soil->alpha / LSUBF) +
-                    1.0 / soil->beta * log(pow(satn, mx) - 1.0) +
-                    2.0 * log(1.0 + CK * swl) - log(-(tkelv - TFREEZ) / tkelv);
+                     1.0 / soil->beta * log(pow(satn, mx) - 1.0) +
+                     2.0 * log(1.0 + CK * swl) - log(-(tkelv - TFREEZ) / tkelv);
 
                 denom = 1.0 / (soil->beta - 1.0) /
-                    (soil->smcmax - soil->smcmin) * pow(satn, mx - 1.0) /
-                    (pow(satn, mx) - 1.0) + 2.0 * CK / (1.0 + CK * swl);
+                            (soil->smcmax - soil->smcmin) * pow(satn, mx - 1.0) /
+                            (pow(satn, mx) - 1.0) +
+                        2.0 * CK / (1.0 + CK * swl);
 
                 swlk = swl - df / denom;
 
@@ -1047,8 +1041,11 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
         if (kcount == 0)
         {
             fk = pow(pow(-(tkelv - TFREEZ) / tkelv * soil->alpha *
-                    LSUBF / GRAV, soil->beta), 1.0 / mx) *
-                (soil->smcmax - soil->smcmin) - soil->smcmin;
+                             LSUBF / GRAV,
+                         soil->beta),
+                     1.0 / mx) *
+                     (soil->smcmax - soil->smcmin) -
+                 soil->smcmin;
             fk = (fk < SH2OMIN) ? SH2OMIN : fk;
 
             freew = (fk < smc) ? fk : smc;
@@ -1059,36 +1056,36 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
 }
 
 void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
-    const lc_struct *lc, const soil_struct *soil, double *rhsts, double yy,
-    double zz1, double dt, double df1, double *ai, double *bi, double *ci)
+         const lc_struct *lc, const soil_struct *soil, double *rhsts, double yy,
+         double zz1, double dt, double df1, double *ai, double *bi, double *ci)
 {
     /*
      * Calculate the right hand side of the time tendency term of the soil
      * thermal diffusion equation. Also to compute (prepare) the matrix
      * coefficients for the tri-diagonal matrix of the implicit time scheme.
      */
-    int             itavg;
-    int             k;
-    double          ddz, ddz2;
-    double          denom;
-    double          df1k;
-    double          dtsdz;
-    double          dtsdz2;
-    double          hcpct;
-    double          sice;
-    double          csoil_loc;
-    double          df1n;
-    double          qtot;
-    double          tavg;
-    double          tbk;
-    double          tbk1;
-    double          tsnsr;
-    double          tsurf;
-    double          ssoil;
-    const double    CH2O = 4.2E6;       /* Volumetric heat capacity of water
-                                         * (J m-3 K-1) */
-    const double    CICE = 1.26E6;      /* Volumetric heat capacity of ice
-                                         * (J m-3 K-1) */
+    int itavg;
+    int k;
+    double ddz, ddz2;
+    double denom;
+    double df1k;
+    double dtsdz;
+    double dtsdz2;
+    double hcpct;
+    double sice;
+    double csoil_loc;
+    double df1n;
+    double qtot;
+    double tavg;
+    double tbk;
+    double tbk1;
+    double tsnsr;
+    double tsurf;
+    double ssoil;
+    const double CH2O = 4.2E6;  /* Volumetric heat capacity of water
+                                 * (J m-3 K-1) */
+    const double CICE = 1.26E6; /* Volumetric heat capacity of ice
+                                 * (J m-3 K-1) */
 
     /* Urban */
     csoil_loc = (lc->isurban) ? 3.0E6 : soil->csoil;
@@ -1099,7 +1096,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
     /* Begin section for top soil layer
      * Calc the heat capacity of the top soil layer */
     hcpct = ws->sh2o[0] * CH2O + (1.0 - soil->smcmax) * csoil_loc +
-        (soil->smcmax - ws->smc[0]) * CP + (ws->smc[0] - ws->sh2o[0]) * CICE;
+            (soil->smcmax - ws->smc[0]) * CP + (ws->smc[0] - ws->sh2o[0]) * CICE;
 
     /* Calc the matrix coefficients ai, bi, and ci for the top layer */
     ddz = 1.0 / (-0.5 * ps->zsoil[1]);
@@ -1147,7 +1144,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
         {
             tavg = TmpAvg(tsurf, es->stc[0], tbk, ps->zsoil, 0);
             SnkSrc(&tsnsr, tavg, ws->smc[0], &ws->sh2o[0], soil, ps->zsoil, dt,
-                0, qtot);
+                   0, qtot);
             rhsts[0] -= tsnsr / denom;
         }
     }
@@ -1156,9 +1153,9 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
         if (sice > 0.0 || es->stc[0] < TFREEZ)
         {
             SnkSrc(&tsnsr, es->stc[0], ws->smc[0], &ws->sh2o[0], soil,
-                ps->zsoil, dt, 0, qtot);
+                   ps->zsoil, dt, 0, qtot);
             rhsts[0] -= tsnsr / denom;
-        }    /* This ends section for top soil layer. */
+        } /* This ends section for top soil layer. */
     }
 
     /* Initialize ddz2 */
@@ -1171,8 +1168,8 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
     for (k = 1; k < ps->nsoil; k++)
     {
         hcpct = ws->sh2o[k] * CH2O + (1.0 - soil->smcmax) * csoil_loc +
-            (soil->smcmax - ws->smc[k]) * CP +
-            (ws->smc[k] - ws->sh2o[k]) * CICE;
+                (soil->smcmax - ws->smc[k]) * CP +
+                (ws->smc[k] - ws->sh2o[k]) * CICE;
 
         /* This section for Layer 2 or greater, but not last layer.
          * Calculate thermal diffusivity for this layer. */
@@ -1180,7 +1177,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
         {
             /* Calc the vertical soil temp gradient thru this layer */
             df1n = TDfCnd(ws->smc[k], soil->quartz, soil->smcmax, soil->smcmin,
-                ws->sh2o[k]);
+                          ws->sh2o[k]);
 
             /* Urban */
             df1n = (lc->isurban) ? 3.24 : df1n;
@@ -1197,7 +1194,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
             if (itavg)
             {
                 tbk1 = TBnd(es->stc[k], es->stc[k + 1], ps->zsoil, ps->zbot, k,
-                    ps->nsoil);
+                            ps->nsoil);
             }
         }
         else
@@ -1205,7 +1202,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
             /* Special case of bottom soil layer
              * Calculate thermal diffusivity for bottom layer. */
             df1n = TDfCnd(ws->smc[k], soil->quartz, soil->smcmax, soil->smcmin,
-                ws->sh2o[k]);
+                          ws->sh2o[k]);
 
             /* Urban */
             df1n = (lc->isurban) ? 3.24 : df1n;
@@ -1222,8 +1219,8 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
             if (itavg)
             {
                 tbk1 = TBnd(es->stc[k], ps->tbot, ps->zsoil, ps->zbot, k,
-                    ps->nsoil);
-            }    /* This ends special loop for bottom layer. */
+                            ps->nsoil);
+            } /* This ends special loop for bottom layer. */
         }
 
         /* Calculate rhsts for this layer after calc'ng a partial product. */
@@ -1240,7 +1237,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
                 tbk1 < TFREEZ)
             {
                 SnkSrc(&tsnsr, tavg, ws->smc[k], &ws->sh2o[k], soil, ps->zsoil,
-                    dt, k, qtot);
+                       dt, k, qtot);
                 rhsts[k] = rhsts[k] - tsnsr / denom;
             }
         }
@@ -1249,7 +1246,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
             if (sice > 0.0 || es->stc[k] < TFREEZ)
             {
                 SnkSrc(&tsnsr, es->stc[k], ws->smc[k], &ws->sh2o[k], soil,
-                    ps->zsoil, dt, k, qtot);
+                       ps->zsoil, dt, k, qtot);
                 rhsts[k] = rhsts[k] - tsnsr / denom;
             }
         }
@@ -1268,14 +1265,14 @@ void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
 }
 
 void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
-    double *bi, double *ci)
+           double *bi, double *ci)
 {
     /*
      * Calculate/update the soil temperature field.
      */
-    int             k;
-    double          rhstsin[MAXLYR];
-    double          ciin[MAXLYR];
+    int k;
+    double rhstsin[MAXLYR];
+    double ciin[MAXLYR];
 
     /* Create finite difference values for use in Rosr12 routine */
     for (k = 0; k < nsoil; k++)
@@ -1305,13 +1302,13 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
 
 #if defined(_CYCLES_)
 void NoPac(const soil_struct *soil, const lc_struct *lc,
-    const cstate_struct *cs, double dt, double t24, crop_struct crop[],
-    pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
-    estate_struct *es, eflux_struct *ef)
+           const cstate_struct *cs, double dt, double t24, crop_struct crop[],
+           pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
+           estate_struct *es, eflux_struct *ef)
 #else
 void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
-    const soil_struct *soil, double dt, double t24)
+           eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
+           const soil_struct *soil, double dt, double t24)
 #endif
 {
     /*
@@ -1319,12 +1316,12 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * content and soil heat content values for the case when no snow pack is
      * present.
      */
-    int             k;
-    double          df1;
-    double          yy;
-    double          zz1;
-    double          yynum;
-    double          prcpf;
+    int k;
+    double df1;
+    double yy;
+    double zz1;
+    double yynum;
+    double prcpf;
 
     prcpf = wf->prcp;
 
@@ -1381,7 +1378,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * adjusted top lyr soil temp and adjusted soil flux, then call ShFlx to
      * compute/update soil heat flux and soil temps. */
     df1 = TDfCnd(ws->smc[0], soil->quartz, soil->smcmax, soil->smcmin,
-        ws->sh2o[0]);
+                 ws->sh2o[0]);
 
     /* Urban */
     df1 = (lc->isurban) ? 3.24 : df1;
@@ -1396,8 +1393,8 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * below) for use in computing subsurface heat flux in HRT */
     yynum = ef->fdown - ps->emissi * SIGMA * t24;
     yy = es->sfctmp +
-        (yynum / ps->rch + es->th2 - es->sfctmp - ps->beta * ps->epsca) /
-        ps->rr;
+         (yynum / ps->rch + es->th2 - es->sfctmp - ps->beta * ps->epsca) /
+             ps->rr;
 
     zz1 = df1 / (-0.5 * ps->zsoil[0] * ps->rch * ps->rr) + 1.0;
 
@@ -1419,17 +1416,17 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
 #if !defined(_CYCLES_)
 void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
-    double prcp, double dt)
+            double prcp, double dt)
 {
     /*
      * Separated from Noah SmFlx function
      * The canopy moisture content (cmc) is updated.
      */
-    double          excess;
-    double          rhsct;
-    double          trhsct;
-    const double    KD = 6.54E-7;
-    const double    BFACTR = 3.89;
+    double excess;
+    double rhsct;
+    double trhsct;
+    const double KD = 6.54E-7;
+    const double BFACTR = 3.89;
 
     /* Compute the right hand side of the canopy eqn term (rhsct)
      * Convert rhsct (a rate) to trhsct (an amount) and add it to existing cmc.
@@ -1445,9 +1442,7 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     if (excess > 0.0)
     {
         /* PIHM drip calculation following Rutter and Mortan (1977 JAE) */
-        wf->drip = (excess >= ws->cmcmax) ?
-            (KD * ws->cmcmax * exp(BFACTR)) + (excess - ws->cmcmax) / dt :
-            (KD * ws->cmcmax * exp(BFACTR * excess / ws->cmcmax));
+        wf->drip = (excess >= ws->cmcmax) ? (KD * ws->cmcmax * exp(BFACTR)) + (excess - ws->cmcmax) / dt : (KD * ws->cmcmax * exp(BFACTR * excess / ws->cmcmax));
 
         wf->drip = (wf->drip > excess / dt) ? excess / dt : wf->drip;
     }
@@ -1466,22 +1461,22 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
 #endif
 
 void Penman(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
-    pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
+            pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
 {
     /*
      * Calculate potential evaporation for the current point. Various partial
      * sums/products are also calculated and passed back to the calling routine
      * for later use.
      */
-    double          a;
-    double          delta;
-    double          fnet;
-    double          rad;
-    double          rho;
-    double          emissi;
-    double          elcp1;
-    double          lvs;
-    const double    ELCP = 2.4888E3;
+    double a;
+    double delta;
+    double fnet;
+    double rad;
+    double rho;
+    double emissi;
+    double elcp1;
+    double lvs;
+    const double ELCP = 2.4888E3;
 
     /* Prepare partial quantities for Penman equation. */
     emissi = ps->emissi;
@@ -1527,7 +1522,7 @@ void Penman(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
 }
 
 void Rosr12(double *p, const double *a, const double *b, double *c,
-    const double *d, double *delta, int nsoil)
+            const double *d, double *delta, int nsoil)
 {
     /*
      * Invert (solve) the tri-diagonal matrix problem shown below:
@@ -1545,7 +1540,7 @@ void Rosr12(double *p, const double *a, const double *b, double *c,
      * # 0  , . . . , 0 ,   0   ,   0   ,  a(m) ,  b[m] # # p(m) #   # d[m] #
      * ###                                            ### ###  ###   ###  ###
      */
-    int             k, kk;
+    int k, kk;
 
     /* Initialize eqn coef c for the lowest soil layer */
     c[nsoil - 1] = 0.0;
@@ -1574,16 +1569,16 @@ void Rosr12(double *p, const double *a, const double *b, double *c,
 }
 
 void ShFlx(wstate_struct *ws, estate_struct *es, const pstate_struct *ps,
-    const lc_struct *lc, const soil_struct *soil, double dt, double yy,
-    double zz1, double df1)
+           const lc_struct *lc, const soil_struct *soil, double dt, double yy,
+           double zz1, double df1)
 {
     /*
      * Update the temperature state of the soil column based on the thermal
      * diffusion equation and update the frozen soil moisture content based on
      * the temperature.
      */
-    double          ai[MAXLYR], bi[MAXLYR], ci[MAXLYR];
-    double          rhsts[MAXLYR];
+    double ai[MAXLYR], bi[MAXLYR], ci[MAXLYR];
+    double rhsts[MAXLYR];
 
     /* HRT routine calcs the right hand side of the soil temp dif eqn */
     /* Land case */
@@ -1592,13 +1587,12 @@ void ShFlx(wstate_struct *ws, estate_struct *es, const pstate_struct *ps,
     HStep(es, rhsts, dt, ps->nsoil, ai, bi, ci);
 }
 
-
 #if defined(_CYCLES_)
 void SmFlx(const soil_struct *soil, const cstate_struct *cs, double dt,
-    pstate_struct *ps, wstate_struct *ws, wflux_struct *wf)
+           pstate_struct *ps, wstate_struct *ws, wflux_struct *wf)
 #else
 void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
-    const soil_struct *soil, double dt)
+           const soil_struct *soil, double dt)
 #endif
 {
     /*
@@ -1608,10 +1602,10 @@ void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
      * Frozen ground version: new states added: sh2o, and frozen ground
      * correction factor, frzfact and parameter slope.
      */
-    int             i;
-    double          ai[MAXLYR], bi[MAXLYR], ci[MAXLYR];
-    double          rhstt[MAXLYR];
-    double          sice[MAXLYR];
+    int i;
+    double ai[MAXLYR], bi[MAXLYR], ci[MAXLYR];
+    double rhstt[MAXLYR];
+    double sice[MAXLYR];
 
     /* Store ice content at each soil layer before calling SRT and SStep */
     for (i = 0; i < ps->nsoil; i++)
@@ -1656,8 +1650,8 @@ double SnFrac(double sneqv, double snup, double salp)
     /*
      * Calculate snow fraction (0 -> 1)
      */
-    double          rsnow;
-    double          sncovr;
+    double rsnow;
+    double sncovr;
 
     /* Snup is veg-class dependent snowdepth threshold above which snocvr = 1 */
     if (sneqv < snup)
@@ -1683,17 +1677,17 @@ double SnFrac(double sneqv, double snup, double salp)
 }
 
 void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
-    const soil_struct *soil, const double *zsoil, double dt, int k, double qtot)
+            const soil_struct *soil, const double *zsoil, double dt, int k, double qtot)
 {
     /*
      * Calculate sink/source term of the thermal diffusion equation. (sh2o) is
      * available liquid water.
      */
-    double          dz;
-    double          freew;
-    double          xh2o;
+    double dz;
+    double freew;
+    double xh2o;
 
-    double          DH2O = 1.0000E3;
+    double DH2O = 1.0000E3;
 
     dz = (0 == k) ? -zsoil[0] : zsoil[k - 1] - zsoil[k];
 
@@ -1741,14 +1735,14 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
 
 #if defined(_CYCLES_)
 void SnoPac(const soil_struct *soil, const lc_struct *lc,
-    const cstate_struct *cs, int snowng, double dt, double t24, double prcpf,
-    double df1, crop_struct crop[], pstate_struct *ps, wstate_struct *ws,
-    wflux_struct *wf, estate_struct *es, eflux_struct *ef)
+            const cstate_struct *cs, int snowng, double dt, double t24, double prcpf,
+            double df1, crop_struct crop[], pstate_struct *ps, wstate_struct *ws,
+            wflux_struct *wf, estate_struct *es, eflux_struct *ef)
 #else
 void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
-    const soil_struct *soil, int snowng, double dt, double t24, double prcpf,
-    double df1)
+            eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
+            const soil_struct *soil, int snowng, double dt, double t24, double prcpf,
+            double df1)
 #endif
 {
     /*
@@ -1756,25 +1750,25 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * content and soil heat content values for the case when a snow pack is
      * present.
      */
-    int             k;
-    double          denom;
-    double          dsoil;
-    double          dtot;
-    double          esnow1;
-    double          esnow2;
-    double          etp3;
-    double          etanrg;
-    double          ex;
-    double          seh;
-    double          sncond;
-    double          t12;
-    double          t12a;
-    double          t12b;
-    double          t14;
-    double          yy;
-    double          zz1;
-    const double    ESDMIN = 1.0E-6;
-    const double    SNOEXP = 2.0;
+    int k;
+    double denom;
+    double dsoil;
+    double dtot;
+    double esnow1;
+    double esnow2;
+    double etp3;
+    double etanrg;
+    double ex;
+    double seh;
+    double sncond;
+    double t12;
+    double t12a;
+    double t12b;
+    double t14;
+    double yy;
+    double zz1;
+    const double ESDMIN = 1.0E-6;
+    const double SNOEXP = 2.0;
 
     /* Initialize evap terms. */
     wf->dew = 0.0;
@@ -1798,9 +1792,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         if (ps->ribb >= 0.1 && ef->fdown > 150.0)
         {
             wf->etp =
-                (((wf->etp * (1.0 - ps->ribb) < 0.0) ?
-                wf->etp * (1.0 - ps->ribb) : 0.0)
-                * ps->sncovr / 0.980 + wf->etp * (0.980 - ps->sncovr)) / 0.980;
+                (((wf->etp * (1.0 - ps->ribb) < 0.0) ? wf->etp * (1.0 - ps->ribb) : 0.0) * ps->sncovr / 0.980 + wf->etp * (0.980 - ps->sncovr)) / 0.980;
         }
 
         ps->beta = (wf->etp == 0.0) ? 0.0 : ps->beta;
@@ -1808,7 +1800,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         wf->dew = -wf->etp;
         esnow2 = wf->etp * dt;
         etanrg = wf->etp * 1000.0 *
-            ((1.0 - ps->sncovr) * LVH2O + ps->sncovr * LSUBS);
+                 ((1.0 - ps->sncovr) * LVH2O + ps->sncovr * LSUBS);
     }
     else
     {
@@ -1864,7 +1856,9 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * Penman. */
     /* Surface emissivity weighted by snow cover fraction */
     t12a = ((ef->fdown - ef->flx1 - ef->flx2 - ps->emissi * SIGMA * t24) /
-        ps->rch + es->th2 - es->sfctmp - etanrg / ps->rch) / ps->rr;
+                ps->rch +
+            es->th2 - es->sfctmp - etanrg / ps->rch) /
+           ps->rr;
     t12b = df1 * es->stc[0] / (dtot * ps->rr * ps->rch);
 
     t12 = (es->sfctmp + t12a + t12b) / denom;
@@ -1915,7 +1909,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
          * (s) using new skin temperature (t1) */
         /* Above freezing block */
         es->t1 = TFREEZ * pow(ps->sncovr, SNOEXP) +
-            t12 * (1.0 - pow(ps->sncovr, SNOEXP));
+                 t12 * (1.0 - pow(ps->sncovr, SNOEXP));
         ps->beta = 1.0;
 
         ef->ssoil = df1 * (es->t1 - es->stc[0]) / dtot;
@@ -2014,7 +2008,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 }
 
 void SnowPack(double esd, double dtsec, double *snowh, double *sndens,
-    double tsnow, double tsoil)
+              double tsnow, double tsoil)
 {
     /*
      * Calculate compaction of snowpack under conditions of increasing snow
@@ -2030,21 +2024,21 @@ void SnowPack(double esd, double dtsec, double *snowh, double *sndens,
      * tsoil   soil surface temperature (k)
      * Function will return new values of snowh and sndens
      */
-    int             ipol;
-    int             j;
-    double          bfac;
-    double          dsx;
-    double          dthr;
-    double          dw;
-    double          snowhc;
-    double          pexp;
-    double          tavgc;
-    double          tsnowc;
-    double          tsoilc;
-    double          esdc;
-    double          esdcx;
-    const double    C1 = 0.01;
-    const double    C2 = 21.0;
+    int ipol;
+    int j;
+    double bfac;
+    double dsx;
+    double dthr;
+    double dw;
+    double snowhc;
+    double pexp;
+    double tavgc;
+    double tsnowc;
+    double tsoilc;
+    double esdc;
+    double esdcx;
+    const double C1 = 0.01;
+    const double C2 = 21.0;
 
     /* Conversion into simulation units */
     snowhc = *snowh * 100.0;
@@ -2115,10 +2109,10 @@ double Snowz0(double sncovr, double z0brd, double snowh)
     /*
      * Calculate total roughness length over snow
      */
-    const double    Z0S = 0.001;    /* Snow roughness length (m) */
-    double          burial;
-    double          z0eff;
-    double          z0;
+    const double Z0S = 0.001; /* Snow roughness length (m) */
+    double burial;
+    double z0eff;
+    double z0;
 
     burial = 7.0 * z0brd - snowh;
     z0eff = (burial <= 0.0007) ? Z0S : (burial / 7.0);
@@ -2134,11 +2128,11 @@ void SnowNew(const estate_struct *es, double newsn, pstate_struct *ps)
      * Calculate snow depth and density to account for the new snowfall.
      * New values of snow depth & density returned.
      */
-    double          dsnew;
-    double          hnewc;
-    double          snowhc;
-    double          newsnc;
-    double          tempc;
+    double dsnew;
+    double hnewc;
+    double snowhc;
+    double newsnc;
+    double tempc;
 
     /* Conversion into simulation units */
     snowhc = ps->snowh * 100.0;
@@ -2168,12 +2162,12 @@ void SnowNew(const estate_struct *es, double newsn, pstate_struct *ps)
 
 #if defined(_CYCLES_)
 void SRT(const soil_struct *soil, const cstate_struct *cs, double dt,
-    pstate_struct *ps, wstate_struct *ws, wflux_struct *wf, double *rhstt,
-    double *sice, double *ai, double *bi, double *ci)
+         pstate_struct *ps, wstate_struct *ws, wflux_struct *wf, double *rhstt,
+         double *sice, double *ai, double *bi, double *ci)
 #else
 void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
-    const soil_struct *soil, double *rhstt, double *sice, double *ai,
-    double *bi, double *ci)
+         const soil_struct *soil, double *rhstt, double *sice, double *ai,
+         double *bi, double *ci)
 #endif
 {
     /*
@@ -2181,26 +2175,26 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
      * diffusion equation. Also to compute (prepare) the matrix coefficients for
      * the tri-diagonal matrix of the implicit time scheme.
      */
-    int             iohinf;
-    int             j, jj, k, ks;
-    double          ddz;
-    double          ddz2;
-    double          denom;
-    double          denom2;
-    double          numer;
-    double          pddum;
-    double          mxsmc, mxsmc2;
-    double          sicemax;
-    double          wcnd;
-    double          wcnd2;
-    double          wdf;
-    double          wdf2;
-    double          dsmdz, dsmdz2;
-    double          dice;
-    const double    CVFRZ = 3.0;
-    double          acrt;
-    double          sum;
-    int             ialp1;
+    int iohinf;
+    int j, jj, k, ks;
+    double ddz;
+    double ddz2;
+    double denom;
+    double denom2;
+    double numer;
+    double pddum;
+    double mxsmc, mxsmc2;
+    double sicemax;
+    double wcnd;
+    double wcnd2;
+    double wdf;
+    double wdf2;
+    double dsmdz, dsmdz2;
+    double dice;
+    const double CVFRZ = 3.0;
+    double acrt;
+    double sum;
+    int ialp1;
     /* Frozen ground version:
      * Reference frozen ground parameter, cvfrz, is a shape parameter of areal
      * distribution function of soil ice content which equals 1/cv.
@@ -2262,7 +2256,7 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     /* Calc rhstt for the top layer after calc'ng the vertical soil moisture
      * gradient btwn the top and next to top layers. */
     rhstt[0] = (wdf * dsmdz + wcnd - pddum + wf->edir + wf->et[0]) /
-        ps->zsoil[0];
+               ps->zsoil[0];
 
     rhstt[0] += wf->runoff2_lyr[0] / ps->zsoil[0];
 
@@ -2319,17 +2313,17 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
 }
 
 void SStep(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
-    const soil_struct *soil, double *rhstt, double *sice, double *ai,
-    double *bi, double *ci, double dt)
+           const soil_struct *soil, double *rhstt, double *sice, double *ai,
+           double *bi, double *ci, double dt)
 {
     /*
      * Calculate/update soil moisture content values and canopy moisture content
      * values.
      */
-    int             k;
-    double          rhsttin[MAXLYR];
-    double          ciin[MAXLYR];
-    double          sh2o0[MAXLYR];
+    int k;
+    double rhsttin[MAXLYR];
+    double ciin[MAXLYR];
+    double sh2o0[MAXLYR];
 
     /* Create 'amount' values of variables to be input to the tri-diagonal
      * matrix routine. */
@@ -2372,13 +2366,13 @@ void SStep(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
 }
 
 double TBnd(double tu, double tb, const double *zsoil, double zbot, int k,
-    int nsoil)
+            int nsoil)
 {
     /*
      * Calculate temperature on the boundary of the layer by interpolation of
      * the middle layer temperatures */
-    double          zb, zup;
-    double          tbnd1;
+    double zb, zup;
+    double tbnd1;
 
     /* Use surface temperature on the top of the first layer */
     zup = (k == 0) ? 0.0 : zsoil[k - 1];
@@ -2401,19 +2395,19 @@ double TDfCnd(double smc, double qz, double smcmax, double smcmin, double sh2o)
      * Peters-Lidard approach (Peters-Lidard et al., 1998)
      * June 2001 changes: frozen soil condition.
      */
-    double          df;
-    double          ake;
-    double          gammd;
-    double          thkdry;
-    const double    THKICE = 2.2;
-    double          thko;
-    const double    THKQTZ = 7.7;
-    double          thksat;
-    double          thks;
-    const double    THKW = 0.57;
-    double          satratio;
-    double          xu;
-    double          xunfroz;
+    double df;
+    double ake;
+    double gammd;
+    double thkdry;
+    const double THKICE = 2.2;
+    double thko;
+    const double THKQTZ = 7.7;
+    double thksat;
+    double thks;
+    const double THKW = 0.57;
+    double satratio;
+    double xu;
+    double xunfroz;
 
     /* We now get quartz as an input argument
      *
@@ -2492,12 +2486,12 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
      * is at top boundary of layer, tdn is at bottom boundary of layer.
      * Tm is layer prognostic state temperature.
      */
-    double          dz;
-    double          dzh;
-    double          x0;
-    double          xdn;
-    double          xup;
-    double          tavg;
+    double dz;
+    double dzh;
+    double x0;
+    double xdn;
+    double xup;
+    double tavg;
 
     dz = (k == 0) ? -zsoil[0] : zsoil[k - 1] - zsoil[k];
 
@@ -2517,8 +2511,8 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
                 /* tup & tm < TFREEZ, tdn > TFREEZ */
                 x0 = (TFREEZ - tm) * dzh / (tdn - tm);
                 tavg = 0.5 *
-                    (tup * dzh + tm * (dzh + x0) + TFREEZ * (2.0 * dzh - x0)) /
-                    dz;
+                       (tup * dzh + tm * (dzh + x0) + TFREEZ * (2.0 * dzh - x0)) /
+                       dz;
             }
         }
         else
@@ -2529,8 +2523,8 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
                 xup = (TFREEZ - tup) * dzh / (tm - tup);
                 xdn = dzh - (TFREEZ - tm) * dzh / (tdn - tm);
                 tavg = 0.5 *
-                    (tup * xup + TFREEZ * (2.0 * dz - xup - xdn) + tdn * xdn) /
-                    dz;
+                       (tup * xup + TFREEZ * (2.0 * dz - xup - xdn) + tdn * xdn) /
+                       dz;
             }
             else
             {
@@ -2549,7 +2543,7 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
                 /* tup > TFREEZ, tm < TFREEZ, tdn < TFREEZ */
                 xup = dzh - (TFREEZ - tup) * dzh / (tm - tup);
                 tavg = 0.5 *
-                    (TFREEZ * (dz - xup) + tm * (dzh + xup) + tdn * dzh) / dz;
+                       (TFREEZ * (dz - xup) + tm * (dzh + xup) + tdn * dzh) / dz;
             }
             else
             {
@@ -2557,7 +2551,7 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
                 xup = dzh - (TFREEZ - tup) * dzh / (tm - tup);
                 xdn = (TFREEZ - tm) * dzh / (tdn - tm);
                 tavg = 0.5 *
-                    (TFREEZ * (2.0 * dz - xup - xdn) + tm * (xup + xdn)) / dz;
+                       (TFREEZ * (2.0 * dz - xup - xdn) + tm * (xup + xdn)) / dz;
             }
         }
         else
@@ -2581,16 +2575,16 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
 
 #if !defined(_CYCLES_)
 void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
-    const lc_struct *lc, const soil_struct *soil)
+            const lc_struct *lc, const soil_struct *soil)
 {
     /*
      * Calculate transpiration for the veg class
      */
-    int             i, k;
-    double          denom;
-    double          etpa;
-    double          gx[MAXLYR];
-    double          rtx, sgx;
+    int i, k;
+    double denom;
+    double etpa;
+    double gx[MAXLYR];
+    double rtx, sgx;
 
     /* Initialize plant transp to zero for all soil layers. */
     for (k = 0; k < ps->nsoil; k++)
@@ -2603,10 +2597,9 @@ void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
      * Note: gx and other terms below redistribute transpiration by layer,
      * et(k), as a function of soil moisture availability, while preserving
      * total etpa. */
-    etpa = (ws->cmc != 0.0) ?
-        lc->shdfac * ps->pc * wf->etp *
-        (1.0 - pow(ws->cmc / ws->cmcmax, lc->cfactr)) :
-        lc->shdfac * ps->pc * wf->etp;
+    etpa = (ws->cmc != 0.0) ? lc->shdfac * ps->pc * wf->etp *
+                                  (1.0 - pow(ws->cmc / ws->cmcmax, lc->cfactr))
+                            : lc->shdfac * ps->pc * wf->etp;
 
     sgx = 0.0;
     for (i = 0; i < ps->nroot; i++)
@@ -2632,7 +2625,7 @@ void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     {
         wf->et[i] = etpa * gx[i] / denom;
     }
-# if NOT_YET_IMPLEMENTED
+#if NOT_YET_IMPLEMENTED
     /* Above code assumes a vertically uniform root distribution
      * Code below tests a variable root distribution */
     wf->et[0] = (zsoil[0] / zsoil[ps->nroot - 1]) * gx * etpa;
@@ -2645,36 +2638,38 @@ void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
      * layer) in the final calculation. */
     for (k = 0; k < ps->nroot; k++)
     {
-        gx = (ws->smc[k] - soil->smcwlt ) / (soil->smcref - soil->smcwlt);
+        gx = (ws->smc[k] - soil->smcwlt) / (soil->smcref - soil->smcwlt);
         gx = (gx < 0.0) ? 0.0 : gx;
         gx = (gx > 1.0) ? 1.0 : gx;
         /* Test canopy resistance */
         gx = 1.0;
-        wf->et[k] = ((zsoil[k] - zsoil[k-1]) /
-        zsoil[ps->nroot - 1]) * gx * etpa;
-        wf->et[k] = ((zsoil[k] - zsoil[k-1]) /
-        zsoil[ps->nroot - 1]) * etpa;
+        wf->et[k] = ((zsoil[k] - zsoil[k - 1]) /
+                     zsoil[ps->nroot - 1]) *
+                    gx * etpa;
+        wf->et[k] = ((zsoil[k] - zsoil[k - 1]) /
+                     zsoil[ps->nroot - 1]) *
+                    etpa;
         /* Using root distribution as weighting factor */
         wf->et[k] = lc->rtdis[k] * etpa;
         wf->et[k] = etpa * part[k];
     }
-# endif
+#endif
 }
 #endif
 
 void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax,
-    const soil_struct *soil)
+            const soil_struct *soil)
 {
     /*
      * Calculate soil water diffusivity and soil hydraulic conductivity.
      * Flux-PIHM: using van Genuchten parameters
      */
-    double          expon;
-    double          factr1;
-    double          factr2;
-    double          vkwgt;
-    double          satkfunc;
-    double          dpsidsm;
+    double expon;
+    double factr1;
+    double factr2;
+    double vkwgt;
+    double satkfunc;
+    double dpsidsm;
 
     /* Calc the ratio of the actual to the max psbl soil h2o content */
     factr1 = 0.05 / (soil->smcmax - soil->smcmin);
@@ -2702,15 +2697,15 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax,
         vkwgt = 1.0 / (1.0 + pow(500.0 * sicemax, 3.0));
         satkfunc = KrFunc(soil->beta, factr1);
         dpsidsm = (1.0 - expon) / soil->alpha / expon /
-            (soil->smcmax - soil->smcmin) *
-            pow(pow(factr1, -1.0 / expon) - 1.0, -expon) *
-            pow(factr1, -(1.0 / expon + 1.0));
+                  (soil->smcmax - soil->smcmin) *
+                  pow(pow(factr1, -1.0 / expon) - 1.0, -expon) *
+                  pow(factr1, -(1.0 / expon + 1.0));
         *wdf = vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm * satkfunc * soil->ksatv;
     }
 }
 
 void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
-    double th2v, int iz0tlnd)
+               double th2v, int iz0tlnd)
 {
     /*
      * Calculate surface layer exchange coefficients via iterative process.
@@ -2719,58 +2714,58 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
      * This routine sfcdif can handle both over open water (sea, ocean) and
      * over solid surface (land, sea-ice).
      */
-    double          zilfc;
-    double          zu;
-    double          zt;
-    double          rdz;
-    double          cxch;
-    double          dthv;
-    double          du2;
-    double          btgh;
-    double          wstar2;
-    double          ustar;
-    double          zslu;
-    double          zslt;
-    double          rlogu;
-    double          rlogt;
-    double          rlmo;
-    double          zetalt;
-    double          zetalu;
-    double          zetau;
-    double          zetat;
-    double          xlu4;
-    double          xlt4;
-    double          xu4;
-    double          xt4;
-    double          xlu;
-    double          xlt;
-    double          xu;
-    double          xt;
-    double          psmz;
-    double          simm;
-    double          pshz;
-    double          simh;
-    double          ustark;
-    double          rlmn;
-    double          rlma;
-    int             ilech;
-    int             itr;
-    const double    WWST = 1.2;
-    double          wwst2;
-    const double    VKRM = 0.40;
-    const double    EXCM = 0.001;
-    const double    BETA = 1.0 / 270.0;
-    double          btg;
-    double          elfc;
-    double          WOLD = 0.15;
-    double          wnew;
-    const int       ITRMX = 5;
-    const double    EPSU2 = 1.0e-4;
-    const double    EPSUST = 0.07;
-    const double    ZTMIN = -5.0;
-    const double    ZTMAX = 1.0;
-    const double    HPBL = 1000.0;
-    const double    SQVISC = 258.2;
+    double zilfc;
+    double zu;
+    double zt;
+    double rdz;
+    double cxch;
+    double dthv;
+    double du2;
+    double btgh;
+    double wstar2;
+    double ustar;
+    double zslu;
+    double zslt;
+    double rlogu;
+    double rlogt;
+    double rlmo;
+    double zetalt;
+    double zetalu;
+    double zetau;
+    double zetat;
+    double xlu4;
+    double xlt4;
+    double xu4;
+    double xt4;
+    double xlu;
+    double xlt;
+    double xu;
+    double xt;
+    double psmz;
+    double simm;
+    double pshz;
+    double simh;
+    double ustark;
+    double rlmn;
+    double rlma;
+    int ilech;
+    int itr;
+    const double WWST = 1.2;
+    double wwst2;
+    const double VKRM = 0.40;
+    const double EXCM = 0.001;
+    const double BETA = 1.0 / 270.0;
+    double btg;
+    double elfc;
+    double WOLD = 0.15;
+    double wnew;
+    const int ITRMX = 5;
+    const double EPSU2 = 1.0e-4;
+    const double EPSUST = 0.07;
+    const double ZTMIN = -5.0;
+    const double ZTMAX = 1.0;
+    const double HPBL = 1000.0;
+    const double SQVISC = 258.2;
 
     wwst2 = WWST * WWST;
     btg = BETA * GRAV;
@@ -2803,8 +2798,7 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
 
     btgh = btg * HPBL;
     /* If statements to avoid tangent linear problems near zero */
-    wstar2 = (btgh * ps->ch * dthv != 0.0) ?
-        wwst2 * pow(fabs(btgh * ps->ch * dthv), 2.0 / 3.0) : 0.0;
+    wstar2 = (btgh * ps->ch * dthv != 0.0) ? wwst2 * pow(fabs(btgh * ps->ch * dthv), 2.0 / 3.0) : 0.0;
 
     ustar = sqrt(ps->cm * sqrt(du2 + wstar2));
     ustar = (ustar > EPSUST) ? ustar : EPSUST;
@@ -2898,8 +2892,7 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
         ps->ch = (ustark / simh > cxch) ? ustark / simh : cxch;
 
         /* If statements to avoid tangent linear problems near zero */
-        wstar2 = (btgh * ps->ch * dthv != 0.0) ?
-            wwst2 * pow(fabs(btgh * ps->ch * dthv), 2.0 / 3.0) : 0.0;
+        wstar2 = (btgh * ps->ch * dthv != 0.0) ? wwst2 * pow(fabs(btgh * ps->ch * dthv), 2.0 / 3.0) : 0.0;
 
         rlmn = elfc * ps->ch * dthv / pow(ustar, 3.0);
 
@@ -2910,7 +2903,7 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
 }
 
 void AdjSmProf(const soil_struct *soil, const pstate_struct *ps,
-    const double *sice, double dt, wflux_struct *wf, wstate_struct *ws)
+               const double *sice, double dt, wflux_struct *wf, wstate_struct *ws)
 {
     /* Min allowable value of smc will be SH2OMIN. */
     /* In Flux-PIHM, the soil layers are gone thru twice:
@@ -2918,12 +2911,12 @@ void AdjSmProf(const soil_struct *soil, const pstate_struct *ps,
      * saturated;
      * 2. From top to bottom, to make sure soil moisture from all layers are
      * within plausible ranges */
-    int             k;
-    double          ddz;
-    double          sh2omid[MAXLYR];
-    double          wplus;
-    double          stot;
-    double          stotmin;
+    int k;
+    double ddz;
+    double sh2omid[MAXLYR];
+    double wplus;
+    double stot;
+    double stotmin;
 
     /* Runoff3: runoff within soil layers */
     wplus = 0.0;
@@ -2944,11 +2937,10 @@ void AdjSmProf(const soil_struct *soil, const pstate_struct *ps,
         else
         {
             stotmin = (ps->satdpth[k] * soil->smcmax +
-                (ps->sldpth[k] - ps->satdpth[k]) * (soil->smcmin + SH2OMIN)) /
-                ps->sldpth[k];
+                       (ps->sldpth[k] - ps->satdpth[k]) * (soil->smcmin + SH2OMIN)) /
+                      ps->sldpth[k];
             stotmin = (stotmin > soil->smcmax) ? soil->smcmax : stotmin;
-            stotmin = (stotmin < soil->smcmin + SH2OMIN) ?
-                (soil->smcmin + SH2OMIN) : stotmin;
+            stotmin = (stotmin < soil->smcmin + SH2OMIN) ? (soil->smcmin + SH2OMIN) : stotmin;
 
             if (stot < stotmin)
             {
@@ -2975,8 +2967,7 @@ void AdjSmProf(const soil_struct *soil, const pstate_struct *ps,
         wplus = (stot > soil->smcmax) ? (stot - soil->smcmax) * ddz : 0.0;
 
         ws->smc[k] = (stot < soil->smcmax) ? stot : soil->smcmax;
-        ws->smc[k] = (ws->smc[k] > soil->smcmin + SH2OMIN) ?
-            ws->smc[k] : (soil->smcmin + SH2OMIN);
+        ws->smc[k] = (ws->smc[k] > soil->smcmin + SH2OMIN) ? ws->smc[k] : (soil->smcmin + SH2OMIN);
         ws->sh2o[k] = ws->smc[k] - sice[k];
         ws->sh2o[k] = (ws->sh2o[k] > 0.0) ? ws->sh2o[k] : 0.0;
     }
@@ -2992,8 +2983,8 @@ double Pslmu(double zz)
 
 double Pslms(double zz)
 {
-    const double    RIC = 0.183;
-    double          rric;
+    const double RIC = 0.183;
+    double rric;
 
     rric = 1.0 / RIC;
     return zz * rric - 2.076 * (1.0 - 1.0 / (zz + 1.0));
@@ -3006,10 +2997,10 @@ double Pslhu(double zz)
 
 double Pslhs(double zz)
 {
-    const double    RIC = 0.183;
-    const double    FHNEU = 0.8;
-    const double    RFC = 0.191;
-    double          rfac;
+    const double RIC = 0.183;
+    const double FHNEU = 0.8;
+    const double RFC = 0.191;
+    double rfac;
 
     rfac = RIC / (FHNEU * RFC * RFC);
     return zz * rfac - 2.076 * (1.0 - exp(-1.2 * zz));
@@ -3019,7 +3010,7 @@ double Pslhs(double zz)
 double Pspmu(double xx)
 {
     return -2.0 * log((xx + 1.0) * 0.5) - log((xx * xx + 1.0) * 0.5) +
-        2.0 * atan(xx) - PI * 0.5;
+           2.0 * atan(xx) - PI * 0.5;
 }
 
 double Pspms(double yy)

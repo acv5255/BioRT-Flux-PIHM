@@ -1,10 +1,10 @@
 #include "pihm.h"
 
-void InitGeol (elem_struct *elem, const geoltbl_struct *geoltbl,
-        const calib_struct *cal)
+void InitGeol(elem_struct *elem, const GeologyEntry *geoltbl,
+              const CalibrationParameters *cal)
 {
-    int             i;
-    int             geol_ind;
+    int i;
+    int geol_ind;
 
     for (i = 0; i < nelem; i++)
     {
@@ -20,9 +20,9 @@ void InitGeol (elem_struct *elem, const geoltbl_struct *geoltbl,
         elem[i].geol.porosity = elem[i].geol.smcmax - elem[i].geol.smcmin;
         if (elem[i].geol.porosity > 1.0 || elem[i].geol.porosity <= 0.0)
         {
-            PIHMprintf (VL_ERROR,
-                "Error: Porosity value out of bounds for Element %d", i + 1);
-            PIHMexit (EXIT_FAILURE);
+            PIHMprintf(VL_ERROR,
+                       "Error: Porosity value out of bounds for Element %d", i + 1);
+            PIHMexit(EXIT_FAILURE);
         }
         elem[i].geol.alpha = cal->alpha * geoltbl->alpha[geol_ind];
         elem[i].geol.beta = cal->beta * geoltbl->beta[geol_ind];

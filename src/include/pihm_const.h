@@ -57,8 +57,8 @@ enum SpinupMode
 #define RT_STEP 3
 
 /* Maximum number of output files */
-// #define MAXPRINT 1024
-static const int MAXPRINT = 1024;
+#define MAXPRINT 1024
+// static const int MAXPRINT = 1024;
 
 /* Meteorological forcing related */
 #define NUM_METEO_VAR 7 /* number of meteorological forcing \

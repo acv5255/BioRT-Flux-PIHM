@@ -1,8 +1,8 @@
 #include "pihm.h"
 
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
-              chemtbl_struct chemtbl[], kintbl_struct kintbl[], rttbl_struct *rttbl,
-              forc_struct *forc, ctrl_struct *ctrl)
+              ChemicalEntry chemtbl[], KineticEntry kintbl[], ReactionNetwork *rttbl,
+              Forcing *forc, RunParameters *ctrl)
 {
     int chem_ind;
     char cmdstr[MAXSTRING];
@@ -237,9 +237,9 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
                rttbl->NumAkr);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DIFFUSION", &rttbl->DiffCoe, 'd', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n", rttbl->DiffCoe);
-    rttbl->DiffCoe /= 1.0E4; /* Convert from cm2 s-1 to m2 s-1 */
+    ReadKeyword(cmdstr, "DIFFUSION", &rttbl->diffusion_coeff, 'd', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n", rttbl->diffusion_coeff);
+    rttbl->diffusion_coeff /= 1.0E4; /* Convert from cm2 s-1 to m2 s-1 */
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "DISPERSION", &rttbl->DispCoe, 'd', chem_filen, lno);
@@ -570,7 +570,7 @@ int SpeciesType(FILE *database, const char *chemn)
 }
 
 void SortChem(char chemn[MAXSPS][MAXSTRING], const int p_type[MAXSPS], int nsps,
-              chemtbl_struct chemtbl[])
+              ChemicalEntry chemtbl[])
 {
     int temp;
     int rank[MAXSPS];

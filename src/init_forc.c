@@ -1,19 +1,19 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal,
-    const rttbl_struct *rttbl)
+void InitForc(elem_struct *elem, Forcing *forc, const CalibrationParameters *cal,
+              const ReactionNetwork *rttbl)
 #else
-void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
+void InitForc(elem_struct *elem, Forcing *forc, const calib_struct *cal)
 #endif
 {
-    int             i, j;
+    int i, j;
 
     /* Apply climate scenarios */
     for (i = 0; i < forc->nmeteo; i++)
     {
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
         for (j = 0; j < forc->meteo[i].length; j++)
         {
@@ -86,7 +86,7 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
 #endif
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {

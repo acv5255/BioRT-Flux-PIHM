@@ -1,10 +1,10 @@
 #include "pihm.h"
 
-void ReadCalib(const char *filename, calib_struct *cal)
+void ReadCalib(const char *filename, CalibrationParameters *cal)
 {
-    char            cmdstr[MAXSTRING];
-    FILE           *global_calib;   /* Pointer to .calib file */
-    int             lno = 0;
+    char cmdstr[MAXSTRING];
+    FILE *global_calib; /* Pointer to .calib file */
+    int lno = 0;
 
     global_calib = fopen(filename, "r");
     CheckFile(global_calib, filename);

@@ -1,17 +1,17 @@
 #include "pihm.h"
 
 #if defined(_NOAH_)
-void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
-    const noahtbl_struct *noahtbl, const calib_struct *cal)
+void InitSoil(elem_struct *elem, const SoilEntry *soiltbl,
+              const NoahLandSurfaceEntry *noahtbl, const CalibrationParameters *cal)
 #else
-void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
-    const calib_struct *cal)
+void InitSoil(elem_struct *elem, const SoilEntry *soiltbl,
+              const CalibrationParameters *cal)
 #endif
 {
-    int             i;
+    int i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
 #if defined(_LUMPED_)
     for (i = 0; i < nelem + 1; i++)
@@ -19,7 +19,7 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
     for (i = 0; i < nelem; i++)
 #endif
     {
-        int             soil_ind;
+        int soil_ind;
 
         soil_ind = elem[i].attrib.soil_type - 1;
 
@@ -37,7 +37,7 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
             PIHMprintf(VL_ERROR,
-                "Error: Porosity value out of bounds for Element %d", i + 1);
+                       "Error: Porosity value out of bounds for Element %d", i + 1);
             PIHMexit(EXIT_FAILURE);
         }
         elem[i].soil.alpha = cal->alpha * soiltbl->alpha[soil_ind];
@@ -55,8 +55,7 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
 #endif
 
         elem[i].soil.dmac = cal->dmac * soiltbl->dmac[soil_ind];
-        elem[i].soil.dmac = (elem[i].soil.dmac > elem[i].soil.depth) ?
-            elem[i].soil.depth : elem[i].soil.dmac;
+        elem[i].soil.dmac = (elem[i].soil.dmac > elem[i].soil.depth) ? elem[i].soil.depth : elem[i].soil.dmac;
 
         elem[i].soil.areafh = cal->areafh * soiltbl->areafh[soil_ind];
         elem[i].soil.areafv = cal->areafv * soiltbl->areafv[soil_ind];

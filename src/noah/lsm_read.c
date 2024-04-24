@@ -1,16 +1,16 @@
 #include "pihm.h"
 
-void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
-    noahtbl_struct *noahtbl)
+void ReadLsm(const char *filename, SiteInfo *siteinfo, RunParameters *ctrl,
+             NoahLandSurfaceEntry *noahtbl)
 {
-    int             i;
-    FILE           *lsm_file;
-    int             match;
-    int             bytes_now;
-    int             bytes_consumed = 0;
-    char            cmdstr[MAXSTRING];
-    char            buffer[MAXSTRING];
-    int             lno = 0;
+    int i;
+    FILE *lsm_file;
+    int match;
+    int bytes_now;
+    int bytes_consumed = 0;
+    char cmdstr[MAXSTRING];
+    char buffer[MAXSTRING];
+    int lno = 0;
 
     /*
      * Open *.lsm file
@@ -35,8 +35,8 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     if (ctrl->nsoil > MAXLYR - 1)
     {
         PIHMprintf(VL_ERROR,
-            "The number of soil layers should not be larger than %d.\n",
-            MAXLYR - 1);
+                   "The number of soil layers should not be larger than %d.\n",
+                   MAXLYR - 1);
         PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
         PIHMexit(EXIT_FAILURE);
     }
@@ -47,7 +47,7 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     for (i = 0; i < ctrl->nsoil; i++)
     {
         match = sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->sldpth[i],
-            &bytes_now);
+                       &bytes_now);
         if (match != 1)
         {
             PIHMprintf(VL_ERROR, "Error reading soil layer depths.\n");
@@ -137,13 +137,13 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     fclose(lsm_file);
 }
 
-void ReadRad(const char *filename, forc_struct *forc)
+void ReadRad(const char *filename, Forcing *forc)
 {
-    int             i, j;
-    FILE           *rad_file;
-    int             index;
-    char            cmdstr[MAXSTRING];
-    int             lno = 0;
+    int i, j;
+    FILE *rad_file;
+    int index;
+    char cmdstr[MAXSTRING];
+    int lno = 0;
 
     rad_file = fopen(filename, "r");
     CheckFile(rad_file, filename);
@@ -156,13 +156,13 @@ void ReadRad(const char *filename, forc_struct *forc)
     if (forc->nrad != forc->nmeteo)
     {
         PIHMprintf(VL_ERROR,
-            "The number of radiation forcing time series should be the same as "
-            "the number of meteorological forcing time series.\n");
+                   "The number of radiation forcing time series should be the same as "
+                   "the number of meteorological forcing time series.\n");
         PIHMprintf(VL_ERROR, "Error in %s.\n", filename);
         PIHMexit(EXIT_FAILURE);
     }
 
-    forc->rad = (tsdata_struct *)malloc(forc->nrad * sizeof(tsdata_struct));
+    forc->rad = (TimeSeriesData *)malloc(forc->nrad * sizeof(TimeSeriesData));
 
     FindLine(rad_file, "BOF", &lno, filename);
 
@@ -174,8 +174,8 @@ void ReadRad(const char *filename, forc_struct *forc)
         if (i != index - 1)
         {
             PIHMprintf(VL_ERROR,
-                "Error reading the %dth radiation forcing time series.\n",
-                i + 1);
+                       "Error reading the %dth radiation forcing time series.\n",
+                       i + 1);
             PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
             PIHMexit(EXIT_FAILURE);
         }
@@ -211,12 +211,12 @@ void ReadRad(const char *filename, forc_struct *forc)
 
 void ReadGlacierIce(const char filename[], double iceh[])
 {
-    int             i;
-    FILE           *ice_file;
-    char            cmdstr[MAXSTRING];
-    int             match;
-    int             index;
-    int             lno = 0;
+    int i;
+    FILE *ice_file;
+    char cmdstr[MAXSTRING];
+    int match;
+    int index;
+    int lno = 0;
 
     ice_file = fopen(filename, "r");
     CheckFile(ice_file, filename);
@@ -230,8 +230,8 @@ void ReadGlacierIce(const char filename[], double iceh[])
         if (match != 2)
         {
             PIHMprintf(VL_ERROR,
-                "Error reading glacier ice depth of the %dth element.\n",
-                i + 1);
+                       "Error reading glacier ice depth of the %dth element.\n",
+                       i + 1);
             PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
             PIHMexit(EXIT_FAILURE);
         }

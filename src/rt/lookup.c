@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
-            kintbl_struct kintbl[], rttbl_struct *rttbl)
+void Lookup(FILE *database, const CalibrationParameters *cal, ChemicalEntry chemtbl[],
+            KineticEntry kintbl[], ReactionNetwork *rttbl)
 {
     int ind;
     int keq_position = BADVAL;
@@ -106,7 +106,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         }
         wrap(chemtbl[i].ChemName);
 
-        chemtbl[i].DiffCoe = rttbl->DiffCoe;
+        chemtbl[i].diffusion_coeff = rttbl->diffusion_coeff;
         chemtbl[i].DispCoe = rttbl->DispCoe;
         chemtbl[i].Charge = 0.0;
         chemtbl[i].SizeF = 1.0;
@@ -411,7 +411,7 @@ void ReadDHParam(const char cmdstr[], int tmp_position, double *param)
     }
 }
 
-void ReadPrimary(const char cmdstr[], int NumStc, chemtbl_struct chemtbl[])
+void ReadPrimary(const char cmdstr[], int NumStc, ChemicalEntry chemtbl[])
 {
     for (int i = 0; i < NumStc; i++)
     {
@@ -435,7 +435,7 @@ void ReadPrimary(const char cmdstr[], int NumStc, chemtbl_struct chemtbl[])
 }
 
 void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
-                   chemtbl_struct chemtbl[], rttbl_struct *rttbl)
+                   ChemicalEntry chemtbl[], ReactionNetwork *rttbl)
 {
     int bytes_now;
     int bytes_consumed = 0;
@@ -507,7 +507,7 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
 }
 
 void ReadMinerals(const char cmdstr[], int npoints, int keq_position,
-                  chemtbl_struct chemtbl[], rttbl_struct *rttbl)
+                  ChemicalEntry chemtbl[], ReactionNetwork *rttbl)
 {
     int bytes_now;
     int bytes_consumed = 0;
@@ -598,7 +598,7 @@ void ReadMinerals(const char cmdstr[], int npoints, int keq_position,
 }
 
 void ReadAdsorption(const char cmdstr[], int npoints, int keq_position,
-                    chemtbl_struct chemtbl[], rttbl_struct *rttbl)
+                    ChemicalEntry chemtbl[], ReactionNetwork *rttbl)
 {
     int bytes_now;
     int bytes_consumed = 0;
@@ -665,7 +665,7 @@ void ReadAdsorption(const char cmdstr[], int npoints, int keq_position,
 }
 
 void ReadCationEchg(const char cmdstr[], double calval,
-                    chemtbl_struct chemtbl[], rttbl_struct *rttbl)
+                    ChemicalEntry chemtbl[], ReactionNetwork *rttbl)
 {
     int bytes_now;
     int bytes_consumed = 0;
@@ -720,7 +720,7 @@ void ReadCationEchg(const char cmdstr[], double calval,
 }
 
 void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
-                char cmdstr[], chemtbl_struct chemtbl[], kintbl_struct *kintbl)
+                char cmdstr[], ChemicalEntry chemtbl[], KineticEntry *kintbl)
 {
     int bytes_now;
     int bytes_consumed = 0;

@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void ReadLc(const char *filename, lctbl_struct *lctbl)
+void ReadLc(const char *filename, LandCoverEntry *lctbl)
 {
-    FILE           *lc_file;    /* Pointer to .lc file */
-    int             i;
-    char            cmdstr[MAXSTRING];
-    int             match;
-    int             index;
-    int             lno = 0;
+    FILE *lc_file; /* Pointer to .lc file */
+    int i;
+    char cmdstr[MAXSTRING];
+    int match;
+    int index;
+    int lno = 0;
 
     lc_file = fopen(filename, "r");
     CheckFile(lc_file, filename);
@@ -41,19 +41,19 @@ void ReadLc(const char *filename, lctbl_struct *lctbl)
         NextLine(lc_file, cmdstr, &lno);
         match =
             sscanf(cmdstr,
-            "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index,
-            &lctbl->vegfrac[i], &lctbl->rzd[i], &lctbl->rsmin[i],
-            &lctbl->rgl[i], &lctbl->hs[i], &lctbl->snup[i],
-            &lctbl->laimin[i], &lctbl->laimax[i],
-            &lctbl->emissmin[i], &lctbl->emissmax[i],
-            &lctbl->albedomin[i], &lctbl->albedomax[i],
-            &lctbl->z0min[i], &lctbl->z0max[i], &lctbl->rough[i]);
+                   "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+                   &index,
+                   &lctbl->vegfrac[i], &lctbl->rzd[i], &lctbl->rsmin[i],
+                   &lctbl->rgl[i], &lctbl->hs[i], &lctbl->snup[i],
+                   &lctbl->laimin[i], &lctbl->laimax[i],
+                   &lctbl->emissmin[i], &lctbl->emissmax[i],
+                   &lctbl->albedomin[i], &lctbl->albedomax[i],
+                   &lctbl->z0min[i], &lctbl->z0max[i], &lctbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
             PIHMprintf(VL_ERROR,
-                "Error reading properties of the %dth landcover type.\n",
-                i + 1);
+                       "Error reading properties of the %dth landcover type.\n",
+                       i + 1);
             PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
             PIHMexit(EXIT_FAILURE);
         }

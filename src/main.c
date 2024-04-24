@@ -24,8 +24,8 @@ int NumSpc;
 int main(int argc, char *argv[])
 {
     char outputdir[MAXSTRING];
-    pihm_struct pihm;
-    ctrl_struct *ctrl;
+    PihmData pihm;
+    RunParameters *ctrl;
     N_Vector CV_Y;
     void *cvode_mem;
     SUNLinearSolver sun_ls;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     StartupScreen();
 
     /* Allocate memory for model data structure */
-    pihm = (pihm_struct)malloc(sizeof(*pihm));
+    pihm = (PihmData)malloc(sizeof(*pihm));
 
     /* Read PIHM input files */
     ReadAlloc(pihm);

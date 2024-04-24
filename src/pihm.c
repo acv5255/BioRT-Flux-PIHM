@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
+void PIHM(PihmData pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 {
     int             t;
 #if defined(_RT_)

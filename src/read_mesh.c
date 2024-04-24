@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
+void ReadMesh(const char *filename, MeshEntry *meshtbl)
 {
     FILE           *mesh_file;
     int             i;

@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
-              atttbl_struct *atttbl, chmictbl_struct *chmictbl)
+void ReadCini(const char filen[], const ChemicalEntry *chemtbl, int NumStc,
+              ElementAttribute *atttbl, chmictbl_struct *chmictbl)
 {
     FILE *fp;
     char cmdstr[MAXSTRING];

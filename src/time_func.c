@@ -1,10 +1,10 @@
 #include "pihm.h"
 
-pihm_t_struct PIHMTime(int t)
+PihmTime PIHMTime(int t)
 {
-    pihm_t_struct   pihm_time;
-    struct tm      *timestamp;
-    time_t          rawtime;
+    PihmTime pihm_time;
+    struct tm *timestamp;
+    time_t rawtime;
 
     rawtime = (time_t)t;
     timestamp = gmtime(&rawtime);
@@ -23,36 +23,36 @@ pihm_t_struct PIHMTime(int t)
 
 int StrTime(const char *timestr)
 {
-    struct tm      *timestamp;
-    int             t;
+    struct tm *timestamp;
+    int t;
 
     timestamp = (struct tm *)malloc(sizeof(struct tm));
 
     switch (strlen(timestr))
     {
-        case 4:
-            sscanf(timestr, "%d", &timestamp->tm_year);
-            timestamp->tm_year -= 1900;
-            timestamp->tm_mon = 0;
-            timestamp->tm_mday = 1;
-            timestamp->tm_hour = 0;
-            timestamp->tm_min = 0;
-            timestamp->tm_sec = 0;
-            timestamp->tm_isdst = 0;
-            break;
-        case 16:
-            sscanf(timestr, "%d-%d-%d %d:%d",
-                &timestamp->tm_year, &timestamp->tm_mon, &timestamp->tm_mday,
-                &timestamp->tm_hour, &timestamp->tm_min);
-            timestamp->tm_year -= 1900;
-            timestamp->tm_mon--;
-            timestamp->tm_sec = 0;
-            timestamp->tm_isdst = 0;
-            break;
-        default:
-            PIHMprintf(VL_ERROR,
-                "Error converting from time string to time.\n");
-            PIHMexit(EXIT_FAILURE);
+    case 4:
+        sscanf(timestr, "%d", &timestamp->tm_year);
+        timestamp->tm_year -= 1900;
+        timestamp->tm_mon = 0;
+        timestamp->tm_mday = 1;
+        timestamp->tm_hour = 0;
+        timestamp->tm_min = 0;
+        timestamp->tm_sec = 0;
+        timestamp->tm_isdst = 0;
+        break;
+    case 16:
+        sscanf(timestr, "%d-%d-%d %d:%d",
+               &timestamp->tm_year, &timestamp->tm_mon, &timestamp->tm_mday,
+               &timestamp->tm_hour, &timestamp->tm_min);
+        timestamp->tm_year -= 1900;
+        timestamp->tm_mon--;
+        timestamp->tm_sec = 0;
+        timestamp->tm_isdst = 0;
+        break;
+    default:
+        PIHMprintf(VL_ERROR,
+                   "Error converting from time string to time.\n");
+        PIHMexit(EXIT_FAILURE);
     }
 
     t = (int)timegm(timestamp);
@@ -65,8 +65,8 @@ int StrTime(const char *timestr)
 #if defined(_OPENMP)
 void RunTime(double start_omp, double *cputime, double *cputime_dt)
 {
-    static double   ptime_omp;
-    double          ct_omp;
+    static double ptime_omp;
+    double ct_omp;
 
     ptime_omp = (ptime_omp == 0.0) ? start_omp : ptime_omp;
     ct_omp = omp_get_wtime();
@@ -75,10 +75,10 @@ void RunTime(double start_omp, double *cputime, double *cputime_dt)
     ptime_omp = ct_omp;
 }
 #else
-void RunTime (clock_t start, double *cputime, double *cputime_dt)
+void RunTime(clock_t start, double *cputime, double *cputime_dt)
 {
-    static clock_t  ptime;
-    clock_t         ct;
+    static clock_t ptime;
+    clock_t ct;
 
     ptime = (ptime == 0.0) ? start : ptime;
     ct = clock();

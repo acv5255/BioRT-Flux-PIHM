@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
-              const rttbl_struct *rttbl, forc_struct *forc)
+void ReadPrep(const char filen[], const ChemicalEntry chemtbl[],
+              const ReactionNetwork *rttbl, Forcing *forc)
 {
     FILE *fp;
     int lno = 0;
@@ -26,7 +26,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
     if (forc->nprcpc > 0)
     {
         forc->prcpc =
-            (tsdata_struct *)malloc(forc->nprcpc * sizeof(tsdata_struct));
+            (TimeSeriesData *)malloc(forc->nprcpc * sizeof(TimeSeriesData));
         nsps = (int *)malloc(forc->nprcpc * sizeof(int));
 
         NextLine(fp, cmdstr, &lno);

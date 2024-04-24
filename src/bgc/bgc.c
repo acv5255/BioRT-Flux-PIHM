@@ -1,40 +1,40 @@
 #include "pihm.h"
 
-void DailyBgc(pihm_struct pihm, int t)
+void DailyBgc(PihmData pihm, int t)
 {
 
-    int             i;
-    double          co2lvl;
-    double          dayl, prev_dayl;
-    double          ndep, nfix;
-    spa_data        spa, prev_spa;
-    double         *vwc;
+    int i;
+    double co2lvl;
+    double dayl, prev_dayl;
+    double ndep, nfix;
+    spa_data spa, prev_spa;
+    double *vwc;
 
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-# if defined(_OPENMP)
-#  pragma omp parallel for
-# endif
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
 #endif
     {
         /* First test for nitrogen balance from previous day */
         CheckNitrogenBalance(&pihm->elem[i].ns,
-            &pihm->elem[i].epv.old_n_balance);
+                             &pihm->elem[i].epv.old_n_balance);
     }
 
     /*
      * BGC module for the current day
      */
     /* Get co2 and ndep */
-    if (spinup_mode)    /* Spinup mode */
+    if (spinup_mode) /* Spinup mode */
     {
         co2lvl = pihm->co2.co2ppm;
         ndep = pihm->ndepctrl.ndep / 365.0;
         nfix = pihm->ndepctrl.nfix / 365.0;
     }
-    else    /* Model mode */
+    else /* Model mode */
     {
         /* Atmospheric CO2 handling */
         if (!(pihm->co2.varco2))
@@ -81,11 +81,11 @@ void DailyBgc(pihm_struct pihm, int t)
     vwc = (double *)malloc(nelem * sizeof(double));
 #endif
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             k;
+        int k;
 
         vwc[i] = pihm->elem[i].daily.avg_sh2o[0] * pihm->elem[i].ps.sldpth[0];
         if (pihm->elem[i].ps.nsoil > 1)
@@ -93,7 +93,7 @@ void DailyBgc(pihm_struct pihm, int t)
             for (k = 1; k < pihm->elem[i].ps.nsoil; k++)
             {
                 vwc[i] += pihm->elem[i].daily.avg_sh2o[k] *
-                    pihm->elem[i].ps.sldpth[k];
+                          pihm->elem[i].ps.sldpth[k];
             }
         }
         vwc[i] /= pihm->elem[i].soil.depth;
@@ -111,27 +111,27 @@ void DailyBgc(pihm_struct pihm, int t)
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-# if defined(_OPENMP)
-#  pragma omp parallel for
-# endif
+#if defined(_OPENMP)
+#pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
 #endif
     {
-        daily_struct   *daily;
+        daily_struct *daily;
         epconst_struct *epc;
-        epvar_struct   *epv;
-        soil_struct    *soil;
-        eflux_struct   *ef;
-        pstate_struct  *ps;
-        cstate_struct  *cs;
-        cflux_struct   *cf;
-        nstate_struct  *ns;
-        nflux_struct   *nf;
-        ntemp_struct   *nt;
-        solute_struct  *nsol;
-        psn_struct     *psn_sun, *psn_shade;
+        epvar_struct *epv;
+        soil_struct *soil;
+        eflux_struct *ef;
+        pstate_struct *ps;
+        cstate_struct *cs;
+        cflux_struct *cf;
+        nstate_struct *ns;
+        nflux_struct *nf;
+        ntemp_struct *nt;
+        solute_struct *nsol;
+        psn_struct *psn_sun, *psn_shade;
         summary_struct *summary;
-        int             annual_alloc;
+        int annual_alloc;
 
         daily = &pihm->elem[i].daily;
         epc = &pihm->elem[i].epc;
@@ -221,11 +221,11 @@ void DailyBgc(pihm_struct pihm, int t)
 
         /* Update of carbon state variables */
         DailyCarbonStateUpdate(cf, cs, annual_alloc, epc->woody,
-            epc->evergreen);
+                               epc->evergreen);
 
         /* Update of nitrogen state variables */
         DailyNitrogenStateUpdate(nf, ns, nsol, annual_alloc, epc->woody,
-            epc->evergreen);
+                                 epc->evergreen);
 
         /* Calculate mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to ensure
@@ -240,7 +240,7 @@ void DailyBgc(pihm_struct pihm, int t)
         /* Nitrogen balance is checked the next day at the beginning of DailyBgc
          * function because a bgc cycle is not finished until N state variables
          * are solved by CVODE */
-        CheckNitrogenBalance (ns, &epv->old_n_balance);
+        CheckNitrogenBalance(ns, &epv->old_n_balance);
 #endif
 
         /* Calculate carbon summary variables */

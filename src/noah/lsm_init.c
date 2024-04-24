@@ -1,14 +1,14 @@
 #include "pihm.h"
 
-void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
-    const noahtbl_struct *noahtbl, const calib_struct *cal)
+void InitLsm(elem_struct *elem, const char ice_fn[], const RunParameters *ctrl,
+             const NoahLandSurfaceEntry *noahtbl, const CalibrationParameters *cal)
 {
-    int             i;
-    double          frzfact;
-    int             read_ice_flag = 0;
-    double         *iceh;
-    FILE           *ice_file;
-    const double    ICEH = 0.5;
+    int i;
+    double frzfact;
+    int read_ice_flag = 0;
+    double *iceh;
+    FILE *ice_file;
+    const double ICEH = 0.5;
 
     iceh = (double *)malloc(nelem * sizeof(double));
 
@@ -32,8 +32,8 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
         {
             read_ice_flag = 0;
             PIHMprintf(VL_NORMAL,
-                "Optional input file *.ice is not available. "
-                "Glacier ice depth will be initialized as 0.5 m.\n");
+                       "Optional input file *.ice is not available. "
+                       "Glacier ice depth will be initialized as 0.5 m.\n");
         }
         else
         {
@@ -49,11 +49,10 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
     {
         /* Set-up soil layer depths */
         DefSldpth(elem[i].ps.sldpth, &elem[i].ps.nsoil, elem[i].ps.zsoil,
-            elem[i].soil.depth, ctrl->sldpth, ctrl->nsoil);
+                  elem[i].soil.depth, ctrl->sldpth, ctrl->nsoil);
 
         /* Set-up glacier ice parameters */
-        elem[i].ps.iceh = (elem[i].lc.glacier == 1) ?
-            ((read_ice_flag == 1) ? iceh[i] : ICEH) : 0.0;
+        elem[i].ps.iceh = (elem[i].lc.glacier == 1) ? ((read_ice_flag == 1) ? iceh[i] : ICEH) : 0.0;
 
         /* Set-up soil parameters */
         elem[i].ps.nmacd =
@@ -63,7 +62,7 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const ctrl_struct *ctrl,
             FindLayer(elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].ps.rzd);
 
         RootDist(elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].ps.nroot,
-            elem[i].ps.rtdis);
+                 elem[i].ps.rtdis);
 
         /* Set-up universal parameters (not dependent on soil type or vegetation
          * type */

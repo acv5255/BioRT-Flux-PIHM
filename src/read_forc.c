@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void ReadForc(const char *filename, forc_struct *forc)
+void ReadForc(const char *filename, Forcing *forc)
 {
-    FILE           *meteo_file;
-    char            cmdstr[MAXSTRING];
-    int             i, j;
-    int             match;
-    int             index;
-    int             lno = 0;
+    FILE *meteo_file;
+    char cmdstr[MAXSTRING];
+    int i, j;
+    int match;
+    int index;
+    int lno = 0;
 
     meteo_file = fopen(filename, "r");
     CheckFile(meteo_file, filename);
@@ -21,20 +21,21 @@ void ReadForc(const char *filename, forc_struct *forc)
     if (forc->nmeteo > 0)
     {
         forc->meteo =
-            (tsdata_struct *)malloc(forc->nmeteo * sizeof(tsdata_struct));
+            (TimeSeriesData *)malloc(forc->nmeteo * sizeof(TimeSeriesData));
 
         NextLine(meteo_file, cmdstr, &lno);
         for (i = 0; i < forc->nmeteo; i++)
         {
             match = sscanf(cmdstr, "%*s %d %*s %lf",
-                &index, &forc->meteo[i].zlvl_wind);
+                           &index, &forc->meteo[i].zlvl_wind);
             if (match != 2 || i != index - 1)
             {
                 PIHMprintf(VL_ERROR,
-                    "Error reading the %dth meteorological forcing"
-                    " time series.\n", i + 1);
+                           "Error reading the %dth meteorological forcing"
+                           " time series.\n",
+                           i + 1);
                 PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
-                    filename, lno);
+                           filename, lno);
                 PIHMexit(EXIT_FAILURE);
             }
             /* Skip header lines */
@@ -63,12 +64,12 @@ void ReadForc(const char *filename, forc_struct *forc)
                     (double *)malloc(NUM_METEO_VAR * sizeof(double));
                 NextLine(meteo_file, cmdstr, &lno);
                 if (!ReadTS(cmdstr, &forc->meteo[i].ftime[j],
-                    &forc->meteo[i].data[j][0], NUM_METEO_VAR))
+                            &forc->meteo[i].data[j][0], NUM_METEO_VAR))
                 {
                     PIHMprintf(VL_ERROR,
-                        "Error reading meteorological forcing.");
+                               "Error reading meteorological forcing.");
                     PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
-                        filename, lno);
+                               filename, lno);
                     PIHMexit(EXIT_FAILURE);
                 }
             }

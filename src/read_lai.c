@@ -1,14 +1,14 @@
 #include "pihm.h"
 
-void ReadLai(const char *filename, forc_struct *forc,
-    const atttbl_struct *atttbl)
+void ReadLai(const char *filename, Forcing *forc,
+             const ElementAttribute *atttbl)
 {
-    char            cmdstr[MAXSTRING];
-    int             read_lai = 0;
-    FILE           *lai_file;
-    int             i, j;
-    int             index;
-    int             lno = 0;
+    char cmdstr[MAXSTRING];
+    int read_lai = 0;
+    FILE *lai_file;
+    int i, j;
+    int index;
+    int lno = 0;
 
     for (i = 0; i < nelem; i++)
     {
@@ -36,7 +36,7 @@ void ReadLai(const char *filename, forc_struct *forc,
         if (forc->nlai > 0)
         {
             forc->lai =
-                (tsdata_struct *)malloc(forc->nlai * sizeof(tsdata_struct));
+                (TimeSeriesData *)malloc(forc->nlai * sizeof(TimeSeriesData));
 
             NextLine(lai_file, cmdstr, &lno);
             for (i = 0; i < forc->nlai; i++)
@@ -46,9 +46,9 @@ void ReadLai(const char *filename, forc_struct *forc,
                 if (i != index - 1)
                 {
                     PIHMprintf(VL_ERROR,
-                        "Error reading the %dth LAI time series.\n", i + 1);
+                               "Error reading the %dth LAI time series.\n", i + 1);
                     PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
-                        filename, lno);
+                               filename, lno);
                     PIHMexit(EXIT_FAILURE);
                 }
                 /* Skip header lines */
@@ -75,11 +75,11 @@ void ReadLai(const char *filename, forc_struct *forc,
                     forc->lai[i].data[j] = (double *)malloc(sizeof(double));
                     NextLine(lai_file, cmdstr, &lno);
                     if (!ReadTS(cmdstr, &forc->lai[i].ftime[j],
-                        &forc->lai[i].data[j][0], 1))
+                                &forc->lai[i].data[j][0], 1))
                     {
                         PIHMprintf(VL_ERROR, "Error reading LAI forcing.");
                         PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
-                            filename, lno);
+                                   filename, lno);
                         PIHMexit(EXIT_FAILURE);
                     }
                 }

@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-double GetCO2(tsdata_struct *co2_ts, int t)
+double GetCO2(TimeSeriesData *co2_ts, int t)
 {
-    double          co2;
+    double co2;
 
     IntrplForc(co2_ts, t, 1, INTRPL);
 

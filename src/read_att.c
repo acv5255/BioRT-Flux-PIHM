@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void ReadAtt(const char *filename, atttbl_struct *atttbl)
+void ReadAtt(const char *filename, ElementAttribute *atttbl)
 {
-    int             i;
-    FILE           *att_file;   /* Pointer to .att file */
-    char            cmdstr[MAXSTRING];
-    int             match;
-    int             index;
-    int             lno = 0;
+    int i;
+    FILE *att_file; /* Pointer to .att file */
+    char cmdstr[MAXSTRING];
+    int match;
+    int index;
+    int lno = 0;
 
     att_file = fopen(filename, "r");
     CheckFile(att_file, filename);
@@ -30,14 +30,14 @@ void ReadAtt(const char *filename, atttbl_struct *atttbl)
     {
         NextLine(att_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",
-            &index,
-            &atttbl->soil[i], &atttbl->geol[i], &atttbl->lc[i],
-            &atttbl->meteo[i], &atttbl->lai[i], &atttbl->source[i],
-            &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
+                       &index,
+                       &atttbl->soil[i], &atttbl->geol[i], &atttbl->lc[i],
+                       &atttbl->meteo[i], &atttbl->lai[i], &atttbl->source[i],
+                       &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
         if (match != 10)
         {
             PIHMprintf(VL_ERROR,
-                "Error reading attribute of the %dth element.\n", i + 1);
+                       "Error reading attribute of the %dth element.\n", i + 1);
             PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
             PIHMexit(EXIT_FAILURE);
         }

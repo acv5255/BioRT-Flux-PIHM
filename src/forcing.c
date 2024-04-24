@@ -1,10 +1,10 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void ApplyBc(const rttbl_struct *rttbl, forc_struct *forc, elem_struct *elem,
+void ApplyBc(const ReactionNetwork *rttbl, Forcing *forc, elem_struct *elem,
              river_struct *river, int t)
 #else
-void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
+void ApplyBc(Forcing *forc, elem_struct *elem, river_struct *river, int t)
 #endif
 {
     /* Element boundary conditions */
@@ -25,13 +25,13 @@ void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
 }
 
 #if defined(_RT_)
-void ApplyForc(forc_struct *forc, rttbl_struct *rttbl, elem_struct *elem,
-               int t, int rad_mode, const siteinfo_struct *siteinfo)
+void ApplyForc(Forcing *forc, ReactionNetwork *rttbl, elem_struct *elem,
+               int t, int rad_mode, const SiteInfo *siteinfo)
 #elif defined(_NOAH_)
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
+void ApplyForc(Forcing *forc, elem_struct *elem, int t, int rad_mode,
                const siteinfo_struct *siteinfo)
 #else
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyForc(Forcing *forc, elem_struct *elem, int t)
 #endif
 {
     /* Meteorological forcing */
@@ -55,10 +55,10 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_RT_)
-void ApplyElemBc(const rttbl_struct *rttbl, forc_struct *forc,
+void ApplyElemBc(const ReactionNetwork *rttbl, Forcing *forc,
                  elem_struct *elem, int t)
 #else
-void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyElemBc(Forcing *forc, elem_struct *elem, int t)
 #endif
 {
 
@@ -135,10 +135,10 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_NOAH_)
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
-                    const siteinfo_struct *siteinfo)
+void ApplyMeteoForc(Forcing *forc, elem_struct *elem, int t, int rad_mode,
+                    const SiteInfo *siteinfo)
 #else
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyMeteoForc(Forcing *forc, elem_struct *elem, int t)
 #endif
 {
 #if defined(_NOAH_)
@@ -167,7 +167,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-            for (k = 0; k < forc->nrad; k++)
+            for (int k = 0; k < forc->nrad; k++)
             {
                 IntrplForc(&forc->rad[k], t, 2, INTRPL);
             }
@@ -219,7 +219,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #if defined(_BGC_) || defined(_CYCLES_)
 void ApplyLai(elem_struct *elem)
 #else
-void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
+void ApplyLai(Forcing *forc, elem_struct *elem, int t)
 #endif
 {
     int i;
@@ -304,7 +304,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_RT_)
-void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
+void ApplyPrcpConc(const ReactionNetwork *rttbl, Forcing *forc,
                    elem_struct elem[], int t)
 {
     int i, j;
@@ -368,7 +368,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
 }
 #endif
 
-void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
+void ApplyRiverBc(Forcing *forc, river_struct *river, int t)
 {
     int i, k;
 
@@ -400,7 +400,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
     }
 }
 
-void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
+void IntrplForc(TimeSeriesData *ts, int t, int nvrbl, int intrpl)
 {
     int j;
     int first, middle, last;
@@ -463,7 +463,7 @@ double MonthlyLai(int t, int lc_type)
      * Monthly LAI data come from WRF MPTABLE.TBL for Noah MODIS land
      * cover categories
      */
-    pihm_t_struct pihm_time;
+    PihmTime pihm_time;
 
     double lai_tbl[40][12] = {
         /* Evergreen Needleleaf Forest */
@@ -578,7 +578,7 @@ double MonthlyRl(int t, int lc_type)
      * data above with max/min LAI and max/min roughness length data
      * in the vegprmt.tbl
      */
-    pihm_t_struct pihm_time;
+    PihmTime pihm_time;
 
     double rl_tbl[40][12] = {
         /* Evergreen Needleleaf Forest */
@@ -709,7 +709,7 @@ double MonthlyRl(int t, int lc_type)
 
 double MonthlyMf(int t)
 {
-    pihm_t_struct pihm_time;
+    PihmTime pihm_time;
 
     double mf_tbl[12] = {
         0.001308019, 0.001633298, 0.002131198, 0.002632776, 0.003031171,

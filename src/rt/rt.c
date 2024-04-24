@@ -6,9 +6,9 @@
  *****************************************************************************/
 #include "pihm.h"
 
-void InitChem(const char cdbs_filen[], const calib_struct *cal,
-              forc_struct *forc, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
-              rttbl_struct *rttbl, chmictbl_struct *chmictbl, elem_struct elem[])
+void InitChem(const char cdbs_filen[], const CalibrationParameters *cal,
+              Forcing *forc, ChemicalEntry chemtbl[], KineticEntry kintbl[],
+              ReactionNetwork *rttbl, chmictbl_struct *chmictbl, elem_struct elem[])
 {
     int chem_ind;
     FILE *fp;
@@ -97,7 +97,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     }
 }
 
-void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+void InitRTVar(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
                elem_struct elem[], river_struct river[], N_Vector CV_Y)
 {
     int i;
@@ -239,7 +239,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
 }
 
-void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+void InitChemS(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
                const rtic_struct *restart_input, double smcmax, double vol,
                chmstate_struct *chms)
 {
