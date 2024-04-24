@@ -1,40 +1,40 @@
 #include "pihm.h"
 
 /* Global variables */
-int             verbose_mode;
-int             debug_mode;
-int             append_mode;
-int             corr_mode;
-int             spinup_mode;
-int             fixed_length;
-int             tecplot;
-char            project[MAXSTRING];
-int             nelem;
-int             nriver;
+int verbose_mode;
+int debug_mode;
+int append_mode;
+int corr_mode;
+int spinup_mode;
+int fixed_length;
+int tecplot;
+char project[MAXSTRING];
+int nelem;
+int nriver;
 #if defined(_OPENMP)
-int             nthreads = 1;    /* Default value */
+int nthreads = 1; /* Default value */
 #endif
 #if defined(_BGC_)
-int             first_balance;
+int first_balance;
 #endif
 #if defined(_RT_)
-int             NumSpc;
+int NumSpc;
 #endif
 
 int main(int argc, char *argv[])
 {
-    char            outputdir[MAXSTRING];
-    pihm_struct     pihm;
-    ctrl_struct    *ctrl;
-    N_Vector        CV_Y;
-    void           *cvode_mem;
+    char outputdir[MAXSTRING];
+    pihm_struct pihm;
+    ctrl_struct *ctrl;
+    N_Vector CV_Y;
+    void *cvode_mem;
     SUNLinearSolver sun_ls;
 #if defined(_OPENMP)
-    double          start_omp;
+    double start_omp;
 #else
-    clock_t         start;
+    clock_t start;
 #endif
-    double          cputime, cputime_dt;    /* Time cpu duration */
+    double cputime, cputime_dt; /* Time cpu duration */
 
 #if defined(_OPENMP)
     /* Set the number of threads to use */
@@ -72,14 +72,14 @@ int main(int argc, char *argv[])
     /* Create output structures */
 #if defined(_CYCLES_)
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
-        pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
+              pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
 #elif defined(_RT_)
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->chemtbl,
-        &pihm->rttbl, pihm->elem, pihm->river, &pihm->meshtbl, outputdir,
-        &pihm->print);
+              &pihm->rttbl, pihm->elem, pihm->river, &pihm->meshtbl, outputdir,
+              &pihm->print);
 #else
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
-        &pihm->meshtbl, outputdir, &pihm->print);
+              &pihm->meshtbl, outputdir, &pihm->print);
 #endif
 
     /* Backup input files */
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 #endif
 
     InitOutputFile(&pihm->print, outputdir, pihm->ctrl.waterbal,
-        pihm->ctrl.ascii);
+                   pihm->ctrl.ascii);
 
     PIHMprintf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
 
         /* In spin-up mode, initial conditions are always printed */
         PrintInit(pihm->elem, pihm->river, outputdir,
-            ctrl->endtime, ctrl->starttime,
-            ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
+                  ctrl->endtime, ctrl->starttime,
+                  ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
 #if defined(_BGC_)
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
 #endif
@@ -151,18 +151,17 @@ int main(int argc, char *argv[])
             if (debug_mode)
             {
                 PrintPerf(cvode_mem, ctrl->tout[ctrl->cstep + 1],
-                    ctrl->starttime, cputime_dt, cputime,
-                    ctrl->maxstep, pihm->print.cvodeperf_file);
+                          ctrl->starttime, cputime_dt, cputime,
+                          ctrl->maxstep, pihm->print.cvodeperf_file);
             }
 
             /* Write init files */
             if (ctrl->write_ic)
             {
                 PrintInit(pihm->elem, pihm->river, outputdir,
-                    ctrl->tout[ctrl->cstep + 1], ctrl->starttime,
-                    ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
+                          ctrl->tout[ctrl->cstep + 1], ctrl->starttime,
+                          ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
             }
-
         }
 
 #if defined(_BGC_)
@@ -179,13 +178,13 @@ int main(int argc, char *argv[])
         }
 #endif
 
-# if TEMP_DISABLED
+#if TEMP_DISABLED
 #if defined(_CYCLES_)
         if (ctrl->write_cycles_restart)
         {
             WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
         }
-# endif
+#endif
 #endif
     }
 

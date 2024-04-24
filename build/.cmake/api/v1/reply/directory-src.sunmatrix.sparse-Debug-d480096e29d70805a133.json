@@ -1,0 +1,105 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"src/sunmatrix/sparse/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 16,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 53,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 72,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 76,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"type" : "code"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/sparse/libsundials_sunmatrixsparse.a"
+			],
+			"targetId" : "sundials_sunmatrixsparse_static::@3350914c2f41f909c615",
+			"targetIndex" : 63,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/sparse/libsundials_sunmatrixsparse.so.2.1.0",
+				"src/sunmatrix/sparse/libsundials_sunmatrixsparse.so.2"
+			],
+			"targetId" : "sundials_sunmatrixsparse_shared::@3350914c2f41f909c615",
+			"targetIndex" : 62,
+			"targetInstallNamelink" : "skip",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/sparse/libsundials_sunmatrixsparse.so"
+			],
+			"targetId" : "sundials_sunmatrixsparse_shared::@3350914c2f41f909c615",
+			"targetIndex" : 62,
+			"targetInstallNamelink" : "only",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "include/sunmatrix",
+			"paths" : 
+			[
+				"include/sunmatrix/sunmatrix_sparse.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "src/sunmatrix/sparse",
+		"source" : "src/sunmatrix/sparse"
+	}
+}

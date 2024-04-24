@@ -1,0 +1,122 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"examples/sunmatrix/dense/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 111,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 111,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 111,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 190,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 207,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunmatrix/dense",
+			"paths" : 
+			[
+				"examples/sunmatrix/dense/test_sunmatrix_dense.c",
+				"examples/sunmatrix/dense/../test_sunmatrix.c",
+				"examples/sunmatrix/dense/../test_sunmatrix.h",
+				"examples/sunmatrix/dense/../../../src/sundials/sundials_matrix.c",
+				"examples/sunmatrix/dense/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunmatrix/dense",
+			"paths" : 
+			[
+				"examples/sunmatrix/dense/test_sunmatrix_dense.c",
+				"examples/sunmatrix/dense/../test_sunmatrix.c",
+				"examples/sunmatrix/dense/../test_sunmatrix.h",
+				"examples/sunmatrix/dense/../../../src/sundials/sundials_matrix.c",
+				"examples/sunmatrix/dense/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunmatrix/dense",
+			"paths" : 
+			[
+				"examples/sunmatrix/dense/test_sunmatrix_dense.c",
+				"examples/sunmatrix/dense/../test_sunmatrix.c",
+				"examples/sunmatrix/dense/../test_sunmatrix.h",
+				"examples/sunmatrix/dense/../../../src/sundials/sundials_matrix.c",
+				"examples/sunmatrix/dense/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunmatrix/dense",
+			"paths" : 
+			[
+				"/home/andrew/Documents/Research/Projects/BioRT-Flux-PIHM-py/BioRT-Flux-PIHM/build/examples/sunmatrix/dense/CMakeLists.txt"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 5,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunmatrix/dense",
+			"paths" : 
+			[
+				{
+					"from" : "/home/andrew/Documents/Research/Projects/BioRT-Flux-PIHM-py/BioRT-Flux-PIHM/build/examples/sunmatrix/dense/Makefile_ex",
+					"to" : "Makefile"
+				}
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "examples/sunmatrix/dense",
+		"source" : "examples/sunmatrix/dense"
+	}
+}

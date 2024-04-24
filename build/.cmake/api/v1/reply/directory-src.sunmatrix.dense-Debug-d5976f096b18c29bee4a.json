@@ -1,0 +1,105 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"src/sunmatrix/dense/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 17,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 54,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 73,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 77,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"type" : "code"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/dense/libsundials_sunmatrixdense.a"
+			],
+			"targetId" : "sundials_sunmatrixdense_static::@852d37a8b918aaad7fef",
+			"targetIndex" : 61,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/dense/libsundials_sunmatrixdense.so.2.1.0",
+				"src/sunmatrix/dense/libsundials_sunmatrixdense.so.2"
+			],
+			"targetId" : "sundials_sunmatrixdense_shared::@852d37a8b918aaad7fef",
+			"targetIndex" : 60,
+			"targetInstallNamelink" : "skip",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/dense/libsundials_sunmatrixdense.so"
+			],
+			"targetId" : "sundials_sunmatrixdense_shared::@852d37a8b918aaad7fef",
+			"targetIndex" : 60,
+			"targetInstallNamelink" : "only",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "include/sunmatrix",
+			"paths" : 
+			[
+				"include/sunmatrix/sunmatrix_dense.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "src/sunmatrix/dense",
+		"source" : "src/sunmatrix/dense"
+	}
+}

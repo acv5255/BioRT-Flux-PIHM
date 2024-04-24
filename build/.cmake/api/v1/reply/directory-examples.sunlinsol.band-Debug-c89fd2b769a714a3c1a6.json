@@ -1,0 +1,146 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"examples/sunlinsol/band/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 103,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 103,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 103,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 103,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 143,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 160,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/band",
+			"paths" : 
+			[
+				"examples/sunlinsol/band/test_sunlinsol_band.c",
+				"examples/sunlinsol/band/../test_sunlinsol.h",
+				"examples/sunlinsol/band/../test_sunlinsol.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_matrix.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/band",
+			"paths" : 
+			[
+				"examples/sunlinsol/band/test_sunlinsol_band.c",
+				"examples/sunlinsol/band/../test_sunlinsol.h",
+				"examples/sunlinsol/band/../test_sunlinsol.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_matrix.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/band",
+			"paths" : 
+			[
+				"examples/sunlinsol/band/test_sunlinsol_band.c",
+				"examples/sunlinsol/band/../test_sunlinsol.h",
+				"examples/sunlinsol/band/../test_sunlinsol.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_matrix.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/band",
+			"paths" : 
+			[
+				"examples/sunlinsol/band/test_sunlinsol_band.c",
+				"examples/sunlinsol/band/../test_sunlinsol.h",
+				"examples/sunlinsol/band/../test_sunlinsol.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_matrix.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/band/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 5,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/band",
+			"paths" : 
+			[
+				"/home/andrew/Documents/Research/Projects/BioRT-Flux-PIHM-py/BioRT-Flux-PIHM/build/examples/sunlinsol/band/CMakeLists.txt"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 6,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/band",
+			"paths" : 
+			[
+				{
+					"from" : "/home/andrew/Documents/Research/Projects/BioRT-Flux-PIHM-py/BioRT-Flux-PIHM/build/examples/sunlinsol/band/Makefile_ex",
+					"to" : "Makefile"
+				}
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "examples/sunlinsol/band",
+		"source" : "examples/sunlinsol/band"
+	}
+}

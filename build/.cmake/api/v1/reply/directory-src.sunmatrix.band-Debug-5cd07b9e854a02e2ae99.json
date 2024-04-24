@@ -1,0 +1,105 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"src/sunmatrix/band/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 16,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 53,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 72,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 76,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"type" : "code"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/band/libsundials_sunmatrixband.a"
+			],
+			"targetId" : "sundials_sunmatrixband_static::@e00df25e0d6e1c774590",
+			"targetIndex" : 59,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/band/libsundials_sunmatrixband.so.2.1.0",
+				"src/sunmatrix/band/libsundials_sunmatrixband.so.2"
+			],
+			"targetId" : "sundials_sunmatrixband_shared::@e00df25e0d6e1c774590",
+			"targetIndex" : 58,
+			"targetInstallNamelink" : "skip",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunmatrix/band/libsundials_sunmatrixband.so"
+			],
+			"targetId" : "sundials_sunmatrixband_shared::@e00df25e0d6e1c774590",
+			"targetIndex" : 58,
+			"targetInstallNamelink" : "only",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "include/sunmatrix",
+			"paths" : 
+			[
+				"include/sunmatrix/sunmatrix_band.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "src/sunmatrix/band",
+		"source" : "src/sunmatrix/band"
+	}
+}

@@ -1,0 +1,105 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"src/sunlinsol/dense/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 16,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 52,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 69,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 73,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"type" : "code"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunlinsol/dense/libsundials_sunlinsoldense.a"
+			],
+			"targetId" : "sundials_sunlinsoldense_static::@654e729a214dc4ca5910",
+			"targetIndex" : 47,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunlinsol/dense/libsundials_sunlinsoldense.so.2.1.0",
+				"src/sunlinsol/dense/libsundials_sunlinsoldense.so.2"
+			],
+			"targetId" : "sundials_sunlinsoldense_shared::@654e729a214dc4ca5910",
+			"targetIndex" : 46,
+			"targetInstallNamelink" : "skip",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunlinsol/dense/libsundials_sunlinsoldense.so"
+			],
+			"targetId" : "sundials_sunlinsoldense_shared::@654e729a214dc4ca5910",
+			"targetIndex" : 46,
+			"targetInstallNamelink" : "only",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "include/sunlinsol",
+			"paths" : 
+			[
+				"include/sunlinsol/sunlinsol_dense.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "src/sunlinsol/dense",
+		"source" : "src/sunlinsol/dense"
+	}
+}

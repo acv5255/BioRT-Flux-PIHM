@@ -1,0 +1,105 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"src/nvector/serial/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 16,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 51,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 70,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 74,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"type" : "code"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/nvector/serial/libsundials_nvecserial.a"
+			],
+			"targetId" : "sundials_nvecserial_static::@b147c68984383831c94c",
+			"targetIndex" : 43,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/nvector/serial/libsundials_nvecserial.so.4.1.0",
+				"src/nvector/serial/libsundials_nvecserial.so.4"
+			],
+			"targetId" : "sundials_nvecserial_shared::@b147c68984383831c94c",
+			"targetIndex" : 42,
+			"targetInstallNamelink" : "skip",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/nvector/serial/libsundials_nvecserial.so"
+			],
+			"targetId" : "sundials_nvecserial_shared::@b147c68984383831c94c",
+			"targetIndex" : 42,
+			"targetInstallNamelink" : "only",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "include/nvector",
+			"paths" : 
+			[
+				"include/nvector/nvector_serial.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "src/nvector/serial",
+		"source" : "src/nvector/serial"
+	}
+}

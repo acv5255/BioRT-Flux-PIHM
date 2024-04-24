@@ -1,18 +1,20 @@
+#ifndef PIHM_HEADER
 #include "pihm.h"
+#endif
 
-#define TOL        1E-7
+#define TOL 1E-7
 
 void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    river_struct river[])
+                river_struct river[])
 {
-    int             i;
+    int i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
     {
-        int             k;
+        int k;
 
         for (k = 0; k < NumSpc; k++)
         {
@@ -27,28 +29,28 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 }
 
 int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    int speciation_flg, chmstate_struct *chms)
+                int speciation_flg, chmstate_struct *chms)
 {
     /* if speciation flg = 1, pH is defined
      * if speciation flg = 0, all defined value is total concentration */
-    int             i, j, k;
-    int             num_spe = rttbl->NumStc + rttbl->NumSsc;
-    double          tmpval;
-    double          tmpprb = 1E-2;
-    double          I;
-    double          Iroot;
-    double          residue[MAXSPS];
-    double          residue_t[MAXSPS];
-    double          tmpconc[MAXSPS];
-    double          totconc[MAXSPS];
-    double          error[MAXSPS];
-    double          gamma[MAXSPS];
-    double          Keq[MAXSPS];
-    double          current_totconc[MAXSPS];
-    double          adh;
-    double          bdh;
-    double          bdt;
-    realtype      **jcb;
+    int i, j, k;
+    int num_spe = rttbl->NumStc + rttbl->NumSsc;
+    double tmpval;
+    double tmpprb = 1E-2;
+    double I;
+    double Iroot;
+    double residue[MAXSPS];
+    double residue_t[MAXSPS];
+    double tmpconc[MAXSPS];
+    double totconc[MAXSPS];
+    double error[MAXSPS];
+    double gamma[MAXSPS];
+    double Keq[MAXSPS];
+    double current_totconc[MAXSPS];
+    double adh;
+    double bdh;
+    double bdt;
+    realtype **jcb;
 
     for (k = 0; k < MAXSPS; k++)
     {
@@ -103,9 +105,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
          * H. Dependency is the same but the total concentration for H need not
          * be solved */
         jcb = newDenseMat(rttbl->NumStc - 1, rttbl->NumStc - 1);
-        sunindextype    p[MAXSPS];
-        realtype        x_[MAXSPS];
-        double          maxerror = 1;
+        sunindextype p[MAXSPS];
+        realtype x_[MAXSPS];
+        double maxerror = 1;
 
         while (maxerror > TOL)
         {
@@ -116,7 +118,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 for (i = 0; i < num_spe; i++)
                 {
                     I += 0.5 * pow(10, tmpconc[i]) *
-                        chemtbl[i].Charge * chemtbl[i].Charge;
+                         chemtbl[i].Charge * chemtbl[i].Charge;
                 }
                 Iroot = sqrt(I);
                 for (i = 0; i < num_spe; i++)
@@ -134,9 +136,10 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     else
                     {
                         gamma[i] = (-adh * chemtbl[i].Charge *
-                            chemtbl[i].Charge * Iroot) /
-                            (1 + bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
-                        }
+                                    chemtbl[i].Charge * Iroot) /
+                                       (1 + bdh * chemtbl[i].SizeF * Iroot) +
+                                   bdt * I;
+                    }
                     if (strcmp(chemtbl[i].ChemName, "'H+'") == 0)
                     {
                         tmpconc[i] = log10(chms->p_actv[i]) - gamma[i];
@@ -171,7 +174,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 /* update the total concentration of H+ for later stage RT at
                  * initialization */
             }
-            int             row, col;
+            int row, col;
             col = 0;
             for (k = 0; k < rttbl->NumStc; k++)
             {
@@ -184,7 +187,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         for (j = 0; j < rttbl->NumSdc; j++)
                         {
                             tmpval += (tmpconc[j] + gamma[j]) *
-                                rttbl->Dependency[i][j];
+                                      rttbl->Dependency[i][j];
                         }
                         tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                         tmpconc[i + rttbl->NumStc] = tmpval;
@@ -198,7 +201,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                             for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                             {
                                 tmpval += rttbl->Totalconc[i][j] *
-                                    pow(10, tmpconc[j]);
+                                          pow(10, tmpconc[j]);
                             }
                             residue_t[i] = tmpval - chms->t_conc[i];
                             jcb[col][row] =
@@ -237,9 +240,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     else
     {
         jcb = newDenseMat(rttbl->NumStc, rttbl->NumStc);
-        sunindextype    p[MAXSPS];
-        realtype        x_[MAXSPS];
-        double          maxerror = 1;
+        sunindextype p[MAXSPS];
+        realtype x_[MAXSPS];
+        double maxerror = 1;
 
         while (maxerror > TOL)
         {
@@ -250,7 +253,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 for (i = 0; i < num_spe; i++)
                 {
                     I += 0.5 * pow(10, tmpconc[i]) *
-                        chemtbl[i].Charge * chemtbl[i].Charge;
+                         chemtbl[i].Charge * chemtbl[i].Charge;
                 }
                 Iroot = sqrt(I);
                 for (i = 0; i < num_spe; i++)
@@ -260,8 +263,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     else
                         gamma[i] =
                             (-adh * chemtbl[i].Charge *
-                            chemtbl[i].Charge * Iroot) /
-                            (1.0 + bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
+                             chemtbl[i].Charge * Iroot) /
+                                (1.0 + bdh * chemtbl[i].SizeF * Iroot) +
+                            bdt * I;
                 }
             }
             /* gamma stores log10gamma[i]. */

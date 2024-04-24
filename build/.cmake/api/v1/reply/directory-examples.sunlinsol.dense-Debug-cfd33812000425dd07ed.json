@@ -1,0 +1,146 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"examples/sunlinsol/dense/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 102,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 102,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 102,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 102,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 142,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 159,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/dense",
+			"paths" : 
+			[
+				"examples/sunlinsol/dense/test_sunlinsol_dense.c",
+				"examples/sunlinsol/dense/../test_sunlinsol.h",
+				"examples/sunlinsol/dense/../test_sunlinsol.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_matrix.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/dense",
+			"paths" : 
+			[
+				"examples/sunlinsol/dense/test_sunlinsol_dense.c",
+				"examples/sunlinsol/dense/../test_sunlinsol.h",
+				"examples/sunlinsol/dense/../test_sunlinsol.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_matrix.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/dense",
+			"paths" : 
+			[
+				"examples/sunlinsol/dense/test_sunlinsol_dense.c",
+				"examples/sunlinsol/dense/../test_sunlinsol.h",
+				"examples/sunlinsol/dense/../test_sunlinsol.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_matrix.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/dense",
+			"paths" : 
+			[
+				"examples/sunlinsol/dense/test_sunlinsol_dense.c",
+				"examples/sunlinsol/dense/../test_sunlinsol.h",
+				"examples/sunlinsol/dense/../test_sunlinsol.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_matrix.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/dense/../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 5,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/dense",
+			"paths" : 
+			[
+				"/home/andrew/Documents/Research/Projects/BioRT-Flux-PIHM-py/BioRT-Flux-PIHM/build/examples/sunlinsol/dense/CMakeLists.txt"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 6,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/dense",
+			"paths" : 
+			[
+				{
+					"from" : "/home/andrew/Documents/Research/Projects/BioRT-Flux-PIHM-py/BioRT-Flux-PIHM/build/examples/sunlinsol/dense/Makefile_ex",
+					"to" : "Makefile"
+				}
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "examples/sunlinsol/dense",
+		"source" : "examples/sunlinsol/dense"
+	}
+}

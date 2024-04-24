@@ -1,0 +1,102 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"examples/sunlinsol/spbcgs/serial/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 106,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 106,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 140,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 157,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/spbcgs/serial",
+			"paths" : 
+			[
+				"examples/sunlinsol/spbcgs/serial/test_sunlinsol_spbcgs_serial.c",
+				"examples/sunlinsol/spbcgs/serial/../../test_sunlinsol.h",
+				"examples/sunlinsol/spbcgs/serial/../../test_sunlinsol.c",
+				"examples/sunlinsol/spbcgs/serial/../../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/spbcgs/serial/../../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/spbcgs/serial",
+			"paths" : 
+			[
+				"examples/sunlinsol/spbcgs/serial/test_sunlinsol_spbcgs_serial.c",
+				"examples/sunlinsol/spbcgs/serial/../../test_sunlinsol.h",
+				"examples/sunlinsol/spbcgs/serial/../../test_sunlinsol.c",
+				"examples/sunlinsol/spbcgs/serial/../../../../src/sundials/sundials_linearsolver.c",
+				"examples/sunlinsol/spbcgs/serial/../../../../src/sundials/sundials_nvector.c"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/spbcgs/serial",
+			"paths" : 
+			[
+				"/home/andrew/Documents/Research/Projects/BioRT-Flux-PIHM-py/BioRT-Flux-PIHM/build/examples/sunlinsol/spbcgs/serial/CMakeLists.txt"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/examples/sunlinsol/spbcgs/serial",
+			"paths" : 
+			[
+				{
+					"from" : "/home/andrew/Documents/Research/Projects/BioRT-Flux-PIHM-py/BioRT-Flux-PIHM/build/examples/sunlinsol/spbcgs/serial/Makefile_ex",
+					"to" : "Makefile"
+				}
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "examples/sunlinsol/spbcgs/serial",
+		"source" : "examples/sunlinsol/spbcgs/serial"
+	}
+}

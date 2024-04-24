@@ -1,0 +1,105 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"src/sunlinsol/band/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 16,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 52,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 70,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 74,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"type" : "code"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunlinsol/band/libsundials_sunlinsolband.a"
+			],
+			"targetId" : "sundials_sunlinsolband_static::@1b1d3c80e9e8f9ecee90",
+			"targetIndex" : 45,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunlinsol/band/libsundials_sunlinsolband.so.2.1.0",
+				"src/sunlinsol/band/libsundials_sunlinsolband.so.2"
+			],
+			"targetId" : "sundials_sunlinsolband_shared::@1b1d3c80e9e8f9ecee90",
+			"targetIndex" : 44,
+			"targetInstallNamelink" : "skip",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"src/sunlinsol/band/libsundials_sunlinsolband.so"
+			],
+			"targetId" : "sundials_sunlinsolband_shared::@1b1d3c80e9e8f9ecee90",
+			"targetIndex" : 44,
+			"targetInstallNamelink" : "only",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "include/sunlinsol",
+			"paths" : 
+			[
+				"include/sunlinsol/sunlinsol_band.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "src/sunlinsol/band",
+		"source" : "src/sunlinsol/band"
+	}
+}
