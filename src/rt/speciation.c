@@ -7,16 +7,14 @@
 void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 river_struct river[])
 {
-    int i;
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nriver; i++)
+    for (int i = 0; i < nriver; i++)
     {
-        int k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (int k = 0; k < NumSpc; k++)
         {
             river[i].chms_stream.p_conc[k] = river[i].chms_stream.t_conc[k];
             river[i].chms_rivbed.p_conc[k] = river[i].chms_rivbed.t_conc[k];
@@ -33,7 +31,6 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 {
     /* if speciation flg = 1, pH is defined
      * if speciation flg = 0, all defined value is total concentration */
-    int i, j, k;
     int num_spe = rttbl->NumStc + rttbl->NumSsc;
     double tmpval;
     double tmpprb = 1E-2;
@@ -52,7 +49,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     double bdt;
     realtype **jcb;
 
-    for (k = 0; k < MAXSPS; k++)
+    for (int k = 0; k < MAXSPS; k++)
     {
         residue[k] = 0.0;
         residue_t[k] = 0.0;
@@ -66,7 +63,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
     if (rttbl->TEMcpl == 0)
     {
-        for (i = 0; i < rttbl->NumSsc; i++)
+        for (int i = 0; i < rttbl->NumSsc; i++)
         {
             Keq[i] = rttbl->Keq[i];
         }
@@ -76,17 +73,17 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     bdh = rttbl->bdh;
     bdt = rttbl->bdt;
 
-    for (i = 0; i < rttbl->NumStc; i++)
+    for (int i = 0; i < rttbl->NumStc; i++)
     {
         /* Using log10 conc as the primary unknowns. Works better because
          * negative numbers are not a problem. */
         tmpconc[i] = log10(chms->p_conc[i]);
     }
 
-    for (i = 0; i < rttbl->NumSsc; i++)
+    for (int i = 0; i < rttbl->NumSsc; i++)
     {
         tmpval = 0.0;
-        for (j = 0; j < rttbl->NumSdc; j++)
+        for (int j = 0; j < rttbl->NumSdc; j++)
         {
             tmpval += tmpconc[j] * rttbl->Dependency[i][j];
         }
@@ -94,7 +91,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         tmpconc[i + rttbl->NumStc] = tmpval;
     }
 
-    for (i = 0; i < rttbl->NumStc; i++)
+    for (int i = 0; i < rttbl->NumStc; i++)
     {
         current_totconc[i] = chms->t_conc[i];
     }
@@ -115,13 +112,13 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             {
                 I = 0;
                 /* Calculate the ionic strength in this block */
-                for (i = 0; i < num_spe; i++)
+                for (int i = 0; i < num_spe; i++)
                 {
                     I += 0.5 * pow(10, tmpconc[i]) *
                          chemtbl[i].Charge * chemtbl[i].Charge;
                 }
                 Iroot = sqrt(I);
-                for (i = 0; i < num_spe; i++)
+                for (int i = 0; i < num_spe; i++)
                 {
                     if (chemtbl[i].itype == MINERAL)
                     {
@@ -148,20 +145,20 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 /* gamma stores log10gamma[i] */
             }
 
-            for (i = 0; i < rttbl->NumSsc; i++)
+            for (int i = 0; i < rttbl->NumSsc; i++)
             {
                 tmpval = 0.0;
-                for (j = 0; j < rttbl->NumSdc; j++)
+                for (int j = 0; j < rttbl->NumSdc; j++)
                 {
                     tmpval += (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
                 }
                 tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                 tmpconc[i + rttbl->NumStc] = tmpval;
             }
-            for (i = 0; i < rttbl->NumStc; i++)
+            for (int i = 0; i < rttbl->NumStc; i++)
             {
                 tmpval = 0.0;
-                for (j = 0; j < num_spe; j++)
+                for (int j = 0; j < num_spe; j++)
                 {
                     tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                 }
@@ -176,15 +173,15 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             }
             int row, col;
             col = 0;
-            for (k = 0; k < rttbl->NumStc; k++)
+            for (int k = 0; k < rttbl->NumStc; k++)
             {
                 if (strcmp(chemtbl[k].ChemName, "'H+'") != 0)
                 {
                     tmpconc[k] += tmpprb;
-                    for (i = 0; i < rttbl->NumSsc; i++)
+                    for (int i = 0; i < rttbl->NumSsc; i++)
                     {
                         tmpval = 0.0;
-                        for (j = 0; j < rttbl->NumSdc; j++)
+                        for (int j = 0; j < rttbl->NumSdc; j++)
                         {
                             tmpval += (tmpconc[j] + gamma[j]) *
                                       rttbl->Dependency[i][j];
@@ -193,12 +190,12 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         tmpconc[i + rttbl->NumStc] = tmpval;
                     }
                     row = 0;
-                    for (i = 0; i < rttbl->NumStc; i++)
+                    for (int i = 0; i < rttbl->NumStc; i++)
                     {
                         if (strcmp(chemtbl[i].ChemName, "'H+'") != 0)
                         {
                             tmpval = 0.0;
-                            for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
+                            for (int j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                             {
                                 tmpval += rttbl->Totalconc[i][j] *
                                           pow(10, tmpconc[j]);
@@ -214,7 +211,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 }
             }
             row = 0;
-            for (i = 0; i < rttbl->NumStc; i++)
+            for (int i = 0; i < rttbl->NumStc; i++)
                 if (strcmp(chemtbl[i].ChemName, "'H+'") != 0)
                     x_[row++] = -residue[i];
             if (denseGETRF(jcb, rttbl->NumStc - 1, rttbl->NumStc - 1, p) != 0)
@@ -225,14 +222,14 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             denseGETRS(jcb, rttbl->NumStc - 1, p, x_);
 
             row = 0;
-            for (i = 0; i < rttbl->NumStc; i++)
+            for (int i = 0; i < rttbl->NumStc; i++)
             {
                 if (strcmp(chemtbl[i].ChemName, "'H+'") != 0)
                     tmpconc[i] += x_[row++];
                 error[i] = residue[i] / totconc[i];
             }
             maxerror = fabs(error[0]);
-            for (i = 1; i < rttbl->NumStc; i++)
+            for (int i = 1; i < rttbl->NumStc; i++)
                 if (fabs(error[i]) > maxerror)
                     maxerror = fabs(error[i]);
         }
@@ -250,13 +247,13 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             {
                 I = 0.0;
                 /* Calculate the ionic strength in this block */
-                for (i = 0; i < num_spe; i++)
+                for (int i = 0; i < num_spe; i++)
                 {
                     I += 0.5 * pow(10, tmpconc[i]) *
                          chemtbl[i].Charge * chemtbl[i].Charge;
                 }
                 Iroot = sqrt(I);
-                for (i = 0; i < num_spe; i++)
+                for (int i = 0; i < num_spe; i++)
                 {
                     if (chemtbl[i].itype == MINERAL)
                         gamma[i] = -tmpconc[i];
@@ -269,20 +266,20 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 }
             }
             /* gamma stores log10gamma[i]. */
-            for (i = 0; i < rttbl->NumSsc; i++)
+            for (int i = 0; i < rttbl->NumSsc; i++)
             {
                 tmpval = 0.0;
-                for (j = 0; j < rttbl->NumSdc; j++)
+                for (int j = 0; j < rttbl->NumSdc; j++)
                 {
                     tmpval += (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
                 }
                 tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                 tmpconc[i + rttbl->NumStc] = tmpval;
             }
-            for (i = 0; i < rttbl->NumStc; i++)
+            for (int i = 0; i < rttbl->NumStc; i++)
             {
                 tmpval = 0.0;
-                for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
+                for (int j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                 {
                     tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                 }
@@ -290,13 +287,13 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 residue[i] = tmpval - chms->t_conc[i];
             }
 
-            for (k = 0; k < rttbl->NumStc; k++)
+            for (int k = 0; k < rttbl->NumStc; k++)
             {
                 tmpconc[k] += tmpprb;
-                for (i = 0; i < rttbl->NumSsc; i++)
+                for (int i = 0; i < rttbl->NumSsc; i++)
                 {
                     tmpval = 0.0;
-                    for (j = 0; j < rttbl->NumSdc; j++)
+                    for (int j = 0; j < rttbl->NumSdc; j++)
                     {
                         tmpval +=
                             (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
@@ -304,10 +301,10 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                     tmpconc[i + rttbl->NumStc] = tmpval;
                 }
-                for (i = 0; i < rttbl->NumStc; i++)
+                for (int i = 0; i < rttbl->NumStc; i++)
                 {
                     tmpval = 0.0;
-                    for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
+                    for (int j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                     {
                         tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                     }
@@ -316,7 +313,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 }
                 tmpconc[k] -= tmpprb;
             }
-            for (i = 0; i < rttbl->NumStc; i++)
+            for (int i = 0; i < rttbl->NumStc; i++)
             {
                 x_[i] = -residue[i];
             }
@@ -326,32 +323,32 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 PIHMexit(EXIT_FAILURE);
             }
             denseGETRS(jcb, rttbl->NumStc, p, x_);
-            for (i = 0; i < rttbl->NumStc; i++)
+            for (int i = 0; i < rttbl->NumStc; i++)
             {
                 tmpconc[i] += x_[i];
                 error[i] = residue[i] / totconc[i];
             }
             maxerror = fabs(error[0]);
-            for (i = 1; i < rttbl->NumStc; i++)
+            for (int i = 1; i < rttbl->NumStc; i++)
             {
                 maxerror = MAX(fabs(error[i]), maxerror);
             }
         }
     }
-    for (i = 0; i < rttbl->NumSsc; i++)
+    for (int i = 0; i < rttbl->NumSsc; i++)
     {
         tmpval = 0.0;
-        for (j = 0; j < rttbl->NumSdc; j++)
+        for (int j = 0; j < rttbl->NumSdc; j++)
         {
             tmpval += (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
         }
         tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
         tmpconc[i + rttbl->NumStc] = tmpval;
     }
-    for (i = 0; i < rttbl->NumStc; i++)
+    for (int i = 0; i < rttbl->NumStc; i++)
     {
         tmpval = 0.0;
-        for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
+        for (int j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
         {
             tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
         }
@@ -359,7 +356,7 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         residue[i] = tmpval - chms->t_conc[i];
         error[i] = residue[i] / totconc[i];
     }
-    for (i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
+    for (int i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
     {
         if (i < rttbl->NumStc)
         {

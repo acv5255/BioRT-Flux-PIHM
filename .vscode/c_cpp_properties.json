@@ -20,10 +20,12 @@
             ],
             "defines": [
                 "_RT_",
-                "_OPENMP"
+                "_OPENMP",
+                "_NOAH_",
+                "_DAILY_"
             ],
             "compilerPath": "/usr/bin/gcc-12",
-            "cStandard": "c17",
+            "cStandard": "c23",
             "cppStandard": "c++14",
             "intelliSenseMode": "linux-gcc-x64"
         }

@@ -2,24 +2,21 @@
 
 void DailyVar(int t, int start_time, elem_struct *elem)
 {
-    int             i;
 
     /*
      * Sum daily variables
      */
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (int i = 0; i < nelem; i++)
     {
-        int             k;
+        int k;
 
         /* Air temperature */
         elem[i].daily.avg_sfctmp += elem[i].es.sfctmp;
-        elem[i].daily.tmax = (elem[i].daily.tmax > elem[i].es.sfctmp) ?
-            elem[i].daily.tmax : elem[i].es.sfctmp;
-        elem[i].daily.tmin = (elem[i].daily.tmin < elem[i].es.sfctmp) ?
-            elem[i].daily.tmin : elem[i].es.sfctmp;
+        elem[i].daily.tmax = (elem[i].daily.tmax > elem[i].es.sfctmp) ? elem[i].daily.tmax : elem[i].es.sfctmp;
+        elem[i].daily.tmin = (elem[i].daily.tmin < elem[i].es.sfctmp) ? elem[i].daily.tmin : elem[i].es.sfctmp;
 
         /* Soil moisture, temperature, and ET */
         for (k = 0; k < elem[i].ps.nsoil; k++)
@@ -59,11 +56,11 @@ void DailyVar(int t, int start_time, elem_struct *elem)
     if ((t - start_time) % DAYINSEC == 0 && t > start_time)
     {
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-        for (i = 0; i < nelem; i++)
+        for (int i = 0; i < nelem; i++)
         {
-            int             k;
+            int k;
 
             elem[i].daily.avg_sfctmp /= (double)elem[i].daily.counter;
 
@@ -94,11 +91,11 @@ void DailyVar(int t, int start_time, elem_struct *elem)
 #endif
 
             elem[i].daily.tnight /= (double)(elem[i].daily.counter -
-                elem[i].daily.daylight_counter);
+                                             elem[i].daily.daylight_counter);
         }
 
 #if defined(_LUMPED_)
-        int             k;
+        int k;
 
         elem[LUMPED].daily.tmax = 0.0;
         elem[LUMPED].daily.tmin = 0.0;
@@ -164,23 +161,21 @@ void DailyVar(int t, int start_time, elem_struct *elem)
 
 void InitDailyStruct(elem_struct *elem)
 {
-    int             i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
 #if defined(_LUMPED_)
-    for (i = 0; i < nelem + 1; i++)
+    for (int i = 0; i < nelem + 1; i++)
 #else
-    for (i = 0; i < nelem; i++)
+    for (int i = 0; i < nelem; i++)
 #endif
     {
-        int             k;
 
         elem[i].daily.counter = 0;
         elem[i].daily.daylight_counter = 0;
 
-        for (k = 0; k < MAXLYR; k++)
+        for (int k = 0; k < MAXLYR; k++)
         {
             elem[i].daily.avg_sh2o[k] = 0.0;
             elem[i].daily.avg_smc[k] = 0.0;

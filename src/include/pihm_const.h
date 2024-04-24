@@ -2,32 +2,32 @@
 #define PIHM_CONST_HEADER
 
 /* Physical parameters */
-#define PI 3.14159265  /* pi */
-#define DAYINSEC 86400 /* number of seconds in a day */
-#define GRAV 9.80665   /* gravity constant (m s-2) */
-#define CP 1004.0      /* specific heat capacity of air \
-                        * (J kg-1 K-1) */
-#define RHOH2O 1000.0  /* water density (kg m-3) */
-#define LVH2O 2.501E6  /* latent heat of vaporization \
-                        * (J kg-1) */
-#define SIGMA 5.67E-8  /* Stefan-Boltzmann constant \
-                        * (W m-2 K-4) */
-#define RD 287.04      /* gas constant for dry air \
-                        * (J kg-1 K-1) */
-#define RV 461.5       /* gas constant for water vapor \
-                        * (J kg-1 K-1) */
-#define CPH2O 4.218E3  /* specific heat capacity of water \
-                        * (J kg-1 K-1) */
-#define CPICE 2.106E3  /* specific heat capacity of ice \
-                        * (J kg-1 K-1) */
-#define LSUBF 3.335E5  /* latent heat of fusion (J kg-1) */
-#define EMISSI_S 0.95  /* emissivity of snow (-) */
-#define TFREEZ 273.15  /* freezing point (K) */
-#define LSUBS 2.83E6   /* latent heat of sublimation \
-                        * (J kg-1) */
-#define ICEDENS 0.9    /* glacier ice density (g cm-3, or \
-                        * dimensionless fraction of H2O   \
-                        * density */
+static const double PI = 3.14159265;
+static const int DAYINSEC = 86400;   /* number of seconds in a day */
+static const double GRAV = 9.80665;  /* gravity constant (m s-2) */
+static const double CP = 1004.0;     /* specific heat capacity of air \
+                                      * (J kg-1 K-1) */
+static const double RHOH2O = 1000.0; /* water density (kg m-3) */
+static const double LVH2O = 2.501E6; /* latent heat of vaporization \
+                                      * (J kg-1) */
+static const double SIGMA = 5.67E-8; /* Stefan-Boltzmann constant \
+                                      * (W m-2 K-4) */
+static const double RD = 287.04;     /* gas constant for dry air \
+                                      * (J kg-1 K-1) */
+static const double RV = 461.5;      /* gas constant for water vapor \
+                                      * (J kg-1 K-1) */
+static const double CPH2O = 4.218E3; /* specific heat capacity of water \
+                                      * (J kg-1 K-1) */
+static const double CPICE = 2.106E3; /* specific heat capacity of ice \
+                                      * (J kg-1 K-1) */
+static const double LSUBF = 3.335E5; /* latent heat of fusion (J kg-1) */
+static const double EMISSI_S = 0.95; /* emissivity of snow (-) */
+static const double TFREEZ = 273.15; /* freezing point (K) */
+static const double LSUBS = 2.83E6;  /* latent heat of sublimation \
+                                      * (J kg-1) */
+static const double ICEDENS = 0.9;   /* glacier ice density (g cm-3, or \
+                                      * dimensionless fraction of H2O   \
+                                      * density */
 
 #define F_OK 0
 
@@ -36,9 +36,16 @@
 #endif
 
 /* Simulation mode */
-#define NORMAL_MODE 0
-#define SPINUP_MODE 1
-#define ACC_SPINUP_MODE 2
+// #define NORMAL_MODE 0
+// #define SPINUP_MODE 1
+// #define ACC_SPINUP_MODE 2
+
+enum SpinupMode
+{
+    NORMAL_MODE = 0,
+    SPINUP_MODE = 1,
+    ACC_SPINUP_MODE = 2
+};
 
 /* Default bad value */
 #define BADVAL -999
@@ -50,7 +57,8 @@
 #define RT_STEP 3
 
 /* Maximum number of output files */
-#define MAXPRINT 1024
+// #define MAXPRINT 1024
+static const int MAXPRINT = 1024;
 
 /* Meteorological forcing related */
 #define NUM_METEO_VAR 7 /* number of meteorological forcing \
@@ -513,7 +521,6 @@ extern int first_balance;
 extern int nthreads;
 #endif
 #if defined(_RT_)
-// int NumSpc; /* number of primary species */
 extern int NumSpc; /* number of primary species */
 #endif
 
