@@ -31,7 +31,7 @@ void ReadBc(const char *filename, Forcing *forc,
     }
 #endif
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         for (j = 0; j < NUM_EDGE; j++)
         {
@@ -55,7 +55,7 @@ void ReadBc(const char *filename, Forcing *forc,
     if (read_bc)
     {
         bc_file = fopen(filename, "r");
-        CheckFile(bc_file, filename);
+        check_file(bc_file, filename);
         PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
         FindLine(bc_file, "BOF", &lno, filename);
@@ -115,7 +115,7 @@ void ReadBc(const char *filename, Forcing *forc,
                     {
                         bytes_consumed += bytes_now;
 
-                        ind[k] = FindChem(chemn, chemtbl, rttbl->NumStc);
+                        ind[k] = find_chem(chemn, chemtbl, rttbl->NumStc);
 
                         if (ind[k] < 0)
                         {

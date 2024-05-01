@@ -2,7 +2,7 @@
 
 #define MAX_TYPE 100
 
-void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
+void initialize_data(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
 {
     int i, j;
     int bc;
@@ -31,13 +31,13 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
      * Initialize PIHM structure
      */
 #if defined(_LUMPED_)
-    pihm->elem = (elem_struct *)malloc((nelem + 1) * sizeof(elem_struct));
+    pihm->elem = (elem_struct *)malloc((num_elements + 1) * sizeof(elem_struct));
 #else
-    pihm->elem = (elem_struct *)malloc(nelem * sizeof(elem_struct));
+    pihm->elem = (MeshElement *)malloc(num_elements * sizeof(MeshElement));
 #endif
-    pihm->river = (river_struct *)malloc(nriver * sizeof(river_struct));
+    pihm->river = (river_struct *)malloc(num_river * sizeof(river_struct));
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         pihm->elem[i].attrib.soil_type = pihm->atttbl.soil[i];
 #if defined(_FBR_)
@@ -115,7 +115,7 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
     }
 #endif
 
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         bc = pihm->rivtbl.bc[i];
 
@@ -133,10 +133,10 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     /* Initialize element mesh structures */
-    InitMesh(pihm->elem, &pihm->meshtbl);
+    init_mesh(pihm->elem, &pihm->meshtbl);
 
     /* Initialize element topography */
-    InitTopo(pihm->elem, &pihm->meshtbl);
+    init_topo(pihm->elem, &pihm->meshtbl);
 
     /* Calculate average elevation and total area of model domain */
     pihm->siteinfo.zmax = AvgElev(pihm->elem);
@@ -150,9 +150,9 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
 
     /* Initialize element soil properties */
 #if defined(_NOAH_)
-    InitSoil(pihm->elem, &pihm->soiltbl, &pihm->noahtbl, &pihm->cal);
+    init_soil(pihm->elem, &pihm->soiltbl, &pihm->noahtbl, &pihm->cal);
 #else
-    InitSoil(pihm->elem, &pihm->soiltbl, &pihm->cal);
+    init_soil(pihm->elem, &pihm->soiltbl, &pihm->cal);
 #endif
 
 #if defined(_FBR_)
@@ -161,27 +161,27 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Initialize element land cover properties */
-    InitLc(pihm->elem, &pihm->lctbl, &pihm->cal);
+    init_land_cover(pihm->elem, &pihm->lctbl, &pihm->cal);
 
     /* Initialize element forcing */
 #if defined(_RT_)
-    InitForc(pihm->elem, &pihm->forc, &pihm->cal, &pihm->rttbl);
+    init_forcing(pihm->elem, &pihm->forc, &pihm->cal, &pihm->rttbl);
 #else
-    InitForc(pihm->elem, &pihm->forc, &pihm->cal);
+    init_forcing(pihm->elem, &pihm->forc, &pihm->cal);
 #endif
 
     /* Initialize river segment properties */
-    InitRiver(pihm->river, pihm->elem, &pihm->rivtbl, &pihm->shptbl,
-              &pihm->matltbl, &pihm->meshtbl, &pihm->cal);
+    init_river(pihm->river, pihm->elem, &pihm->rivtbl, &pihm->shptbl,
+               &pihm->matltbl, &pihm->meshtbl, &pihm->cal);
 
     /* Correct element elevations to avoid sinks */
     if (corr_mode)
     {
-        CorrElev(pihm->elem, pihm->river);
+        corr_elev(pihm->elem, pihm->river);
     }
 
     /* Calculate distances between elements */
-    InitSurfL(pihm->elem, &pihm->meshtbl);
+    init_surf_l(pihm->elem, &pihm->meshtbl);
 
 #if defined(_NOAH_)
     /* Initialize land surface module (Noah) */
@@ -200,8 +200,8 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
 #if defined(_RT_)
-    InitChem(pihm->filename.cdbs, &pihm->cal, &pihm->forc, pihm->chemtbl,
-             pihm->kintbl, &pihm->rttbl, &pihm->chmictbl, pihm->elem);
+    init_chem(pihm->filename.cdbs, &pihm->cal, &pihm->forc, pihm->chemtbl,
+              pihm->kintbl, &pihm->rttbl, &pihm->chmictbl, pihm->elem);
 #endif
 
     /*
@@ -212,11 +212,11 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
         /* Relaxation mode
          * Noah initialization needs air temperature thus forcing is applied */
 #if defined(_RT_)
-        ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, pihm->ctrl.starttime,
-                  pihm->ctrl.rad_mode, &pihm->siteinfo);
+        apply_forcing(&pihm->forc, &pihm->rttbl, pihm->elem, pihm->ctrl.starttime,
+                      pihm->ctrl.rad_mode, &pihm->siteinfo);
 #elif defined(_NOAH_)
-        ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
-                  pihm->ctrl.rad_mode, &pihm->siteinfo);
+        apply_forcing(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
+                      pihm->ctrl.rad_mode, &pihm->siteinfo);
 #endif
 
         RelaxIc(pihm->elem, pihm->river);
@@ -228,7 +228,7 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     /* Initialize state variables */
-    InitVar(pihm->elem, pihm->river, CV_Y);
+    init_vars(pihm->elem, pihm->river, CV_Y);
 
 #if defined(_CYCLES_)
 #if TEMP_DISABLED
@@ -263,18 +263,18 @@ void Initialize(PihmData pihm, N_Vector CV_Y, void **cvode_mem)
         ReadRtIc(pihm->filename.rtic, pihm->elem);
     }
 
-    InitRTVar(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, CV_Y);
+    init_rt_var(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, CV_Y);
 #endif
 
     /* Calculate model time steps */
-    CalcModelStep(&pihm->ctrl);
+    calc_model_step(&pihm->ctrl);
 
 #if defined(_DAILY_)
     InitDailyStruct(pihm->elem);
 #endif
 }
 
-void CorrElev(elem_struct *elem, river_struct *river)
+void corr_elev(MeshElement *elem, river_struct *river)
 {
     int i, j;
     int sink;
@@ -287,7 +287,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
 
     PIHMprintf(VL_VERBOSE, "Correct surface elevation.\n");
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         /* Correction of surface elevation (artifacts due to coarse scale
          * discretization). Not needed if there is lake feature. */
@@ -339,7 +339,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
         }
     }
 
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         if (river[i].down > 0)
         {
@@ -371,14 +371,14 @@ void CorrElev(elem_struct *elem, river_struct *river)
     }
 }
 
-void InitSurfL(elem_struct *elem, const MeshEntry *meshtbl)
+void init_surf_l(MeshElement *elem, const MeshEntry *meshtbl)
 {
     int i;
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         int j;
         double x[NUM_EDGE];
@@ -390,10 +390,10 @@ void InitSurfL(elem_struct *elem, const MeshEntry *meshtbl)
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            x[j] = meshtbl->x[elem[i].node[j] - 1];
-            y[j] = meshtbl->y[elem[i].node[j] - 1];
-            zmin[j] = meshtbl->zmin[elem[i].node[j] - 1];
-            zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
+            x[j] = meshtbl->x[elem[i].node_ids[j] - 1];
+            y[j] = meshtbl->y[elem[i].node_ids[j] - 1];
+            zmin[j] = meshtbl->zmin[elem[i].node_ids[j] - 1];
+            zmax[j] = meshtbl->zmax[elem[i].node_ids[j] - 1];
         }
 
         for (j = 0; j < NUM_EDGE; j++)
@@ -442,12 +442,12 @@ void InitSurfL(elem_struct *elem, const MeshEntry *meshtbl)
     }
 }
 
-double _WsAreaElev(int type, const elem_struct *elem)
+double _WsAreaElev(int type, const MeshElement *elem)
 {
     double ans = 0.0;
     int i;
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         switch (type)
         {
@@ -474,11 +474,11 @@ double _WsAreaElev(int type, const elem_struct *elem)
     }
     else
     {
-        return ans / (double)nelem;
+        return ans / (double)num_elements;
     }
 }
 
-void RelaxIc(elem_struct *elem, river_struct *river)
+void RelaxIc(MeshElement *elem, river_struct *river)
 {
     int i;
     const double INIT_UNSAT = 0.1;
@@ -489,7 +489,7 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         elem[i].ic.cmc = 0.0;
         elem[i].ic.sneqv = 0.0;
@@ -549,14 +549,14 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         river[i].ic.stage = 0.0;
         river[i].ic.gw = river[i].topo.zbed - river[i].topo.zmin - 0.1;
     }
 }
 
-void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
+void init_vars(MeshElement *elem, river_struct *river, N_Vector CV_Y)
 {
     int i;
 
@@ -564,7 +564,7 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #pragma omp parallel for
 #endif
     /* State variables (initial conditions) */
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
 #if defined(_CYCLES_)
         elem[i].ws.flatResidueWater = elem[i].ic.cmc;
@@ -609,7 +609,7 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         river[i].ws.stage = river[i].ic.stage;
         river[i].ws.gw = river[i].ic.gw;
@@ -624,9 +624,9 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
-        InitWFlux(&elem[i].wf);
+        init_w_flux(&elem[i].wf);
 
 #if defined(_NOAH_)
         elem[i].ps.snotime1 = 0.0;
@@ -675,7 +675,7 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     }
 }
 
-void CalcModelStep(RunParameters *ctrl)
+void calc_model_step(RunParameters *ctrl)
 {
     int i;
 
@@ -691,7 +691,7 @@ void CalcModelStep(RunParameters *ctrl)
     ctrl->tout[ctrl->nstep] = (ctrl->tout[ctrl->nstep] < ctrl->endtime) ? ctrl->endtime : ctrl->tout[ctrl->nstep];
 }
 
-void InitWFlux(wflux_struct *wf)
+void init_w_flux(wflux_struct *wf)
 {
     int j;
 
@@ -764,7 +764,7 @@ void InitWFlux(wflux_struct *wf)
 #endif
 }
 
-void InitRiverWFlux(river_wflux_struct *wf)
+void init_river_w_flux(river_wflux_struct *wf)
 {
     int j;
 
@@ -774,7 +774,7 @@ void InitRiverWFlux(river_wflux_struct *wf)
     }
 }
 
-void InitEFlux(eflux_struct *ef)
+void init_e_flux(eflux_struct *ef)
 {
     ef->soldn = 0.0;
 

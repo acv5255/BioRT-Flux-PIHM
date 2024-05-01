@@ -6,22 +6,22 @@
  *****************************************************************************/
 #include "pihm.h"
 
-void InitChem(const char cdbs_filen[], const CalibrationParameters *cal,
-              Forcing *forc, ChemicalEntry chemtbl[], KineticEntry kintbl[],
-              ReactionNetwork *rttbl, chmictbl_struct *chmictbl, elem_struct elem[])
+void init_chem(const char cdbs_filen[], const CalibrationParameters *cal,
+               Forcing *forc, ChemicalEntry chemtbl[], KineticEntry kintbl[],
+               ReactionNetwork *rttbl, chmictbl_struct *chmictbl, MeshElement elem[])
 {
     int chem_ind;
-    FILE *fp;
+    FILE *file_pointer;
 
-    fp = fopen(cdbs_filen, "r");
-    CheckFile(fp, cdbs_filen);
+    file_pointer = fopen(cdbs_filen, "r");
+    check_file(file_pointer, cdbs_filen);
 
     /*
      * Look up database to find required parameters and dependencies for
      * chemical species
      */
-    Lookup(fp, cal, chemtbl, kintbl, rttbl);
-    fclose(fp);
+    lookup_database_entry(file_pointer, cal, chemtbl, kintbl, rttbl);
+    fclose(file_pointer);
 
     /*
      * Apply calibration
@@ -31,7 +31,7 @@ void InitChem(const char cdbs_filen[], const CalibrationParameters *cal,
     rttbl->pumps[0].flow_rate *= cal->gwinflux;
 #endif
 
-    chem_ind = FindChem("'DOC'", chemtbl, rttbl->NumStc);
+    chem_ind = find_chem("'DOC'", chemtbl, rttbl->NumStc);
     if (chem_ind >= 0)
     {
         rttbl->prcp_conc[chem_ind] *= cal->prcpconc;
@@ -63,14 +63,13 @@ void InitChem(const char cdbs_filen[], const CalibrationParameters *cal,
     /*
      * Assign initial conditions to different volumes
      */
-    for (int i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
-        int k;
         int *ic_type;
 
         ic_type = elem[i].attrib.chem_ic_type;
 
-        for (k = 0; k < rttbl->NumStc; k++)
+        for (int k = 0; k < rttbl->NumStc; k++)
         {
             elem[i].restart_input[UNSAT_CHMVOL].t_conc[k] =
                 chmictbl->conc[ic_type[UNSAT_CHMVOL] - 1][k];
@@ -97,27 +96,25 @@ void InitChem(const char cdbs_filen[], const CalibrationParameters *cal,
     }
 }
 
-void InitRTVar(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
-               elem_struct elem[], river_struct river[], N_Vector CV_Y)
+void init_rt_var(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
+                 MeshElement elem[], river_struct river[], N_Vector CV_Y)
 {
-    int i;
-
     /*
      * Initializing element concentrations
      */
     PIHMprintf(VL_VERBOSE, "\n Initializing concentrations... \n");
 
-    for (i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
         double vol_gw;
         double vol_unsat;
 
-        vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-                            elem[i].soil.smcmin, elem[i].ws.gw),
+        vol_gw = MAX(get_groundwater_storage(elem[i].soil.depth, elem[i].soil.smcmax,
+                                             elem[i].soil.smcmin, elem[i].ws.gw),
                      DEPTHR) *
                  elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-                                       elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat),
+        vol_unsat = MAX(get_unsat_water_storage(elem[i].soil.depth, elem[i].soil.smcmax,
+                                                elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat),
                         DEPTHR) *
                     elem[i].topo.area;
 
@@ -128,12 +125,12 @@ void InitRTVar(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
                   elem[i].soil.smcmax, vol_gw, &elem[i].chms_gw);
 
 #if defined(_FBR_)
-        vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-                            elem[i].geol.smcmin, elem[i].ws.fbr_gw),
+        vol_gw = MAX(get_groundwater_storage(elem[i].geol.depth, elem[i].geol.smcmax,
+                                             elem[i].geol.smcmin, elem[i].ws.fbr_gw),
                      DEPTHR) *
                  elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-                                       elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
+        vol_unsat = MAX(get_unsat_water_storage(elem[i].geol.depth, elem[i].geol.smcmax,
+                                                elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
                         DEPTHR) *
                     elem[i].topo.area;
 
@@ -146,19 +143,18 @@ void InitRTVar(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
     }
 
     /*
-     * Initialize river concentrations
+     * initialize_data river concentrations
      */
-    for (i = 0; i < nriver; i++)
+    for (int i = 0; i < num_river; i++)
     {
         double vol_rivbed;
         double vol_stream;
-        int k;
 
         vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR) *
                      river[i].topo.area;
         vol_stream = river[i].topo.area * MAX(river[i].ws.stage, DEPTHR);
 
-        for (k = 0; k < rttbl->NumStc; k++)
+        for (int k = 0; k < rttbl->NumStc; k++)
         {
             if (chemtbl[k].itype == AQUEOUS)
             {
@@ -192,7 +188,7 @@ void InitRTVar(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
             }
         }
 
-        for (k = 0; k < rttbl->NumSsc; k++)
+        for (int k = 0; k < rttbl->NumSsc; k++)
         {
             river[i].chms_stream.s_conc[k] = ZERO_CONC;
             river[i].chms_rivbed.s_conc[k] = ZERO_CONC;
@@ -202,11 +198,10 @@ void InitRTVar(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
-        int k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (int k = 0; k < NumSpc; k++)
         {
             NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = elem[i].chms_unsat.t_mole[k];
             NV_Ith(CV_Y, GW_MOLE(i, k)) = elem[i].chms_gw.t_mole[k];
@@ -227,7 +222,7 @@ void InitRTVar(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nriver; i++)
+    for (int i = 0; i < num_river; i++)
     {
         int k;
 
@@ -240,8 +235,8 @@ void InitRTVar(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
 }
 
 void InitChemS(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
-               const rtic_struct *restart_input, double smcmax, double vol,
-               chmstate_struct *chms)
+               const ConcSSA *restart_input, double smcmax, double vol,
+               ChemicalState *chms)
 {
     int k;
 
@@ -313,7 +308,7 @@ void InitChemS(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
     }
 }
 
-double GWStrg(double depth, double smcmax, double smcmin, double gw)
+double get_groundwater_storage(double depth, double smcmax, double smcmin, double gw)
 {
     double strg;
 
@@ -333,8 +328,8 @@ double GWStrg(double depth, double smcmax, double smcmin, double gw)
     return strg;
 }
 
-double UnsatWaterStrg(double depth, double smcmax, double smcmin, double gw,
-                      double unsat)
+double get_unsat_water_storage(double depth, double smcmax, double smcmin, double gw,
+                               double unsat)
 {
     double deficit;
 
@@ -345,7 +340,7 @@ double UnsatWaterStrg(double depth, double smcmax, double smcmin, double gw,
     return deficit * smcmin + MAX(unsat, 0.0) * (smcmax - smcmin);
 }
 
-double UnsatSatRatio(double depth, double unsat, double gw)
+double get_unsat_sat_ratio(double depth, double unsat, double gw)
 {
     return ((unsat < 0.0) ? 0.0 : ((gw > depth) ? 1.0 : unsat / (depth - gw)));
 }
@@ -371,14 +366,14 @@ double RivBedStrg(const matl_struct *matl, const river_wstate_struct *ws)
     return strg;
 }
 
-void UpdatePConc(elem_struct elem[], river_struct river[])
+void UpdatePConc(MeshElement elem[], river_struct river[])
 {
     int i;
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         int k;
 
@@ -397,7 +392,7 @@ void UpdatePConc(elem_struct elem[], river_struct river[])
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         int k;
 

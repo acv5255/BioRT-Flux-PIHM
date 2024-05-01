@@ -1,11 +1,11 @@
 #include "pihm.h"
 
 #if defined(_NOAH_)
-void InitSoil(elem_struct *elem, const SoilEntry *soiltbl,
-              const NoahLandSurfaceEntry *noahtbl, const CalibrationParameters *cal)
+void init_soil(MeshElement *elem, const SoilEntry *soiltbl,
+               const NoahLandSurfaceEntry *noahtbl, const CalibrationParameters *cal)
 #else
-void InitSoil(elem_struct *elem, const SoilEntry *soiltbl,
-              const CalibrationParameters *cal)
+void init_soil(elem_struct *elem, const SoilEntry *soiltbl,
+               const CalibrationParameters *cal)
 #endif
 {
     int i;
@@ -14,9 +14,9 @@ void InitSoil(elem_struct *elem, const SoilEntry *soiltbl,
 #pragma omp parallel for
 #endif
 #if defined(_LUMPED_)
-    for (i = 0; i < nelem + 1; i++)
+    for (i = 0; i < num_elements + 1; i++)
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         int soil_ind;

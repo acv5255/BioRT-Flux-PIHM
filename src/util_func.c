@@ -1,7 +1,7 @@
 #include "pihm.h"
 #include "optparse.h"
 
-void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
+void parse_cmd_line_param(int argc, char *argv[], char *outputdir)
 {
     int option;
     struct optparse options;
@@ -108,7 +108,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
     }
 }
 
-void CreateOutputDir(char *outputdir)
+void create_output_dir(char *outputdir)
 {
     time_t rawtime;
     struct tm *timestamp;
@@ -171,7 +171,7 @@ void CreateOutputDir(char *outputdir)
     }
 }
 
-void BackupInput(const char *outputdir, const OutputFilenames *filename)
+void backup_input(const char *outputdir, const OutputFilenames *filename)
 {
     char system_cmd[3 * MAXSTRING];
 
@@ -196,7 +196,7 @@ void BackupInput(const char *outputdir, const OutputFilenames *filename)
     }
 }
 
-void CheckCVodeFlag(int cv_flag)
+void check_cvode_flag(int cv_flag)
 {
     if (cv_flag < 0)
     {

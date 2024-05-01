@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void WriteRtIc(const char *outputdir, const ChemicalEntry chemtbl[],
-               const ReactionNetwork *rttbl, elem_struct elem[])
+               const ReactionNetwork *rttbl, MeshElement elem[])
 {
     FILE *file_pointer;
     char restart_fn[2 * MAXSTRING];
@@ -9,10 +9,10 @@ void WriteRtIc(const char *outputdir, const ChemicalEntry chemtbl[],
     sprintf(restart_fn, "%s/restart/%s.rtic", outputdir, project);
 
     file_pointer = fopen(restart_fn, "wb");
-    CheckFile(file_pointer, restart_fn);
+    check_file(file_pointer, restart_fn);
     PIHMprintf(VL_VERBOSE, "Writing RT initial conditions.\n");
 
-    for (int i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
 
         for (int k = 0; k < MAXSPS; k++)
@@ -65,29 +65,29 @@ void WriteRtIc(const char *outputdir, const ChemicalEntry chemtbl[],
 
         for (int j = 0; j < NCHMVOL; j++)
         {
-            fwrite(&(elem[i].restart_output[j]), sizeof(rtic_struct), 1, file_pointer);
+            fwrite(&(elem[i].restart_output[j]), sizeof(ConcSSA), 1, file_pointer);
         }
     }
 
     fclose(file_pointer);
 }
 
-void ReadRtIc(const char *fn, elem_struct elem[])
+void ReadRtIc(const char *fn, MeshElement elem[])
 {
     FILE *file_pointer;
     int i;
 
     file_pointer = fopen(fn, "rb");
-    CheckFile(file_pointer, fn);
+    check_file(file_pointer, fn);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         int j;
 
         for (j = 0; j < NCHMVOL; j++)
         {
-            fread(&elem[i].restart_input[j], sizeof(rtic_struct), 1, file_pointer);
+            fread(&elem[i].restart_input[j], sizeof(ConcSSA), 1, file_pointer);
         }
     }
 

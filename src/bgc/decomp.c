@@ -143,7 +143,7 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
         nf->cwdn_to_litr4n = cf->cwdc_to_litr4c / epc->deadwood_cn;
     }
 
-    /* Initialize the potential loss and mineral N flux variables */
+    /* initialize_data the potential loss and mineral N flux variables */
     plitr1c_loss = plitr2c_loss = plitr4c_loss = 0.0;
     psoil1c_loss = psoil2c_loss = psoil3c_loss = psoil4c_loss = 0.0;
     pmnf_l1s1 = pmnf_l2s2 = pmnf_l4s3 = 0.0;

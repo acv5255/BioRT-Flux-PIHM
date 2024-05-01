@@ -10,23 +10,23 @@ void ReadAtt(const char *filename, ElementAttribute *atttbl)
     int lno = 0;
 
     att_file = fopen(filename, "r");
-    CheckFile(att_file, filename);
+    check_file(att_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
-    atttbl->soil = (int *)malloc(nelem * sizeof(int));
-    atttbl->geol = (int *)malloc(nelem * sizeof(int));
-    atttbl->lc = (int *)malloc(nelem * sizeof(int));
-    atttbl->bc = (int **)malloc(nelem * sizeof(int *));
-    for (i = 0; i < nelem; i++)
+    atttbl->soil = (int *)malloc(num_elements * sizeof(int));
+    atttbl->geol = (int *)malloc(num_elements * sizeof(int));
+    atttbl->lc = (int *)malloc(num_elements * sizeof(int));
+    atttbl->bc = (int **)malloc(num_elements * sizeof(int *));
+    for (i = 0; i < num_elements; i++)
     {
         atttbl->bc[i] = (int *)malloc(NUM_EDGE * sizeof(int));
     }
-    atttbl->meteo = (int *)malloc(nelem * sizeof(int));
-    atttbl->lai = (int *)malloc(nelem * sizeof(int));
-    atttbl->source = (int *)malloc(nelem * sizeof(int));
+    atttbl->meteo = (int *)malloc(num_elements * sizeof(int));
+    atttbl->lai = (int *)malloc(num_elements * sizeof(int));
+    atttbl->source = (int *)malloc(num_elements * sizeof(int));
 
     NextLine(att_file, cmdstr, &lno);
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         NextLine(att_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",

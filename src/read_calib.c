@@ -7,7 +7,7 @@ void ReadCalib(const char *filename, CalibrationParameters *cal)
     int lno = 0;
 
     global_calib = fopen(filename, "r");
-    CheckFile(global_calib, filename);
+    check_file(global_calib, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     NextLine(global_calib, cmdstr, &lno);

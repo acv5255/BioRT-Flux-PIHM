@@ -1,37 +1,35 @@
 #include "pihm.h"
 
-void Hydrol(elem_struct *elem, river_struct *river, const RunParameters *ctrl)
+void hydrology(MeshElement *elem, river_struct *river, const RunParameters *ctrl)
 {
-    int i;
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
         /* Calculate actual surface water depth */
         elem[i].ws.surfh = SurfH(elem[i].ws.surf);
     }
 
     /* Determine which layers does ET extract water from */
-    EtExtract(elem);
+    et_extract(elem);
 
     /* Water flow */
-    LateralFlow(elem, river, ctrl->surf_mode);
+    lateral_flow(elem, river, ctrl->surf_mode);
 
-    VerticalFlow(elem, (double)ctrl->stepsize);
+    vertical_flow(elem, (double)ctrl->stepsize);
 
-    RiverFlow(elem, river, ctrl->riv_mode);
+    river_flow(elem, river, ctrl->riv_mode);
 }
 
-void EtExtract(elem_struct *elem)
+void et_extract(MeshElement *elem)
 {
-    int i;
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
         /* Source of direct evaporation */
 #if defined(_NOAH_)

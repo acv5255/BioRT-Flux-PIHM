@@ -1,10 +1,10 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void InitForc(elem_struct *elem, Forcing *forc, const CalibrationParameters *cal,
-              const ReactionNetwork *rttbl)
+void init_forcing(MeshElement *elem, Forcing *forc, const CalibrationParameters *cal,
+                  const ReactionNetwork *rttbl)
 #else
-void InitForc(elem_struct *elem, Forcing *forc, const calib_struct *cal)
+void init_forcing(elem_struct *elem, Forcing *forc, const calib_struct *cal)
 #endif
 {
     int i, j;
@@ -88,7 +88,7 @@ void InitForc(elem_struct *elem, Forcing *forc, const calib_struct *cal)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         elem[i].ps.zlvl_wind =
             forc->meteo[elem[i].attrib.meteo_type - 1].zlvl_wind;

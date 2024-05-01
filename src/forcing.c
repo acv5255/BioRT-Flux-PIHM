@@ -1,10 +1,10 @@
 #include "pihm.h"
 
 #if defined(_RT_)
-void ApplyBc(const ReactionNetwork *rttbl, Forcing *forc, elem_struct *elem,
+void ApplyBc(const ReactionNetwork *rttbl, Forcing *forc, MeshElement *elem,
              river_struct *river, int t)
 #else
-void ApplyBc(Forcing *forc, elem_struct *elem, river_struct *river, int t)
+void ApplyBc(Forcing *forc, MeshElement *elem, river_struct *river, int t)
 #endif
 {
     /* Element boundary conditions */
@@ -20,18 +20,18 @@ void ApplyBc(Forcing *forc, elem_struct *elem, river_struct *river, int t)
     /* River boundary condition */
     if (forc->nriverbc > 0)
     {
-        ApplyRiverBc(forc, river, t);
+        apply_river_bc(forc, river, t);
     }
 }
 
 #if defined(_RT_)
-void ApplyForc(Forcing *forc, ReactionNetwork *rttbl, elem_struct *elem,
-               int t, int rad_mode, const SiteInfo *siteinfo)
+void apply_forcing(Forcing *forc, ReactionNetwork *rttbl, MeshElement *elem,
+                   int t, int rad_mode, const SiteInfo *siteinfo)
 #elif defined(_NOAH_)
-void ApplyForc(Forcing *forc, elem_struct *elem, int t, int rad_mode,
-               const siteinfo_struct *siteinfo)
+void apply_forcing(Forcing *forc, MeshElement *elem, int t, int rad_mode,
+                   const siteinfo_struct *siteinfo)
 #else
-void ApplyForc(Forcing *forc, elem_struct *elem, int t)
+void apply_forcing(Forcing *forc, MeshElement *elem, int t)
 #endif
 {
     /* Meteorological forcing */
@@ -56,9 +56,9 @@ void ApplyForc(Forcing *forc, elem_struct *elem, int t)
 
 #if defined(_RT_)
 void ApplyElemBc(const ReactionNetwork *rttbl, Forcing *forc,
-                 elem_struct *elem, int t)
+                 MeshElement *elem, int t)
 #else
-void ApplyElemBc(Forcing *forc, elem_struct *elem, int t)
+void ApplyElemBc(Forcing *forc, MeshElement *elem, int t)
 #endif
 {
 
@@ -68,7 +68,7 @@ void ApplyElemBc(Forcing *forc, elem_struct *elem, int t)
     for (int k = 0; k < forc->nbc; k++)
     {
 #if defined(_RT_)
-        IntrplForc(&forc->bc[k], t, 1 + rttbl->NumStc, INTRPL);
+        interpolate_forcing(&forc->bc[k], t, 1 + rttbl->NumStc, INTRPL);
 #else
         IntrplForc(&forc->bc[k], t, 1, INTRPL);
 #endif
@@ -77,7 +77,7 @@ void ApplyElemBc(Forcing *forc, elem_struct *elem, int t)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (int i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
         int ind;
 
@@ -135,10 +135,10 @@ void ApplyElemBc(Forcing *forc, elem_struct *elem, int t)
 }
 
 #if defined(_NOAH_)
-void ApplyMeteoForc(Forcing *forc, elem_struct *elem, int t, int rad_mode,
+void ApplyMeteoForc(Forcing *forc, MeshElement *elem, int t, int rad_mode,
                     const SiteInfo *siteinfo)
 #else
-void ApplyMeteoForc(Forcing *forc, elem_struct *elem, int t)
+void ApplyMeteoForc(Forcing *forc, MeshElement *elem, int t)
 #endif
 {
 #if defined(_NOAH_)
@@ -153,7 +153,7 @@ void ApplyMeteoForc(Forcing *forc, elem_struct *elem, int t)
 #endif
     for (int k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForc(&forc->meteo[k], t, NUM_METEO_VAR, INTRPL);
+        interpolate_forcing(&forc->meteo[k], t, NUM_METEO_VAR, INTRPL);
     }
 
 #if defined(_NOAH_)
@@ -169,7 +169,7 @@ void ApplyMeteoForc(Forcing *forc, elem_struct *elem, int t)
 #endif
             for (int k = 0; k < forc->nrad; k++)
             {
-                IntrplForc(&forc->rad[k], t, 2, INTRPL);
+                interpolate_forcing(&forc->rad[k], t, 2, INTRPL);
             }
         }
 
@@ -181,7 +181,7 @@ void ApplyMeteoForc(Forcing *forc, elem_struct *elem, int t)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (int i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
         int ind;
 
@@ -217,9 +217,9 @@ void ApplyMeteoForc(Forcing *forc, elem_struct *elem, int t)
 }
 
 #if defined(_BGC_) || defined(_CYCLES_)
-void ApplyLai(elem_struct *elem)
+void ApplyLai(MeshElement *elem)
 #else
-void ApplyLai(Forcing *forc, elem_struct *elem, int t)
+void ApplyLai(Forcing *forc, MeshElement *elem, int t)
 #endif
 {
     int i;
@@ -231,7 +231,7 @@ void ApplyLai(Forcing *forc, elem_struct *elem, int t)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         double ksolar;
         double tau;
@@ -256,7 +256,7 @@ void ApplyLai(Forcing *forc, elem_struct *elem, int t)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
 #if defined(_LUMPED_)
         elem[i].ps.proj_lai =
@@ -278,14 +278,14 @@ void ApplyLai(Forcing *forc, elem_struct *elem, int t)
 #endif
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForc(&forc->lai[k], t, 1, INTRPL);
+            interpolate_forcing(&forc->lai[k], t, 1, INTRPL);
         }
     }
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         int ind;
 
@@ -297,7 +297,7 @@ void ApplyLai(Forcing *forc, elem_struct *elem, int t)
         }
         else
         {
-            elem[i].ps.proj_lai = MonthlyLai(t, elem[i].attrib.lc_type);
+            elem[i].ps.proj_lai = monthly_lai(t, elem[i].attrib.lc_type);
         }
     }
 #endif
@@ -305,7 +305,7 @@ void ApplyLai(Forcing *forc, elem_struct *elem, int t)
 
 #if defined(_RT_)
 void ApplyPrcpConc(const ReactionNetwork *rttbl, Forcing *forc,
-                   elem_struct elem[], int t)
+                   MeshElement elem[], int t)
 {
     int i, j;
 
@@ -316,13 +316,13 @@ void ApplyPrcpConc(const ReactionNetwork *rttbl, Forcing *forc,
 #endif
         for (j = 0; j < forc->nprcpc; j++)
         {
-            IntrplForc(&forc->prcpc[j], t, NumSpc, NO_INTRPL);
+            interpolate_forcing(&forc->prcpc[j], t, NumSpc, NO_INTRPL);
         }
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-        for (i = 0; i < nelem; i++)
+        for (i = 0; i < num_elements; i++)
         {
             int k;
             int ind;
@@ -340,7 +340,7 @@ void ApplyPrcpConc(const ReactionNetwork *rttbl, Forcing *forc,
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-        for (i = 0; i < nelem; i++)
+        for (i = 0; i < num_elements; i++)
         {
             int k;
 
@@ -355,7 +355,7 @@ void ApplyPrcpConc(const ReactionNetwork *rttbl, Forcing *forc,
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-        for (i = 0; i < nelem; i++)
+        for (i = 0; i < num_elements; i++)
         {
             int k;
 
@@ -368,41 +368,38 @@ void ApplyPrcpConc(const ReactionNetwork *rttbl, Forcing *forc,
 }
 #endif
 
-void ApplyRiverBc(Forcing *forc, river_struct *river, int t)
+void apply_river_bc(Forcing *forc, river_struct *river, int t)
 {
-    int i, k;
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (k = 0; k < forc->nriverbc; k++)
+    // Interpolate the forcing data for the river boundary conditions
+    for (int k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForc(&forc->riverbc[k], t, 1, INTRPL);
+        interpolate_forcing(&forc->riverbc[k], t, 1, INTRPL);
     }
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nriver; i++)
+    for (int i = 0; i < num_river; i++)
     {
-        int ind;
-
-        if (river[i].attrib.riverbc_type > 0)
+        if (river[i].attrib.riverbc_type > 0) // Constant-head boundary
         {
-            ind = river[i].attrib.riverbc_type - 1;
+            const int ind = river[i].attrib.riverbc_type - 1;
             river[i].bc.head = forc->riverbc[ind].value[0];
         }
-        else if (river[i].attrib.riverbc_type < 0)
+        else if (river[i].attrib.riverbc_type < 0) // Constant-flux boundary
         {
-            ind = -river[i].attrib.riverbc_type - 1;
+            const int ind = -river[i].attrib.riverbc_type - 1;
             river[i].bc.flux = forc->riverbc[ind].value[0];
         }
     }
 }
 
-void IntrplForc(TimeSeriesData *ts, int t, int nvrbl, int intrpl)
+void interpolate_forcing(TimeSeriesData *ts, int t, int nvrbl, int intrpl)
 {
-    int j;
     int first, middle, last;
 
     if (t < ts->ftime[0])
@@ -427,7 +424,7 @@ void IntrplForc(TimeSeriesData *ts, int t, int nvrbl, int intrpl)
             middle = (first + last) / 2;
             if (t >= ts->ftime[middle - 1] && t < ts->ftime[middle])
             {
-                for (j = 0; j < nvrbl; j++)
+                for (int j = 0; j < nvrbl; j++)
                 {
                     if (intrpl)
                     {
@@ -457,7 +454,7 @@ void IntrplForc(TimeSeriesData *ts, int t, int nvrbl, int intrpl)
     }
 }
 
-double MonthlyLai(int t, int lc_type)
+double monthly_lai(int t, int lc_type)
 {
     /*
      * Monthly LAI data come from WRF MPTABLE.TBL for Noah MODIS land
@@ -571,7 +568,7 @@ double MonthlyLai(int t, int lc_type)
     return lai_tbl[lc_type - 1][pihm_time.month - 1];
 }
 
-double MonthlyRl(int t, int lc_type)
+double monthly_rl(int t, int lc_type)
 {
     /*
      * Monthly roughness length data are calculated using monthly LAI
@@ -707,7 +704,7 @@ double MonthlyRl(int t, int lc_type)
     return rl_tbl[lc_type - 1][pihm_time.month - 1];
 }
 
-double MonthlyMf(int t)
+double monthly_mf(int t)
 {
     PihmTime pihm_time;
 

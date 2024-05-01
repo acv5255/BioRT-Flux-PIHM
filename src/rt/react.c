@@ -3,30 +3,26 @@
 #define TOL 1E-7
 #define SKIP_JACOB 1
 
-void Reaction(double stepsize, const ChemicalEntry chemtbl[],
-              const KineticEntry kintbl[], const ReactionNetwork *rttbl, elem_struct elem[])
+void do_reaction(double stepsize, const ChemicalEntry chemtbl[],
+                 const KineticEntry kintbl[], const ReactionNetwork *rttbl, MeshElement elem[])
 {
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (int i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
-        double vol_gw;
-        double vol_unsat;
-        double satn;
+        const double vol_gw = MAX(get_groundwater_storage(elem[i].soil.depth, elem[i].soil.smcmax,
+                                                          elem[i].soil.smcmin, elem[i].ws.gw),
+                                  DEPTHR) *
+                              elem[i].topo.area;
+        const double vol_unsat = MAX(get_unsat_water_storage(elem[i].soil.depth, elem[i].soil.smcmax,
+                                                             elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat),
+                                     DEPTHR) *
+                                 elem[i].topo.area;
 
-        vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-                            elem[i].soil.smcmin, elem[i].ws.gw),
-                     DEPTHR) *
-                 elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-                                       elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat),
-                        DEPTHR) *
-                    elem[i].topo.area;
-
-        satn =
-            UnsatSatRatio(elem[i].soil.depth, elem[i].ws.unsat, elem[i].ws.gw);
+        const double satn =
+            get_unsat_sat_ratio(elem[i].soil.depth, elem[i].ws.unsat, elem[i].ws.gw);
 
         for (int k = 0; k < NumSpc; k++)
         {
@@ -35,21 +31,21 @@ void Reaction(double stepsize, const ChemicalEntry chemtbl[],
         }
 
         /*
-         * Unsaturated zone
+         * Only do reactions in the unsaturated zone if there is sufficient water
          */
         if (elem[i].ws.unsat > 1.0E-3 && satn > 1.0E-2)
         {
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
-                         &elem[i].chms_unsat, elem[i].chmf.react_unsat);
+            react_control(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
+                          &elem[i].chms_unsat, elem[i].chmf.react_unsat);
         }
 
         /*
-         * Groundwater
+         * Only do reactions in the groundwater zone if there is > 0.001 mm of water storage
          */
         if (elem[i].ws.gw > 1.0E-3)
         {
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
-                         &elem[i].chms_gw, elem[i].chmf.react_gw);
+            react_control(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
+                          &elem[i].chms_gw, elem[i].chmf.react_gw);
         }
 
         /* Averaging mineral concentration to ensure mass conservation */
@@ -72,13 +68,13 @@ void Reaction(double stepsize, const ChemicalEntry chemtbl[],
                             elem[i].geol.smcmin, elem[i].ws.fbr_gw),
                      DEPTHR) *
                  elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-                                       elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
+        vol_unsat = MAX(get_unsat_water_storage(elem[i].geol.depth, elem[i].geol.smcmax,
+                                                elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
                         DEPTHR) *
                     elem[i].topo.area;
 
-        satn = UnsatSatRatio(elem[i].geol.depth, elem[i].ws.fbr_unsat,
-                             elem[i].ws.fbr_gw);
+        satn = get_unsat_sat_ratio(elem[i].geol.depth, elem[i].ws.fbr_unsat,
+                                   elem[i].ws.fbr_gw);
 
         for (k = 0; k < NumSpc; k++)
         {
@@ -91,8 +87,8 @@ void Reaction(double stepsize, const ChemicalEntry chemtbl[],
          */
         if (elem[i].ws.fbr_unsat > 1.0E-3 && satn > 1.0E-2)
         {
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
-                         &elem[i].chms_fbrunsat, elem[i].chmf.react_fbrunsat);
+            react_control(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
+                          &elem[i].chms_fbrunsat, elem[i].chmf.react_fbrunsat);
         }
 
         /*
@@ -100,8 +96,8 @@ void Reaction(double stepsize, const ChemicalEntry chemtbl[],
          */
         if (elem[i].ws.fbr_gw > 1.0E-3)
         {
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
-                         &elem[i].chms_fbrgw, elem[i].chmf.react_fbrgw);
+            react_control(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
+                          &elem[i].chms_fbrgw, elem[i].chmf.react_fbrgw);
         }
 
         /* Averaging mineral concentration to ensure mass conservation */
@@ -124,7 +120,7 @@ void Reaction(double stepsize, const ChemicalEntry chemtbl[],
 
 int _React(double stepsize, const ChemicalEntry chemtbl[],
            const KineticEntry kintbl[], const ReactionNetwork *rttbl, double satn,
-           chmstate_struct *chms)
+           ChemicalState *chms)
 {
     int i, j, k;
     int control;
@@ -563,9 +559,9 @@ int _React(double stepsize, const ChemicalEntry chemtbl[],
     return 0;
 }
 
-void ReactControl(const ChemicalEntry chemtbl[], const KineticEntry kintbl[],
-                  const ReactionNetwork *rttbl, double stepsize, double vol, double satn,
-                  chmstate_struct *chms, double react_flux[])
+void react_control(const ChemicalEntry chemtbl[], const KineticEntry kintbl[],
+                   const ReactionNetwork *rttbl, double stepsize, double vol, double satn,
+                   ChemicalState *chms, double react_flux[])
 {
     double t_conc0[MAXSPS];
     double substep;

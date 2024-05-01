@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void DailyVar(int t, int start_time, elem_struct *elem)
+void DailyVar(int t, int start_time, MeshElement *elem)
 {
 
     /*
@@ -9,7 +9,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (int i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
 
         /* Air temperature */
@@ -57,7 +57,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-        for (int i = 0; i < nelem; i++)
+        for (int i = 0; i < num_elements; i++)
         {
             int k;
 
@@ -98,7 +98,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
 
         elem[LUMPED].daily.tmax = 0.0;
         elem[LUMPED].daily.tmin = 0.0;
-        for (i = 0; i < nelem; i++)
+        for (i = 0; i < num_elements; i++)
         {
             elem[LUMPED].daily.tmax += elem[i].daily.tmax * elem[i].topo.area;
             elem[LUMPED].daily.tmin += elem[i].daily.tmin * elem[i].topo.area;
@@ -158,16 +158,16 @@ void DailyVar(int t, int start_time, elem_struct *elem)
     }
 }
 
-void InitDailyStruct(elem_struct *elem)
+void InitDailyStruct(MeshElement *elem)
 {
 
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
 #if defined(_LUMPED_)
-    for (int i = 0; i < nelem + 1; i++)
+    for (int i = 0; i < num_elements + 1; i++)
 #else
-    for (int i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
 #endif
     {
 

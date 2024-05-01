@@ -15,11 +15,11 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     FILE *db_fp;
 
     chem_fp = fopen(chem_filen, "r");
-    CheckFile(chem_fp, chem_filen);
+    check_file(chem_fp, chem_filen);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", chem_filen);
 
     db_fp = fopen(cdbs_filen, "r");
-    CheckFile(db_fp, cdbs_filen);
+    check_file(db_fp, cdbs_filen);
 
     /*
      * Runtime block
@@ -308,7 +308,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
                    "  Kinetic reaction on '%s' is specified, label '%s'.\n",
                    temp_str, kintbl[i].Label);
 
-        kintbl[i].position = FindChem(temp_str, chemtbl, rttbl->NumStc);
+        kintbl[i].position = find_chem(temp_str, chemtbl, rttbl->NumStc);
 
         if (kintbl[i].position < 0)
         {
@@ -347,7 +347,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
                                  "in %s near Line %d.\n",
                        chem_filen, lno);
         }
-        chem_ind = FindChem(temp_str, chemtbl, rttbl->NumStc);
+        chem_ind = find_chem(temp_str, chemtbl, rttbl->NumStc);
         if (chem_ind < 0)
         {
             PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", chemn[i]);
@@ -396,7 +396,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             PIHMexit(EXIT_FAILURE);
         }
 
-        rttbl->pumps[i].Position_Species = FindChem(temp_str, chemtbl, rttbl->NumStc);
+        rttbl->pumps[i].Position_Species = find_chem(temp_str, chemtbl, rttbl->NumStc);
         if (rttbl->pumps[i].Position_Species < 0)
         {
             PIHMprintf(VL_ERROR,
@@ -471,7 +471,7 @@ int ParseLocation(const char str[], const char filen[], int lno)
     }
     else if (strcasecmp(type_str, "GW") == 0)
     {
-        loc += nelem;
+        loc += num_elements;
     }
     else if (strcasecmp(type_str, "RIVER") == 0)
     {

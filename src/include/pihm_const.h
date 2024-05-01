@@ -512,8 +512,8 @@ extern int spinup_mode;
 extern int fixed_length;
 extern int tecplot;
 extern char project[MAXSTRING];
-extern int nelem;
-extern int nriver;
+extern int num_elements;
+extern int num_river;
 #if defined(_BGC_)
 extern int first_balance;
 #endif

@@ -1,8 +1,8 @@
 #include "pihm.h"
 
 void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
-    double dt)
+                 eflux_struct *ef, pstate_struct *ps, lc_struct *lc, SoilData *soil,
+                 double dt)
 {
     /*
      * Sub-driver for "Noah LSM" family of physics subroutines for a
@@ -11,19 +11,19 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * surface energy balance (excluding input atmospheric forcings of downward
      * radiation and precip
      */
-    int             frzgra, snowng;
-    const int       IZ0TLND = 0;
-    double          df1;
-    double          dsoil;
-    double          dtot;
-    double          t1v;
-    double          th2v;
-    double          t2v;
-    double          t24;
-    double          interp_fraction;
-    double          sn_new;
-    double          prcpf;
-    int             k;
+    int frzgra, snowng;
+    const int IZ0TLND = 0;
+    double df1;
+    double dsoil;
+    double dtot;
+    double t1v;
+    double th2v;
+    double t2v;
+    double t24;
+    double interp_fraction;
+    double sn_new;
+    double prcpf;
+    int k;
 
     /*
      * Initialization
@@ -59,11 +59,11 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
             /* Scale emissivity and LAI between emissmin and emissmax by
              * interp_fraction */
             ps->embrd = ((1.0 - interp_fraction) * lc->emissmin) +
-                (interp_fraction * lc->emissmax);
+                        (interp_fraction * lc->emissmax);
             ps->alb = ((1.0 - interp_fraction) * lc->albedomax) +
-                (interp_fraction * lc->albedomin);
+                      (interp_fraction * lc->albedomin);
             ps->z0brd = ((1.0 - interp_fraction) * lc->z0min) +
-                (interp_fraction * lc->z0max);
+                        (interp_fraction * lc->z0max);
         }
         else
         {
@@ -73,13 +73,13 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         }
     }
 
-    /* Initialize precipitation logicals. */
+    /* initialize_data precipitation logicals. */
     snowng = 0;
     frzgra = 0;
 
     /* If input snowpack is nonzero, then compute snow density "sndens" and
      * snow thermal conductivity "sncond" subroutine */
-    if (ws->sneqv <= 1.0e-7)    /* Safer if KMH (2008/03/25) */
+    if (ws->sneqv <= 1.0e-7) /* Safer if KMH (2008/03/25) */
     {
         ws->sneqv = 0.0;
         ps->sndens = 0.0;
@@ -92,7 +92,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         if (ps->sndens > 1.0)
         {
             PIHMprintf(VL_ERROR,
-                "Error: Physical snow depth is less than snow water equiv.\n");
+                       "Error: Physical snow depth is less than snow water equiv.\n");
             PIHMexit(EXIT_FAILURE);
         }
 
@@ -167,7 +167,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     /* Thermal conductivity */
     df1 = (ps->snowh * ps->sncond + ps->iceh * ps->icecond) /
-        (ps->snowh + ps->iceh);
+          (ps->snowh + ps->iceh);
 
     /* Finally "plane parallel" snowpack effect following V. J. Linardini
      * reference cited above. Note that dtot is combined depth of snowdepth and
@@ -269,7 +269,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 }
 
 void PenmanGlacial(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
-    pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
+                   pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
 {
     /*
      * Function Penman
@@ -278,15 +278,15 @@ void PenmanGlacial(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
      * sums/products are also calculated and passed back to the calling routine
      * for later use.
      */
-    double          a;
-    double          delta;
-    double          fnet;
-    double          rad;
-    double          rho;
-    double          elcp1;
-    double          lvs;
-    const double    ELCP = 2.4888e+3;
-    const double    LSUBC = 2.501000e+6;
+    double a;
+    double delta;
+    double fnet;
+    double rad;
+    double rho;
+    double elcp1;
+    double lvs;
+    const double ELCP = 2.4888e+3;
+    const double LSUBC = 2.501000e+6;
 
     /* Prepare partial quantities for Penman equation. */
     elcp1 = (es->t1 > TFREEZ) ? ELCP : ELCP * LSUBS / LSUBC;
@@ -327,9 +327,9 @@ void PenmanGlacial(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
 }
 
 void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
-    const soil_struct *soil, int snowng, double dt, double t24, double prcpf,
-    double df1)
+            eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
+            const SoilData *soil, int snowng, double dt, double t24, double prcpf,
+            double df1)
 {
     /*
      * Function IcePac
@@ -338,30 +338,30 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * content and soil heat content values for the case when a snow pack is
      * present.
      */
-    int             k;
+    int k;
 
-    double          denom;
-    double          dsoil;
-    double          dtot;
-    double          esnow1;
-    double          esnow2;
-    double          etp3;
-    double          etanrg;
-    double          ex;
-    double          seh;
-    double          sncond;
-    double          t12;
-    double          t12a;
-    double          t12b;
-    double          t14;
-    double          ssoil1;
-    double          t11;
-    double          yy;
-    double          zz1;
-    double          sniceeqv;
-    const double    ESDMIN = 1.0e-6;
+    double denom;
+    double dsoil;
+    double dtot;
+    double esnow1;
+    double esnow2;
+    double etp3;
+    double etanrg;
+    double ex;
+    double seh;
+    double sncond;
+    double t12;
+    double t12a;
+    double t12b;
+    double t14;
+    double ssoil1;
+    double t11;
+    double yy;
+    double zz1;
+    double sniceeqv;
+    const double ESDMIN = 1.0e-6;
 
-    /* Initialize evap terms. */
+    /* initialize_data evap terms. */
     wf->dew = 0.0;
     wf->edir = 0.0;
     wf->ec = 0.0;
@@ -382,9 +382,9 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     {
         if ((ps->ribb >= 0.1) && (ef->fdown > 150.0))
         {
-            wf->etp = (((wf->etp * (1.0 - ps->ribb) < 0.0) ?
-                wf->etp * (1.0 - ps->ribb) : 0.0) / 0.980 +
-                wf->etp * (0.980 - 1.0)) / 0.980;
+            wf->etp = (((wf->etp * (1.0 - ps->ribb) < 0.0) ? wf->etp * (1.0 - ps->ribb) : 0.0) / 0.980 +
+                       wf->etp * (0.980 - 1.0)) /
+                      0.980;
         }
 
         if (wf->etp == 0.0)
@@ -431,7 +431,9 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     denom = 1.0 + df1 / (dtot * ps->rr * ps->rch);
 
     t12a = ((ef->fdown - ef->flx1 - ef->flx2 - ps->emissi * SIGMA * t24) /
-        ps->rch + es->th2 - es->sfctmp - etanrg / ps->rch) / ps->rr;
+                ps->rch +
+            es->th2 - es->sfctmp - etanrg / ps->rch) /
+           ps->rr;
     t12b = df1 * es->stc[0] / (dtot * ps->rr * ps->rch);
 
     t12 = (es->sfctmp + t12a + t12b) / denom;
@@ -547,7 +549,7 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ps->iceh = sniceeqv / ICEDENS;
     }
 
-    wf->pcpdrp =  prcpf;
+    wf->pcpdrp = prcpf;
 
     /* Before call ShFlx in this snowpack case, set zz1 and yy arguments to
      * special values that ensure that ground heat flux calculated in ShFlx

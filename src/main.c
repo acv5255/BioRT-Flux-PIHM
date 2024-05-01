@@ -9,8 +9,8 @@ int spinup_mode;
 int fixed_length;
 int tecplot;
 char project[MAXSTRING];
-int nelem;
-int nriver;
+int num_elements;
+int num_river;
 #if defined(_OPENMP)
 int nthreads = 1; /* Default value */
 #endif
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     memset(outputdir, 0, MAXSTRING);
 
     /* Read command line arguments */
-    ParseCmdLineParam(argc, argv, outputdir);
+    parse_cmd_line_param(argc, argv, outputdir);
 
     /* Print AscII art */
     StartupScreen();
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     ReadAlloc(pihm);
 
     /* Initialize CVode state variables */
-    CV_Y = N_VNew(NumStateVar());
+    CV_Y = N_VNew(num_state_variables());
     if (CV_Y == NULL)
     {
         PIHMprintf(VL_ERROR, "Error creating CVODE state variable vector.\n");
@@ -64,34 +64,34 @@ int main(int argc, char *argv[])
     }
 
     /* Initialize PIHM structure */
-    Initialize(pihm, CV_Y, &cvode_mem);
+    initialize_data(pihm, CV_Y, &cvode_mem);
 
     /* Create output directory */
-    CreateOutputDir(outputdir);
+    create_output_dir(outputdir);
 
     /* Create output structures */
 #if defined(_CYCLES_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
-              pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
+    map_output(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
+               pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
 #elif defined(_RT_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->chemtbl,
-              &pihm->rttbl, pihm->elem, pihm->river, &pihm->meshtbl, outputdir,
-              &pihm->print);
+    map_output(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->chemtbl,
+               &pihm->rttbl, pihm->elem, pihm->river, &pihm->meshtbl, outputdir,
+               &pihm->print);
 #else
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
-              &pihm->meshtbl, outputdir, &pihm->print);
+    map_output(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
+               &pihm->meshtbl, outputdir, &pihm->print);
 #endif
 
     /* Backup input files */
 #if !defined(_MSC_VER)
     if (!append_mode)
     {
-        BackupInput(outputdir, &pihm->filename);
+        backup_input(outputdir, &pihm->filename);
     }
 #endif
 
-    InitOutputFile(&pihm->print, outputdir, pihm->ctrl.waterbal,
-                   pihm->ctrl.ascii);
+    init_output_files(&pihm->print, outputdir, pihm->ctrl.waterbal,
+                      pihm->ctrl.ascii);
 
     PIHMprintf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
@@ -121,9 +121,9 @@ int main(int argc, char *argv[])
         Spinup(pihm, CV_Y, cvode_mem, &sun_ls);
 
         /* In spin-up mode, initial conditions are always printed */
-        PrintInit(pihm->elem, pihm->river, outputdir,
-                  ctrl->endtime, ctrl->starttime,
-                  ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
+        print_init(pihm->elem, pihm->river, outputdir,
+                   ctrl->endtime, ctrl->starttime,
+                   ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
 #if defined(_BGC_)
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
 #endif
@@ -150,17 +150,17 @@ int main(int argc, char *argv[])
             /* Print CVODE performance and statistics */
             if (debug_mode)
             {
-                PrintPerf(cvode_mem, ctrl->tout[ctrl->cstep + 1],
-                          ctrl->starttime, cputime_dt, cputime,
-                          ctrl->maxstep, pihm->print.cvodeperf_file);
+                print_perf(cvode_mem, ctrl->tout[ctrl->cstep + 1],
+                           ctrl->starttime, cputime_dt, cputime,
+                           ctrl->maxstep, pihm->print.cvodeperf_file);
             }
 
             /* Write init files */
             if (ctrl->write_ic)
             {
-                PrintInit(pihm->elem, pihm->river, outputdir,
-                          ctrl->tout[ctrl->cstep + 1], ctrl->starttime,
-                          ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
+                print_init(pihm->elem, pihm->river, outputdir,
+                           ctrl->tout[ctrl->cstep + 1], ctrl->starttime,
+                           ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
             }
         }
 
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 
     if (debug_mode)
     {
-        PrintCVodeFinalStats(cvode_mem);
+        print_cvode_final_stats(cvode_mem);
     }
 
     /* Free memory */
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
     /* Free integrator memory */
     CVodeFree(&cvode_mem);
     SUNLinSolFree(sun_ls);
-    FreeMem(pihm);
+    free_pihm_data(pihm);
     free(pihm);
 
     PIHMprintf(VL_BRIEF, "Simulation completed.\n");

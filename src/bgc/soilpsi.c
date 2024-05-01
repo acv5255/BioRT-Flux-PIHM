@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void SoilPsi(const soil_struct *soil, double vwc, double *psi)
+void SoilPsi(const SoilData *soil, double vwc, double *psi)
 {
     /*
      * Given a list of site constants and the soil water content,
@@ -11,7 +11,7 @@ void SoilPsi(const soil_struct *soil, double vwc, double *psi)
      *
      * Uses the van Genuchten relation
      */
-    double          theta;
+    double theta;
 
     theta = (vwc - soil->smcmin) / (soil->smcmax - soil->smcmin);
     theta = (theta > 1.0) ? 1.0 : theta;

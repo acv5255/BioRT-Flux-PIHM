@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void Lookup(FILE *database, const CalibrationParameters *cal, ChemicalEntry chemtbl[],
-            KineticEntry kintbl[], ReactionNetwork *rttbl)
+void lookup_database_entry(FILE *database, const CalibrationParameters *cal, ChemicalEntry chemtbl[],
+                           KineticEntry kintbl[], ReactionNetwork *rttbl)
 {
     int ind;
     int keq_position = BADVAL;
@@ -834,7 +834,7 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                     {
                         wrap(chemn);
                         kintbl->dep_position[0] =
-                            FindChem(chemn, chemtbl, NumStc);
+                            find_chem(chemn, chemtbl, NumStc);
                         if (kintbl->dep_position[0] < 0)
                         {
                             PIHMprintf(VL_ERROR,
@@ -859,7 +859,7 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                     PIHMprintf(VL_VERBOSE, " Biomass species: %s \n",
                                chemn);
                     kintbl->biomass_position =
-                        FindChem(chemn, chemtbl, NumStc);
+                        find_chem(chemn, chemtbl, NumStc);
                     PIHMprintf(VL_VERBOSE,
                                " Biomass species position: %d \n",
                                kintbl->biomass_position);
@@ -874,7 +874,7 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
 
                         wrap(chemn);
                         kintbl->monod_position[kintbl->num_monod] =
-                            FindChem(chemn, chemtbl, NumStc);
+                            find_chem(chemn, chemtbl, NumStc);
                         if (kintbl->monod_position[kintbl->num_monod] < 0)
                         {
                             PIHMprintf(VL_ERROR,
@@ -899,7 +899,7 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
 
                         wrap(chemn);
                         kintbl->inhib_position[kintbl->num_inhib] =
-                            FindChem(chemn, chemtbl, NumStc);
+                            find_chem(chemn, chemtbl, NumStc);
                         if (kintbl->inhib_position[kintbl->num_inhib] < 0)
                         {
                             PIHMprintf(VL_ERROR,

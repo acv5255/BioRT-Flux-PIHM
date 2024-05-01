@@ -4,7 +4,7 @@ double GetCO2(TimeSeriesData *co2_ts, int t)
 {
     double co2;
 
-    IntrplForc(co2_ts, t, 1, INTRPL);
+    interpolate_forcing(co2_ts, t, 1, INTRPL);
 
     co2 = co2_ts->value[0];
 

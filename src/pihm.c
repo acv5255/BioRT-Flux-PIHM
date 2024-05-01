@@ -2,9 +2,9 @@
 
 void PIHM(PihmData pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 {
-    int             t;
+    int t;
 #if defined(_RT_)
-    const int       SPECIATION_STEP = 3600;
+    const int SPECIATION_STEP = 3600;
 #endif
 
     t = pihm->ctrl.tout[pihm->ctrl.cstep];
@@ -23,13 +23,13 @@ void PIHM(PihmData pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     {
         /* Apply forcing */
 #if defined(_RT_)
-        ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, t,
-            pihm->ctrl.rad_mode, &pihm->siteinfo);
+        apply_forcing(&pihm->forc, &pihm->rttbl, pihm->elem, t,
+                  pihm->ctrl.rad_mode, &pihm->siteinfo);
 #elif defined(_NOAH_)
-        ApplyForc(&pihm->forc, pihm->elem, t , pihm->ctrl.rad_mode,
-            &pihm->siteinfo);
+        apply_forcing(&pihm->forc, pihm->elem, t, pihm->ctrl.rad_mode,
+                  &pihm->siteinfo);
 #else
-        ApplyForc(&pihm->forc, pihm->elem, t);
+        apply_forcing(&pihm->forc, pihm->elem, t);
 #endif
 
 #if defined(_NOAH_)
@@ -37,7 +37,7 @@ void PIHM(PihmData pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
         Noah(pihm->elem, &pihm->lctbl, &pihm->cal, (double)pihm->ctrl.etstep);
 #else
         /* Calculate Interception storage and ET */
-        IntcpSnowEt(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);
+        interception_snow_et(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);
 #endif
 
         /* Update print variables for land surface step variables */
@@ -68,8 +68,8 @@ void PIHM(PihmData pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
             (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
         {
             /* Reaction */
-            Reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
-                &pihm->rttbl, pihm->elem);
+            do_reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
+                        &pihm->rttbl, pihm->elem);
         }
 
         if ((t - pihm->ctrl.starttime) % SPECIATION_STEP == 0)
@@ -95,20 +95,20 @@ void PIHM(PihmData pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
      */
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
-# if defined(_BGC_)
+#if defined(_BGC_)
         /* Daily BGC processes */
         DailyBgc(pihm, t - DAYINSEC);
-# endif
+#endif
 
-# if defined(_CYCLES_)
+#if defined(_CYCLES_)
         DailyCycles(t - DAYINSEC, pihm);
-# endif
+#endif
 
         /* Update print variables for CN (daily) step variables */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
 
-        /* Initialize daily structures */
+        /* initialize_data daily structures */
         InitDailyStruct(pihm->elem);
     }
 #endif
@@ -120,17 +120,17 @@ void PIHM(PihmData pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     if (pihm->ctrl.waterbal)
     {
         PrintWaterBal(pihm->print.watbal_file, t, pihm->ctrl.starttime,
-            pihm->ctrl.stepsize, pihm->elem, pihm->river);
+                      pihm->ctrl.stepsize, pihm->elem, pihm->river);
     }
 
     /* Print binary and txt output files */
-    PrintData(pihm->print.varctrl, pihm->print.nprint, t,
-        t - pihm->ctrl.starttime, pihm->ctrl.ascii);
+    print_data(pihm->print.varctrl, pihm->print.nprint, t,
+               t - pihm->ctrl.starttime, pihm->ctrl.ascii);
 
     /* Print tecplot output files */
     if (tecplot)
     {
-        PrintDataTecplot(pihm->print.tp_varctrl, pihm->print.ntpprint, t,
-            t - pihm->ctrl.starttime);
+        print_data_tecplot(pihm->print.tp_varctrl, pihm->print.ntpprint, t,
+                           t - pihm->ctrl.starttime);
     }
 }

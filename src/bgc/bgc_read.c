@@ -11,7 +11,7 @@ void ReadBgc(const char *fn, RunParameters *ctrl, co2control_struct *co2,
 
     /* Read bgc simulation control file */
     bgc_file = fopen(fn, "r");
-    CheckFile(bgc_file, fn);
+    check_file(bgc_file, fn);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
     FindLine(bgc_file, "RESTART", &lno, fn);
@@ -226,7 +226,7 @@ void ReadEpc(epctbl_struct *epctbl)
 
         if (strcasecmp(fn, "N/A") != 0)
         {
-            CheckFile(epc_file, fn);
+            check_file(epc_file, fn);
             PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
             /* Skip header file */
@@ -522,7 +522,7 @@ void ReadAnnFile(TimeSeriesData *ts, const char *fn)
     int lno = 0;
 
     fid = fopen(fn, "r");
-    CheckFile(fid, fn);
+    check_file(fid, fn);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
     ts->length = CountLine(fid, cmdstr, 1, "EOF");

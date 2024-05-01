@@ -1,12 +1,12 @@
 #include "pihm.h"
 
-void InitGeol(elem_struct *elem, const GeologyEntry *geoltbl,
+void InitGeol(MeshElement *elem, const GeologyEntry *geoltbl,
               const CalibrationParameters *cal)
 {
     int i;
     int geol_ind;
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         geol_ind = elem[i].attrib.geol_type - 1;
 

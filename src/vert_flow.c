@@ -1,17 +1,16 @@
 #include "pihm.h"
 
-void VerticalFlow(elem_struct *elem, double dt)
+void vertical_flow(MeshElement *elem, double dt)
 {
-    int             i;
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
         /* Calculate infiltration rate */
-        elem[i].wf.infil = Infil(&elem[i].ws, &elem[i].ws0, &elem[i].wf,
-            &elem[i].topo, &elem[i].soil, dt);
+        elem[i].wf.infil = infiltration(&elem[i].ws, &elem[i].ws0, &elem[i].wf,
+                                        &elem[i].topo, &elem[i].soil, dt);
 
 #if defined(_NOAH_)
         /* Constrain infiltration by frozen top soil */
@@ -19,33 +18,32 @@ void VerticalFlow(elem_struct *elem, double dt)
 #endif
 
         /* Calculate recharge rate */
-        elem[i].wf.rechg = Recharge(&elem[i].ws, &elem[i].wf, &elem[i].soil);
+        elem[i].wf.rechg = recharge(&elem[i].ws, &elem[i].wf, &elem[i].soil);
 
 #if defined(_FBR_)
         elem[i].wf.fbr_infil = FbrInfil(&elem[i].ws, &elem[i].soil,
-            &elem[i].geol, &elem[i].topo);
+                                        &elem[i].geol, &elem[i].topo);
         elem[i].wf.fbr_rechg = FbrRecharge(&elem[i].ws, &elem[i].wf,
-            &elem[i].geol);
+                                           &elem[i].geol);
 #endif
     }
 }
 
-double Infil(const wstate_struct *ws, const wstate_struct *ws0,
-    const wflux_struct *wf, const topo_struct *topo, const soil_struct *soil,
-    double dt)
+double infiltration(const wstate_struct *ws, const wstate_struct *ws0,
+                    const wflux_struct *wf, const Topology *topo, const SoilData *soil,
+                    double dt)
 {
-    double          applrate;
-    double          wetfrac;
-    double          dh_by_dz;
-    double          satn;
-    double          satkfunc;
-    double          infil;
-    double          infil_max;
-    double          kinf;
-    double          deficit;
-    double          psi_u;
-    double          h_u;
-    int             j;
+    double app_rate; // Water application rate
+    double wetfrac;
+    double dh_by_dz; // Vertical hydraulic head gradient
+    double satn;
+    double satkfunc;
+    double infil;
+    double infil_max;
+    double kinf;
+    double deficit;
+    double psi_u;
+    double h_u;
 
     if (ws->gw > soil->depth + ws->surfh)
     {
@@ -57,15 +55,15 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
     }
     else
     {
-        /* Water appliation rate is the sum of net gain of overland flow and net
+        /* Water application rate is the sum of net gain of overland flow and net
          * precipitation */
-        applrate = 0.0;
-        for (j = 0; j < NUM_EDGE; j++)
+        app_rate = 0.0;
+        for (int j = 0; j < NUM_EDGE; j++)
         {
-            applrate += -wf->ovlflow[j] / topo->area;
+            app_rate += -wf->ovlflow[j] / topo->area;
         }
-        applrate = (applrate > 0.0) ? applrate : 0.0;
-        applrate += wf->pcpdrp;
+        app_rate = (app_rate > 0.0) ? app_rate : 0.0;
+        app_rate += wf->pcpdrp;
 
         if (DEPRSTG > 0.0)
         {
@@ -82,13 +80,13 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
         {
             /* Assumption: Dinf < Dmac */
             dh_by_dz = (ws->surfh + topo->zmax - (ws->gw + topo->zmin)) /
-                (0.5 * (ws->surfh + soil->dinf));
+                       (0.5 * (ws->surfh + soil->dinf));
             dh_by_dz = (ws->surfh <= 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
 
             satn = 1.0;
-            satkfunc = KrFunc(soil->beta, satn);
+            satkfunc = kr_func(soil->beta, satn);
 
-            kinf = EffKinf(soil, dh_by_dz, satkfunc, satn, applrate, ws->surfh);
+            kinf = effective_kinf(soil, dh_by_dz, satkfunc, satn, app_rate, ws->surfh);
 
             infil = kinf * dh_by_dz;
         }
@@ -112,18 +110,18 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
 
             h_u = psi_u + topo->zmax - 0.5 * soil->dinf;
             dh_by_dz = (ws->surfh + topo->zmax - h_u) /
-                (0.5 * (ws->surfh + soil->dinf));
-            dh_by_dz = (ws->surfh <= 0.0 && dh_by_dz > 0.0) ?  0.0 : dh_by_dz;
+                       (0.5 * (ws->surfh + soil->dinf));
+            dh_by_dz = (ws->surfh <= 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
 
-            satkfunc = KrFunc(soil->beta, satn);
+            satkfunc = kr_func(soil->beta, satn);
 
-            kinf = EffKinf(soil, dh_by_dz, satkfunc, satn, applrate, ws->surfh);
+            kinf = effective_kinf(soil, dh_by_dz, satkfunc, satn, app_rate, ws->surfh);
 
             infil = kinf * dh_by_dz;
             infil = (infil > 0.0) ? infil : 0.0;
         }
 
-        infil_max = applrate + ((ws0->surf > 0.0) ? ws0->surf / dt : 0.0);
+        infil_max = app_rate + ((ws0->surf > 0.0) ? ws0->surf / dt : 0.0);
 
         infil = (infil > infil_max) ? infil_max : infil;
 
@@ -133,16 +131,16 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
     return infil;
 }
 
-double Recharge(const wstate_struct *ws, const wflux_struct *wf,
-    const soil_struct *soil)
+double recharge(const wstate_struct *ws, const wflux_struct *wf,
+                const SoilData *soil)
 {
-    double          satn;
-    double          satkfunc;
-    double          dh_by_dz;
-    double          psi_u;
-    double          kavg;
-    double          deficit;
-    double          rechg;
+    double satn;
+    double satkfunc;
+    double dh_by_dz;
+    double psi_u;
+    double kavg;
+    double deficit;
+    double rechg;
 
     if (ws->gw > soil->depth - soil->dinf)
     {
@@ -155,29 +153,29 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
         satn = (satn > 1.0) ? 1.0 : satn;
         satn = (satn < SATMIN) ? SATMIN : satn;
 
-        satkfunc = KrFunc(soil->beta, satn);
+        satkfunc = kr_func(soil->beta, satn);
 
         psi_u = Psi(satn, soil->alpha, soil->beta);
 
         dh_by_dz =
             (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw));
 
-        kavg = AvgKv(soil, deficit, ws->gw, satkfunc);
+        kavg = average_kv(soil, deficit, ws->gw, satkfunc);
 
         rechg = kavg * dh_by_dz;
 
-        rechg = (rechg > 0.0 && ws->unsat <= 0.0) ?  0.0 : rechg;
-        rechg = (rechg < 0.0 && ws->gw <= 0.0) ?  0.0 : rechg;
+        rechg = (rechg > 0.0 && ws->unsat <= 0.0) ? 0.0 : rechg;
+        rechg = (rechg < 0.0 && ws->gw <= 0.0) ? 0.0 : rechg;
     }
 
     return rechg;
 }
 
-double AvgKv(const soil_struct *soil, double deficit, double gw,
-    double satkfunc)
+double average_kv(const SoilData *soil, double deficit, double gw,
+                  double satkfunc)
 {
-    double          k1, k2, k3;
-    double          d1, d2, d3;
+    double k1, k2, k3; // Hydraulic conductivity value
+    double d1, d2, d3; // Depths of zone
 
     if (deficit > soil->dmac)
     {
@@ -195,9 +193,7 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
         k1 = satkfunc * soil->ksatv;
         d1 = deficit;
 
-        k2 = (soil->areafh > 0.0) ?
-            soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh) :
-            soil->ksatv;
+        k2 = (soil->areafh > 0.0) ? soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh) : soil->ksatv;
         d2 = soil->dmac - deficit;
 
         k3 = soil->ksatv;
@@ -212,8 +208,8 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
 #endif
 }
 
-double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
-    double elemsatn, double applrate, double surfh)
+double effective_kinf(const SoilData *soil, double dh_by_dz, double ksatfunc,
+                      double elemsatn, double applrate, double surfh)
 {
     /*
      * For infiltration, macropores act as cracks, and are hydraulically
@@ -223,12 +219,12 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
      * fractures (Gerke and van Genuchten, 1993, Water Resources Research, 29,
      * 1225-1238).
      */
-    double          keff = 0.0;
-    double          kmax;
+    double keff = 0.0;
+    double kmax;
 #if TEMP_DISABLED
-    const double    ALPHA_CRACK = 10.0;
+    const double ALPHA_CRACK = 10.0;
 #endif
-    const double    BETA_CRACK = 2.0;
+    const double BETA_CRACK = 2.0;
 
     if (soil->areafh == 0.0)
     {
@@ -241,7 +237,7 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
          * ponded), i.e., surfh > DEPRSTG, flow situation is macropore control,
          * regardless of the application rate */
         keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc +
-            soil->kmacv * soil->areafh;
+               soil->kmacv * soil->areafh;
     }
     else
     {
@@ -253,19 +249,19 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
         else
         {
             kmax = dh_by_dz * (soil->kmacv * soil->areafh +
-                soil->kinfv * (1.0 - soil->areafh) * ksatfunc);
+                               soil->kinfv * (1.0 - soil->areafh) * ksatfunc);
             if (applrate < kmax)
             {
                 /* Application control */
                 keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc +
-                    soil->kmacv * soil->areafh *
-                    KrFunc(BETA_CRACK, elemsatn);
+                       soil->kmacv * soil->areafh *
+                           kr_func(BETA_CRACK, elemsatn);
             }
             else
             {
                 /* Macropore control */
                 keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc +
-                    soil->kmacv * soil->areafh;
+                       soil->kmacv * soil->areafh;
             }
         }
     }
@@ -286,26 +282,26 @@ double Psi(double satn, double alpha, double beta)
  * Hydrology for fractured bedrock
  */
 double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
-    const geol_struct *geol, const topo_struct *topo)
+                const geol_struct *geol, const Topology *topo)
 {
-    double          deficit;
-    double          satn;
-    double          psi_u;
-    double          h_u;
-    double          satkfunc;
-    double          dh_by_dz;
-    double          kavg;
-    double          infil;
+    double deficit;
+    double satn;
+    double psi_u;
+    double h_u;
+    double satkfunc;
+    double dh_by_dz;
+    double kavg;
+    double infil;
 
     if (ws->fbr_gw >= geol->depth)
     {
-# if defined(_TGM_)
+#if defined(_TGM_)
         /* In two-grid model, oversaturated deep groundwater should enter stream
          * instead of shallow groundwater */
         infil = 0.0;
-# else
+#else
         infil = -soil->ksatv;
-# endif
+#endif
     }
     else
     {
@@ -326,12 +322,12 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
 
             h_u = psi_u + topo->zmin - 0.5 * deficit;
 
-            satkfunc = KrFunc(geol->beta, satn);
+            satkfunc = kr_func(geol->beta, satn);
 
             dh_by_dz = (topo->zmin + ws->gw - h_u) / (0.5 * (ws->gw + deficit));
 
             kavg = (ws->gw + deficit) /
-                (ws->gw / soil->ksatv + deficit / (geol->ksatv * satkfunc));
+                   (ws->gw / soil->ksatv + deficit / (geol->ksatv * satkfunc));
             infil = kavg * dh_by_dz;
         }
     }
@@ -340,23 +336,23 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
 }
 
 double FbrRecharge(const wstate_struct *ws, const wflux_struct *wf,
-    const geol_struct *geol)
+                   const geol_struct *geol)
 {
-    double          deficit;
-    double          satn;
-    double          psi_u;
-    double          satkfunc;
-    double          dh_by_dz;
-    double          kavg;
-    double          rechg;
+    double deficit;
+    double satn;
+    double psi_u;
+    double satkfunc;
+    double dh_by_dz;
+    double kavg;
+    double rechg;
 
     if (ws->fbr_gw >= geol->depth)
     {
-# if defined(_TGM_)
+#if defined(_TGM_)
         rechg = 0.0;
-# else
+#else
         rechg = wf->fbr_infil;
-# endif
+#endif
     }
     else
     {
@@ -369,13 +365,13 @@ double FbrRecharge(const wstate_struct *ws, const wflux_struct *wf,
         psi_u = Psi(satn, geol->alpha, geol->beta);
         psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
-        satkfunc = KrFunc(geol->beta, satn);
+        satkfunc = kr_func(geol->beta, satn);
 
         dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->fbr_gw));
 
         kavg = (ws->fbr_unsat * geol->ksatv * satkfunc +
-             ws->fbr_gw * geol->ksatv) /
-            (ws->fbr_unsat + ws->fbr_gw);
+                ws->fbr_gw * geol->ksatv) /
+               (ws->fbr_unsat + ws->fbr_gw);
 
         rechg = kavg * dh_by_dz;
 

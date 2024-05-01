@@ -11,7 +11,7 @@ void ReadRiver(const char *filename, RiverTile *rivtbl,
     int lno = 0;
 
     riv_file = fopen(filename, "r");
-    CheckFile(riv_file, filename);
+    check_file(riv_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /*
@@ -20,24 +20,24 @@ void ReadRiver(const char *filename, RiverTile *rivtbl,
     /* Read number of river segments */
     FindLine(riv_file, "BOF", &lno, filename);
     NextLine(riv_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUMRIV", &nriver, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NUMRIV", &num_river, 'i', filename, lno);
 
     /* Allocate */
-    rivtbl->fromnode = (int *)malloc(nriver * sizeof(int));
-    rivtbl->tonode = (int *)malloc(nriver * sizeof(int));
-    rivtbl->down = (int *)malloc(nriver * sizeof(int));
-    rivtbl->leftele = (int *)malloc(nriver * sizeof(int));
-    rivtbl->rightele = (int *)malloc(nriver * sizeof(int));
-    rivtbl->shp = (int *)malloc(nriver * sizeof(int));
-    rivtbl->matl = (int *)malloc(nriver * sizeof(int));
-    rivtbl->bc = (int *)malloc(nriver * sizeof(int));
-    rivtbl->rsvr = (int *)malloc(nriver * sizeof(int));
+    rivtbl->fromnode = (int *)malloc(num_river * sizeof(int));
+    rivtbl->tonode = (int *)malloc(num_river * sizeof(int));
+    rivtbl->down = (int *)malloc(num_river * sizeof(int));
+    rivtbl->leftele = (int *)malloc(num_river * sizeof(int));
+    rivtbl->rightele = (int *)malloc(num_river * sizeof(int));
+    rivtbl->shp = (int *)malloc(num_river * sizeof(int));
+    rivtbl->matl = (int *)malloc(num_river * sizeof(int));
+    rivtbl->bc = (int *)malloc(num_river * sizeof(int));
+    rivtbl->rsvr = (int *)malloc(num_river * sizeof(int));
 
     /* Skip header line */
     NextLine(riv_file, cmdstr, &lno);
 
     /* Read river segment information */
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         NextLine(riv_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",

@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void InitRiver(river_struct *river, elem_struct *elem,
-               const RiverTile *rivtbl, const RiverShape *shptbl,
-               const RiverMaterial *matltbl, const MeshEntry *meshtbl,
-               const CalibrationParameters *cal)
+void init_river(river_struct *river, MeshElement *elem,
+                const RiverTile *rivtbl, const RiverShape *shptbl,
+                const RiverMaterial *matltbl, const MeshEntry *meshtbl,
+                const CalibrationParameters *cal)
 {
     int i;
 
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         int j;
 
@@ -98,7 +98,7 @@ void InitRiver(river_struct *river, elem_struct *elem,
                                         river[i].shp.coeff);
     }
 
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         int j;
 

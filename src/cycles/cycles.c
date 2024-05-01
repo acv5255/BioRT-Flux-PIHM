@@ -20,10 +20,10 @@ void DailyCycles(int t, PihmData pihm)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         int ind;
-        elem_struct *elem;
+        MeshElement *elem;
 
         elem = &pihm->elem[i];
         ind = elem->attrib.op_type - 1;

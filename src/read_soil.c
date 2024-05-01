@@ -14,7 +14,7 @@ void ReadSoil(const char *filename, SoilEntry *soiltbl)
     int lno = 0;
 
     soil_file = fopen(filename, "r");
-    CheckFile(soil_file, filename);
+    check_file(soil_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading soil file */
@@ -116,8 +116,8 @@ void ReadSoil(const char *filename, SoilEntry *soiltbl)
         }
 
         /* Calculate field capacity and wilting point */
-        soiltbl->smcref[i] = FieldCapacity(soiltbl->beta[i], soiltbl->ksatv[i],
-                                           soiltbl->smcmax[i], soiltbl->smcmin[i]);
+        soiltbl->smcref[i] = field_capacity(soiltbl->beta[i], soiltbl->ksatv[i],
+                                            soiltbl->smcmax[i], soiltbl->smcmin[i]);
         soiltbl->smcwlt[i] = WiltingPoint(soiltbl->smcmax[i],
                                           soiltbl->smcmin[i], soiltbl->alpha[i], soiltbl->beta[i]);
     }

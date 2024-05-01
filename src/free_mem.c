@@ -1,34 +1,34 @@
 #include "pihm.h"
 
-void FreeMem(PihmData pihm)
+void free_pihm_data(PihmData pihm)
 {
     int i;
 
-    FreeRivtbl(&pihm->rivtbl);
+    free_river_table(&pihm->rivtbl);
 
-    FreeShptbl(&pihm->shptbl);
+    free_river_shape_table(&pihm->shptbl);
 
-    FreeMatltbl(&pihm->matltbl);
+    free_material_table(&pihm->matltbl);
 
-    FreeMeshtbl(&pihm->meshtbl);
+    free_mesh_table(&pihm->meshtbl);
 
-    FreeAtttbl(&pihm->atttbl);
+    free_element_attribute(&pihm->atttbl);
 
-    FreeSoiltbl(&pihm->soiltbl);
+    free_soil_entry_table(&pihm->soiltbl);
 
 #if defined(_FBR_)
     FreeGeoltbl(&pihm->geoltbl);
 #endif
 
-    FreeLctbl(&pihm->lctbl);
+    free_land_cover_table(&pihm->lctbl);
 
-    FreeForc(&pihm->forc);
+    free_forcing(&pihm->forc);
 
 #if defined(_BGC_)
     FreeEpctbl(&pihm->epctbl);
 #endif
 
-    FreeCtrl(&pihm->ctrl);
+    free_control(&pihm->ctrl);
 
     /*
      * Close files
@@ -62,7 +62,7 @@ void FreeMem(PihmData pihm)
     free(pihm->river);
 }
 
-void FreeRivtbl(RiverTile *rivtbl)
+void free_river_table(RiverTile *rivtbl)
 {
     free(rivtbl->fromnode);
     free(rivtbl->tonode);
@@ -75,14 +75,14 @@ void FreeRivtbl(RiverTile *rivtbl)
     free(rivtbl->rsvr);
 }
 
-void FreeShptbl(RiverShape *shptbl)
+void free_river_shape_table(RiverShape *shptbl)
 {
     free(shptbl->depth);
     free(shptbl->intrpl_ord);
     free(shptbl->coeff);
 }
 
-void FreeMatltbl(RiverMaterial *matltbl)
+void free_material_table(RiverMaterial *matltbl)
 {
     free(matltbl->rough);
     free(matltbl->cwr);
@@ -91,11 +91,11 @@ void FreeMatltbl(RiverMaterial *matltbl)
     free(matltbl->bedthick);
 }
 
-void FreeMeshtbl(MeshEntry *meshtbl)
+void free_mesh_table(MeshEntry *meshtbl)
 {
     int i;
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         free(meshtbl->node[i]);
         free(meshtbl->nabr[i]);
@@ -111,12 +111,12 @@ void FreeMeshtbl(MeshEntry *meshtbl)
 #endif
 }
 
-void FreeAtttbl(ElementAttribute *atttbl)
+void free_element_attribute(ElementAttribute *atttbl)
 {
     int i;
 
     /* Free attribute input structure */
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         free(atttbl->bc[i]);
 #if defined(_FBR_)
@@ -135,7 +135,7 @@ void FreeAtttbl(ElementAttribute *atttbl)
     free(atttbl->source);
 }
 
-void FreeSoiltbl(SoilEntry *soiltbl)
+void free_soil_entry_table(SoilEntry *soiltbl)
 {
     free(soiltbl->silt);
     free(soiltbl->clay);
@@ -168,7 +168,7 @@ void FreeGeoltbl(GeologyEntry *geoltbl)
 }
 #endif
 
-void FreeLctbl(LandCoverEntry *lctbl)
+void free_land_cover_table(LandCoverEntry *lctbl)
 {
     /* Free landcover input structure */
     free(lctbl->laimax);
@@ -188,7 +188,7 @@ void FreeLctbl(LandCoverEntry *lctbl)
     free(lctbl->rzd);
 }
 
-void FreeForc(Forcing *forc)
+void free_forcing(Forcing *forc)
 {
     int i, j;
 
@@ -360,7 +360,7 @@ void FreeEpctbl(epctbl_struct *epctbl)
 }
 #endif
 
-void FreeCtrl(RunParameters *ctrl)
+void free_control(RunParameters *ctrl)
 {
     free(ctrl->tout);
 }

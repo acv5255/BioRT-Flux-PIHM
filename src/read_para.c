@@ -14,7 +14,7 @@ void ReadPara(const char *filename, RunParameters *ctrl)
     }
 
     para_file = fopen(filename, "r");
-    CheckFile(para_file, filename);
+    check_file(para_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading para_file */

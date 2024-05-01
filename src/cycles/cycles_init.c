@@ -1,16 +1,16 @@
 #include "pihm.h"
 
 void InitCycles(const agtbl_struct *agtbl, const SoilEntry *soiltbl,
-                epconst_struct epctbl[], elem_struct elem[], river_struct river[])
+                epconst_struct epctbl[], MeshElement elem[], river_struct river[])
 {
     int i;
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         int soil_ind;
         int j, k;
         /*
-         * Initialize initial soil variables
+         * initialize_data initial soil variables
          */
         soil_ind = elem[i].attrib.soil_type - 1;
 
@@ -35,7 +35,7 @@ void InitCycles(const agtbl_struct *agtbl, const SoilEntry *soiltbl,
         }
 
         /*
-         * Initialize crop structures
+         * initialize_data crop structures
          */
         for (j = 0; j < MAXCROP; j++)
         {
@@ -45,7 +45,7 @@ void InitCycles(const agtbl_struct *agtbl, const SoilEntry *soiltbl,
         }
 
         /*
-         * Initialize management structure
+         * initialize_data management structure
          */
         elem[i].mgmt.rot_size = agtbl->rotsz[i];
         elem[i].mgmt.auto_n = agtbl->auto_N[i];
@@ -58,9 +58,9 @@ void InitCycles(const agtbl_struct *agtbl, const SoilEntry *soiltbl,
     }
 
     /*
-     * Initialize river bed bulk densities
+     * initialize_data river bed bulk densities
      */
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         int k;
         double totdpth;
@@ -85,13 +85,13 @@ void InitCycles(const agtbl_struct *agtbl, const SoilEntry *soiltbl,
     }
 }
 
-void FirstDay(const SoilEntry *soiltbl, elem_struct elem[],
+void FirstDay(const SoilEntry *soiltbl, MeshElement elem[],
               river_struct river[])
 {
     int i, k;
     int soil_ind;
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         soil_ind = elem[i].attrib.soil_type - 1;
 
@@ -148,7 +148,7 @@ void FirstDay(const SoilEntry *soiltbl, elem_struct elem[],
         }
     }
 
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         river[i].restart_input.streamno3 = 0.0;
         river[i].restart_input.streamnh4 = 0.0;
@@ -157,11 +157,11 @@ void FirstDay(const SoilEntry *soiltbl, elem_struct elem[],
     }
 }
 
-void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
+void InitCyclesVar(MeshElement elem[], river_struct river[], N_Vector CV_Y)
 {
     int i, k;
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         RestartInput(&elem[i].restart_input, &elem[i].ps, &elem[i].ws,
                      &elem[i].cs, &elem[i].ns);
@@ -184,7 +184,7 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         elem[i].ns0 = elem[i].ns;
     }
 
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         river[i].ns.streamno3 = river[i].restart_input.streamno3;
         river[i].ns.streamnh4 = river[i].restart_input.streamnh4;
@@ -198,16 +198,16 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
     }
 }
 //
-// void WriteCyclesIC(char *restart_fn, elem_struct *elem, river_struct *riv)
+// void WriteCyclesIC(char *restart_fn, MeshElement *elem, river_struct *riv)
 //{
 //    int             i, j;
 //    FILE           *restart_file;
 //
 //    restart_file = fopen(restart_fn, "wb");
-//    CheckFile(restart_file, restart_fn);
+//    check_file(restart_file, restart_fn);
 //    PIHMprintf(VL_VERBOSE, "Writing Cycles initial conditions.\n");
 //
-//    for (i = 0; i < nelem; i++)
+//    for (i = 0; i < num_elements; i++)
 //    {
 //        for (j = 0; j < MAXLYR; j++)
 //        {
@@ -235,7 +235,7 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 //        }
 //    }
 //
-//    for (i = 0; i < nriver; i++)
+//    for (i = 0; i < num_river; i++)
 //    {
 //        fwrite(&riv[i].NO3sol.soluteMass, sizeof(double), 1, restart_file);
 //        fwrite(&riv[i].NH4sol.soluteMass, sizeof(double), 1, restart_file);

@@ -1,19 +1,19 @@
 #include "pihm.h"
 
-void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
+void FirstDay(MeshElement *elem, river_struct *riv, const cninit_struct *cninit)
 {
-    int             i;
+    int i;
 
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
-        bgcic_struct   *restart;
+        bgcic_struct *restart;
         epconst_struct *epc;
-        double          max_leafc, max_frootc, max_stemc;
-        double          new_stemc;
+        double max_leafc, max_frootc, max_stemc;
+        double new_stemc;
 
         restart = &elem[i].restart_input;
         epc = &elem[i].epc;
@@ -67,7 +67,7 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         restart->offset_fdd = 0.0;
         restart->offset_swi = 0.0;
 
-        /* Initialize other C and N storage state variables */
+        /* initialize_data other C and N storage state variables */
         restart->leafc_storage = 0.0;
         restart->frootc_storage = 0.0;
         restart->livestemc_storage = 0.0;
@@ -87,7 +87,7 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         restart->surfn = 0.0;
 
         /*
-         * Initialize days-since-rain counter
+         * initialize_data days-since-rain counter
          */
         restart->dsr = 0.0;
 
@@ -113,7 +113,7 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
             restart->deadstemc_transfer =
                 new_stemc - restart->livestemc_transfer;
             restart->deadstemc = max_stemc - restart->livestemc_transfer -
-                restart->livestemc - restart->deadstemc_transfer;
+                                 restart->livestemc - restart->deadstemc_transfer;
             if (restart->deadstemc < 0.0)
             {
                 restart->deadstemc = 0.0;
@@ -157,7 +157,7 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         {
             restart->gresp_transfer +=
                 (restart->livestemc_transfer + restart->deadstemc_transfer +
-                restart->livecrootc_transfer + restart->deadcrootc_transfer) *
+                 restart->livecrootc_transfer + restart->deadcrootc_transfer) *
                 GRPERC;
         }
 
@@ -167,7 +167,7 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
     }
 
 #if !defined(_LUMPED_) && !defined(_LEACHING_)
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         riv[i].restart_input.streamn = 0.0;
         riv[i].restart_input.sminn = 0.0;

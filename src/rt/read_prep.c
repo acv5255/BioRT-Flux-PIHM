@@ -16,7 +16,7 @@ void ReadPrep(const char filen[], const ChemicalEntry chemtbl[],
     char cmdstr[MAXSTRING];
 
     fp = fopen(filen, "r");
-    CheckFile(fp, filen);
+    check_file(fp, filen);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
     forc->nprcpc = CountOccurr(fp, "PRCP_CONC_TS");
@@ -71,7 +71,7 @@ void ReadPrep(const char filen[], const ChemicalEntry chemtbl[],
                 }
                 bytes_consumed += bytes_now;
 
-                index[j] = FindChem(chemn, chemtbl, rttbl->NumStc);
+                index[j] = find_chem(chemn, chemtbl, rttbl->NumStc);
                 if (index[j] < NumSpc)
                 {
                     PIHMprintf(VL_VERBOSE,

@@ -10,7 +10,7 @@ void ReadGeol(const char *filename, GeologyEntry *geoltbl)
     int lno = 0;
 
     geol_file = fopen(filename, "r");
-    CheckFile(geol_file, filename);
+    check_file(geol_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading soil file */

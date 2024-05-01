@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void InitLc(elem_struct *elem, const LandCoverEntry *lctbl,
-            const CalibrationParameters *cal)
+void init_land_cover(MeshElement *elem, const LandCoverEntry *lctbl,
+                     const CalibrationParameters *cal)
 {
     int i;
 
@@ -9,16 +9,16 @@ void InitLc(elem_struct *elem, const LandCoverEntry *lctbl,
 #pragma omp parallel for
 #endif
 #if defined(_LUMPED_)
-    for (i = 0; i < nelem + 1; i++)
+    for (i = 0; i < num_elements + 1; i++)
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         _InitLc(&elem[i], lctbl, cal);
     }
 }
 
-void _InitLc(elem_struct *elem_ptr, const LandCoverEntry *lctbl,
+void _InitLc(MeshElement *elem_ptr, const LandCoverEntry *lctbl,
              const CalibrationParameters *cal)
 {
     int lc_ind;

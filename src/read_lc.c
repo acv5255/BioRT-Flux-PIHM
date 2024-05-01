@@ -10,7 +10,7 @@ void ReadLc(const char *filename, LandCoverEntry *lctbl)
     int lno = 0;
 
     lc_file = fopen(filename, "r");
-    CheckFile(lc_file, filename);
+    check_file(lc_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading land cover file */

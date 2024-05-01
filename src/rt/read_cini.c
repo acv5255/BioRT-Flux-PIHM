@@ -18,15 +18,15 @@ void ReadCini(const char filen[], const ChemicalEntry *chemtbl, int NumStc,
 #endif
 
     fp = fopen(filen, "r");
-    CheckFile(fp, filen);
+    check_file(fp, filen);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
-    atttbl->prcpc = (int *)malloc(nelem * sizeof(int));
-    atttbl->chem_ic = (int **)malloc(nelem * sizeof(int *));
+    atttbl->prcpc = (int *)malloc(num_elements * sizeof(int));
+    atttbl->chem_ic = (int **)malloc(num_elements * sizeof(int *));
 
     /* Skip header line */
     NextLine(fp, cmdstr, &lno);
-    for (int i = 0; i < nelem; i++)
+    for (int i = 0; i < num_elements; i++)
     {
         atttbl->chem_ic[i] = (int *)malloc(4 * sizeof(int));
 
@@ -77,7 +77,7 @@ void ReadCini(const char filen[], const ChemicalEntry *chemtbl, int NumStc,
                 convert = 1;
             }
 
-            ind = FindChem(temp_str, chemtbl, NumStc);
+            ind = find_chem(temp_str, chemtbl, NumStc);
             if (ind < 0)
             {
                 PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", temp_str);

@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-int FindChem(const char chemn[MAXSTRING], const ChemicalEntry chemtbl[],
-             int nsps)
+int find_chem(const char chemn[MAXSTRING], const ChemicalEntry chemtbl[],
+              int nsps)
 {
     int ind = -1;
 

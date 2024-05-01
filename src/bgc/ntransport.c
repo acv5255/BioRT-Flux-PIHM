@@ -1,22 +1,22 @@
 #include "pihm.h"
 
 #if !defined(_LUMPED_) && !defined(_LEACHING_)
-void NTransport(elem_struct *elem, river_struct *river)
+void NTransport(MeshElement *elem, river_struct *river)
 {
-    int             i;
+    int i;
 
     /*
      * Calculate solute N concentrations
      */
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
-        int             j;
-        double          strg;
+        int j;
+        double strg;
 
-        /* Initialize N fluxes */
+        /* initialize_data N fluxes */
         elem[i].nsol.infilflux = 0.0;
         for (j = 0; j < NUM_EDGE; j++)
         {
@@ -26,29 +26,25 @@ void NTransport(elem_struct *elem, river_struct *river)
 
         /* Element surface */
         strg = elem[i].ws.surf;
-        elem[i].nsol.conc_surf = (strg > 0.0) ?
-            elem[i].ns.surfn / strg / 1000.0 : 0.0;
-        elem[i].nsol.conc_surf = (elem[i].nsol.conc_surf > 0.0) ?
-            elem[i].nsol.conc_surf : 0.0;
+        elem[i].nsol.conc_surf = (strg > 0.0) ? elem[i].ns.surfn / strg / 1000.0 : 0.0;
+        elem[i].nsol.conc_surf = (elem[i].nsol.conc_surf > 0.0) ? elem[i].nsol.conc_surf : 0.0;
 
         /* Element subsurface */
         strg = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
-            elem[i].soil.depth * elem[i].soil.smcmin;
-        elem[i].nsol.conc_subsurf = (strg > 0.0) ?
-            elem[i].ns.sminn / strg / 1000.0 : 0.0;
-        elem[i].nsol.conc_subsurf = (elem[i].nsol.conc_subsurf > 0.0) ?
-            elem[i].nsol.conc_subsurf : 0.0;
+               elem[i].soil.depth * elem[i].soil.smcmin;
+        elem[i].nsol.conc_subsurf = (strg > 0.0) ? elem[i].ns.sminn / strg / 1000.0 : 0.0;
+        elem[i].nsol.conc_subsurf = (elem[i].nsol.conc_subsurf > 0.0) ? elem[i].nsol.conc_subsurf : 0.0;
     }
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
-        int             j;
-        double          strg;
+        int j;
+        double strg;
 
-        /* Initialize N fluxes */
+        /* initialize_data N fluxes */
         for (j = 0; j < NUM_RIVFLX; j++)
         {
             river[i].nsol.flux[j] = 0.0;
@@ -56,40 +52,35 @@ void NTransport(elem_struct *elem, river_struct *river)
 
         /* River stream */
         strg = river[i].ws.stage;
-        river[i].nsol.conc_stream = (strg > 0.0) ?
-            river[i].ns.streamn / strg / 1000.0 : 0.0;
-        river[i].nsol.conc_stream = (river[i].nsol.conc_stream > 0.0) ?
-            river[i].nsol.conc_stream : 0.0;
+        river[i].nsol.conc_stream = (strg > 0.0) ? river[i].ns.streamn / strg / 1000.0 : 0.0;
+        river[i].nsol.conc_stream = (river[i].nsol.conc_stream > 0.0) ? river[i].nsol.conc_stream : 0.0;
 
         /* River bed */
         strg = river[i].ws.gw * river[i].matl.porosity +
-            river[i].matl.bedthick * river[i].matl.smcmin;
-        river[i].nsol.conc_bed = (strg > 0.0) ?
-            river[i].ns.sminn / strg / 1000.0 : 0.0;
-        river[i].nsol.conc_bed = (river[i].nsol.conc_bed > 0.0) ?
-            river[i].nsol.conc_bed : 0.0;
+               river[i].matl.bedthick * river[i].matl.smcmin;
+        river[i].nsol.conc_bed = (strg > 0.0) ? river[i].ns.sminn / strg / 1000.0 : 0.0;
+        river[i].nsol.conc_bed = (river[i].nsol.conc_bed > 0.0) ? river[i].nsol.conc_bed : 0.0;
     }
 
     /*
      * Calculate solute fluxes
      */
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
-        elem_struct    *nabr;
-        int             j;
+        MeshElement *nabr;
+        int j;
 
         /* Infiltration */
         elem[i].nsol.infilflux = elem[i].wf.infil * 1000.0 *
-            ((elem[i].wf.infil > 0.0) ? elem[i].nsol.conc_surf :
-            MOBILEN_PROPORTION * elem[i].nsol.conc_subsurf);
+                                 ((elem[i].wf.infil > 0.0) ? elem[i].nsol.conc_surf : MOBILEN_PROPORTION * elem[i].nsol.conc_subsurf);
 
         /* Element to element */
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem[i].nabr[j] == 0)       /* Boundary condition flux */
+            if (elem[i].nabr[j] == 0) /* Boundary condition flux */
             {
                 elem[i].nsol.ovlflux[j] = 0.0;
                 elem[i].nsol.subflux[j] = 0.0;
@@ -99,14 +90,10 @@ void NTransport(elem_struct *elem, river_struct *river)
                 nabr = &elem[elem[i].nabr[j] - 1];
 
                 elem[i].nsol.subflux[j] = elem[i].wf.subsurf[j] * 1000.0 *
-                    ((elem[i].wf.subsurf[j] > 0.0) ?
-                    MOBILEN_PROPORTION * elem[i].nsol.conc_subsurf :
-                    MOBILEN_PROPORTION * nabr->nsol.conc_subsurf);
+                                          ((elem[i].wf.subsurf[j] > 0.0) ? MOBILEN_PROPORTION * elem[i].nsol.conc_subsurf : MOBILEN_PROPORTION * nabr->nsol.conc_subsurf);
 
                 elem[i].nsol.ovlflux[j] = elem[i].wf.ovlflow[j] * 1000.0 *
-                    ((elem[i].wf.ovlflow[j] > 0.0) ?
-                    MOBILEN_PROPORTION * elem[i].nsol.conc_surf :
-                    MOBILEN_PROPORTION * nabr->nsol.conc_surf);
+                                          ((elem[i].wf.ovlflow[j] > 0.0) ? MOBILEN_PROPORTION * elem[i].nsol.conc_surf : MOBILEN_PROPORTION * nabr->nsol.conc_surf);
             }
             else
             {
@@ -117,14 +104,14 @@ void NTransport(elem_struct *elem, river_struct *river)
     }
 
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
-        river_struct   *down;
-        elem_struct    *left;
-        elem_struct    *right;
-        int             j;
+        river_struct *down;
+        MeshElement *left;
+        MeshElement *right;
+        int j;
 
         /* Downstream and upstream */
         if (river[i].down > 0)
@@ -134,15 +121,12 @@ void NTransport(elem_struct *elem, river_struct *river)
             /* Stream */
             river[i].nsol.flux[DOWN_CHANL2CHANL] =
                 river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
-                ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
-                river[i].nsol.conc_stream : down->nsol.conc_stream);
+                ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ? river[i].nsol.conc_stream : down->nsol.conc_stream);
 
             /* Bed */
             river[i].nsol.flux[DOWN_AQUIF2AQUIF] =
                 river[i].wf.rivflow[DOWN_AQUIF2AQUIF] * 1000.0 *
-                ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
-                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
-                MOBILEN_PROPORTION * down->nsol.conc_bed);
+                ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ? MOBILEN_PROPORTION * river[i].nsol.conc_bed : MOBILEN_PROPORTION * down->nsol.conc_bed);
         }
         else
         {
@@ -161,21 +145,15 @@ void NTransport(elem_struct *elem, river_struct *river)
         {
             river[i].nsol.flux[LEFT_SURF2CHANL] =
                 river[i].wf.rivflow[LEFT_SURF2CHANL] * 1000.0 *
-                ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
-                river[i].nsol.conc_stream :
-                MOBILEN_PROPORTION * left->nsol.conc_surf);
+                ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ? river[i].nsol.conc_stream : MOBILEN_PROPORTION * left->nsol.conc_surf);
 
             river[i].nsol.flux[LEFT_AQUIF2CHANL] =
                 river[i].wf.rivflow[LEFT_AQUIF2CHANL] * 1000.0 *
-                ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
-                river[i].nsol.conc_stream :
-                MOBILEN_PROPORTION * left->nsol.conc_subsurf);
+                ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ? river[i].nsol.conc_stream : MOBILEN_PROPORTION * left->nsol.conc_subsurf);
 
             river[i].nsol.flux[LEFT_AQUIF2AQUIF] =
                 river[i].wf.rivflow[LEFT_AQUIF2AQUIF] * 1000.0 *
-                ((river[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
-                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
-                MOBILEN_PROPORTION * left->nsol.conc_subsurf);
+                ((river[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ? MOBILEN_PROPORTION * river[i].nsol.conc_bed : MOBILEN_PROPORTION * left->nsol.conc_subsurf);
 
             for (j = 0; j < NUM_EDGE; j++)
             {
@@ -185,32 +163,25 @@ void NTransport(elem_struct *elem, river_struct *river)
                         -river[i].nsol.flux[LEFT_SURF2CHANL];
                     left->nsol.subflux[j] =
                         -(river[i].nsol.flux[LEFT_AQUIF2CHANL] +
-                        river[i].nsol.flux[LEFT_AQUIF2AQUIF]);
+                          river[i].nsol.flux[LEFT_AQUIF2AQUIF]);
                     break;
                 }
             }
-
         }
 
         if (river[i].rightele > 0)
         {
             river[i].nsol.flux[RIGHT_SURF2CHANL] =
                 river[i].wf.rivflow[RIGHT_SURF2CHANL] * 1000.0 *
-                ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
-                river[i].nsol.conc_stream :
-                MOBILEN_PROPORTION * right->nsol.conc_surf);
+                ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ? river[i].nsol.conc_stream : MOBILEN_PROPORTION * right->nsol.conc_surf);
 
             river[i].nsol.flux[RIGHT_AQUIF2CHANL] =
                 river[i].wf.rivflow[RIGHT_AQUIF2CHANL] * 1000.0 *
-                ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
-                river[i].nsol.conc_stream :
-                MOBILEN_PROPORTION * right->nsol.conc_subsurf);
+                ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ? river[i].nsol.conc_stream : MOBILEN_PROPORTION * right->nsol.conc_subsurf);
 
             river[i].nsol.flux[RIGHT_AQUIF2AQUIF] =
                 river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] * 1000.0 *
-                ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
-                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
-                MOBILEN_PROPORTION * right->nsol.conc_subsurf);
+                ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ? MOBILEN_PROPORTION * river[i].nsol.conc_bed : MOBILEN_PROPORTION * right->nsol.conc_subsurf);
 
             for (j = 0; j < NUM_EDGE; j++)
             {
@@ -220,7 +191,7 @@ void NTransport(elem_struct *elem, river_struct *river)
                         -river[i].nsol.flux[RIGHT_SURF2CHANL];
                     right->nsol.subflux[j] =
                         -(river[i].nsol.flux[RIGHT_AQUIF2CHANL] +
-                        river[i].nsol.flux[RIGHT_AQUIF2AQUIF]);
+                          river[i].nsol.flux[RIGHT_AQUIF2AQUIF]);
                     break;
                 }
             }
@@ -228,17 +199,15 @@ void NTransport(elem_struct *elem, river_struct *river)
 
         river[i].nsol.flux[CHANL_LKG] =
             river[i].wf.rivflow[CHANL_LKG] * 1000.0 *
-            ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ?
-            river[i].nsol.conc_stream :
-            MOBILEN_PROPORTION * river[i].nsol.conc_bed);
+            ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ? river[i].nsol.conc_stream : MOBILEN_PROPORTION * river[i].nsol.conc_bed);
     }
 
     /*
      * Accumulate to get in-flow for down segments
      */
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
-        river_struct   *down;
+        river_struct *down;
 
         if (river[i].down > 0)
         {
@@ -255,53 +224,52 @@ void NTransport(elem_struct *elem, river_struct *river)
 #endif
 
 #if defined(_LUMPED_)
-void NLeachingLumped(elem_struct *elem, river_struct *river)
+void NLeachingLumped(MeshElement *elem, river_struct *river)
 {
-    int             i;
-    double          strg = 0.0;      /* Total water storage (m3 m-2) */
-    double          runoff = 0.0;    /* Total runoff (kg m-2 s-1) */
+    int i;
+    double strg = 0.0;   /* Total water storage (m3 m-2) */
+    double runoff = 0.0; /* Total runoff (kg m-2 s-1) */
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
-        int             j;
+        int j;
 
         strg += ((elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
-            elem[i].soil.depth * elem[i].soil.smcmin) * elem[i].topo.area;
+                 elem[i].soil.depth * elem[i].soil.smcmin) *
+                elem[i].topo.area;
     }
 
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         if (river[i].down < 0)
         {
-           runoff += river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0;
+            runoff += river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0;
         }
     }
 
     strg /= elem[LUMPED].topo.area;
     runoff /= elem[LUMPED].topo.area;
 
-    elem[LUMPED].nf.sminn_leached = (runoff > 0.0) ?
-        runoff * MOBILEN_PROPORTION * elem[LUMPED].ns.sminn / strg / 1000.0 :
-        0.0;
+    elem[LUMPED].nf.sminn_leached = (runoff > 0.0) ? runoff * MOBILEN_PROPORTION * elem[LUMPED].ns.sminn / strg / 1000.0 : 0.0;
 }
 #endif
 
 #if defined(_LEACHING_)
-void NLeaching(elem_struct *elem)
+void NLeaching(MeshElement *elem)
 {
-    int             i;
+    int i;
     /*
      * Calculate solute N concentrations
      */
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
-        int             j;
-        double          strg;
+        int j;
+        double strg;
 
-        /* Initialize N fluxes */
+        /* initialize_data N fluxes */
         for (j = 0; j < NUM_EDGE; j++)
         {
             elem[i].nsol.subflux[j] = 0.0;
@@ -309,22 +277,20 @@ void NLeaching(elem_struct *elem)
 
         /* Element subsurface */
         strg = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
-            elem[i].soil.depth * elem[i].soil.smcmin;
-        elem[i].nsol.conc_subsurf = (strg > 0.0) ?
-            elem[i].ns.sminn / strg / 1000.0 : 0.0;
-        elem[i].nsol.conc_subsurf = (elem[i].nsol.conc_subsurf > 0.0) ?
-            elem[i].nsol.conc_subsurf : 0.0;
+               elem[i].soil.depth * elem[i].soil.smcmin;
+        elem[i].nsol.conc_subsurf = (strg > 0.0) ? elem[i].ns.sminn / strg / 1000.0 : 0.0;
+        elem[i].nsol.conc_subsurf = (elem[i].nsol.conc_subsurf > 0.0) ? elem[i].nsol.conc_subsurf : 0.0;
     }
 
     /*
      * Calculate solute fluxes
      */
 #if defined(_OPENMP)
-# pragma omp parallel for
+#pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
-        int             j;
+        int j;
 
         /* Element to element */
         for (j = 0; j < NUM_EDGE; j++)
@@ -332,8 +298,7 @@ void NLeaching(elem_struct *elem)
             if (elem[i].nabr[j] > 0)
             {
                 elem[i].nsol.subflux[j] = elem[i].wf.subsurf[j] * 1000.0 *
-                    ((elem[i].wf.subsurf[j] > 0.0) ?
-                    MOBILEN_PROPORTION * elem[i].nsol.conc_subsurf : 0.0);
+                                          ((elem[i].wf.subsurf[j] > 0.0) ? MOBILEN_PROPORTION * elem[i].nsol.conc_subsurf : 0.0);
             }
             else
             {

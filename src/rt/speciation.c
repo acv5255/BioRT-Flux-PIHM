@@ -11,7 +11,7 @@ void Speciation(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (int i = 0; i < nriver; i++)
+    for (int i = 0; i < num_river; i++)
     {
 
         for (int k = 0; k < NumSpc; k++)
@@ -27,7 +27,7 @@ void Speciation(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
 }
 
 int _Speciation(const ChemicalEntry chemtbl[], const ReactionNetwork *rttbl,
-                int speciation_flg, chmstate_struct *chms)
+                int speciation_flg, ChemicalState *chms)
 {
     /* if speciation flg = 1, pH is defined
      * if speciation flg = 0, all defined value is total concentration */

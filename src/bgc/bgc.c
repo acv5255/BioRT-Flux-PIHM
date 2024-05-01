@@ -16,7 +16,7 @@ void DailyBgc(PihmData pihm, int t)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         /* First test for nitrogen balance from previous day */
@@ -76,14 +76,14 @@ void DailyBgc(PihmData pihm, int t)
 
     /* Calculate average soil water content for all model grids */
 #if defined(_LUMPED_)
-    vwc = (double *)malloc((nelem + 1) * sizeof(double));
+    vwc = (double *)malloc((num_elements + 1) * sizeof(double));
 #else
-    vwc = (double *)malloc(nelem * sizeof(double));
+    vwc = (double *)malloc(num_elements * sizeof(double));
 #endif
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         int k;
 
@@ -101,7 +101,7 @@ void DailyBgc(PihmData pihm, int t)
 
 #if defined(_LUMPED_)
     vwc[LUMPED] = 0.0;
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         vwc[LUMPED] += vwc[i] * pihm->elem[i].topo.area;
     }
@@ -114,13 +114,13 @@ void DailyBgc(PihmData pihm, int t)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         daily_struct *daily;
         epconst_struct *epc;
         epvar_struct *epv;
-        soil_struct *soil;
+        SoilData *soil;
         eflux_struct *ef;
         pstate_struct *ps;
         cstate_struct *cs;

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitLsm(elem_struct *elem, const char ice_fn[], const RunParameters *ctrl,
+void InitLsm(MeshElement *elem, const char ice_fn[], const RunParameters *ctrl,
              const NoahLandSurfaceEntry *noahtbl, const CalibrationParameters *cal)
 {
     int i;
@@ -10,12 +10,12 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const RunParameters *ctrl,
     FILE *ice_file;
     const double ICEH = 0.5;
 
-    iceh = (double *)malloc(nelem * sizeof(double));
+    iceh = (double *)malloc(num_elements * sizeof(double));
 
 #if defined(_LUMPED_)
-    for (i = 0; i < nelem + 1; i++)
+    for (i = 0; i < num_elements + 1; i++)
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         if (elem[i].lc.glacier == 1)
@@ -42,9 +42,9 @@ void InitLsm(elem_struct *elem, const char ice_fn[], const RunParameters *ctrl,
     }
 
 #if defined(_LUMPED_)
-    for (i = 0; i < nelem + 1; i++)
+    for (i = 0; i < num_elements + 1; i++)
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         /* Set-up soil layer depths */

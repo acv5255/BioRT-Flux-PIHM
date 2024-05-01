@@ -5,7 +5,7 @@
 #include "custom_io.h"
 
 void _custom_exit(const char *fn, int lineno, const char *func, int debug,
-    int error)
+                  int error)
 {
     if (error != EXIT_SUCCESS)
     {
@@ -23,9 +23,9 @@ void _custom_exit(const char *fn, int lineno, const char *func, int debug,
 }
 
 void _custom_printf(const char *fn, int lineno, const char *func, int debug,
-    int model_verbosity, int verbosity, const char *fmt, ...)
+                    int model_verbosity, int verbosity, const char *fmt, ...)
 {
-    va_list         va;
+    va_list va;
 
     va_start(va, fmt);
 
@@ -53,7 +53,7 @@ void _custom_printf(const char *fn, int lineno, const char *func, int debug,
     va_end(va);
 }
 
-void CheckFile(const FILE *fp, const char *fn)
+void check_file(const FILE *fp, const char *fn)
 {
     if (NULL == fp)
     {
@@ -69,15 +69,15 @@ int CountLine(FILE *fp, char *cmdstr, int num_arg, ...)
      * Count number of non-blank lines between current location to where
      * token occurs
      */
-    va_list         valist;
-    char            optstr[MAXSTRING];
-    char            token[MAXSTRING];
-    int             count;
-    int             success = 0;
-    int             i;
+    va_list valist;
+    char optstr[MAXSTRING];
+    char token[MAXSTRING];
+    int count;
+    int success = 0;
+    int i;
 
     /* Access all the arguments assigned to valist */
-    /* Initialize cmdstr */
+    /* initialize_data cmdstr */
     strcpy(cmdstr, "\0");
     count = 0;
 
@@ -87,7 +87,7 @@ int CountLine(FILE *fp, char *cmdstr, int num_arg, ...)
         {
             sscanf(cmdstr, "%s", optstr);
 
-            /* Initialize valist for num number of arguments */
+            /* initialize_data valist for num number of arguments */
             va_start(valist, num_arg);
             for (i = 0; i < num_arg; i++)
             {
@@ -122,11 +122,11 @@ int CountOccurr(FILE *fp, const char *token)
      * Count number of occurrence of keyword from the current line to the end
      * of file
      */
-    char            cmdstr[MAXSTRING];
-    char            optstr[MAXSTRING];
-    int             count;
+    char cmdstr[MAXSTRING];
+    char optstr[MAXSTRING];
+    int count;
 
-    /* Initialize cmdstr */
+    /* initialize_data cmdstr */
     strcpy(cmdstr, "\0");
     count = 0;
 
@@ -149,9 +149,9 @@ int CountOccurr(FILE *fp, const char *token)
 
 void FindLine(FILE *fp, const char *token, int *lno, const char *filename)
 {
-    int             success = 0;
-    char            cmdstr[MAXSTRING];
-    char            optstr[MAXSTRING];
+    int success = 0;
+    char cmdstr[MAXSTRING];
+    char optstr[MAXSTRING];
 
     if (strcasecmp("BOF", token) == 0)
     {
@@ -161,7 +161,7 @@ void FindLine(FILE *fp, const char *token, int *lno, const char *filename)
     }
     else
     {
-        /* Initialize cmdstr */
+        /* initialize_data cmdstr */
         strcpy(cmdstr, "\0");
 
         while (!feof(fp))
@@ -195,7 +195,7 @@ void NextLine(FILE *fp, char *cmdstr, int *lno)
     /*
      * Read a non-blank line into cmdstr
      */
-    int             j = 0;
+    int j = 0;
 
     strcpy(cmdstr, "\0");
 
@@ -224,9 +224,9 @@ void NextLine(FILE *fp, char *cmdstr, int *lno)
 
 int Readable(const char *cmdstr)
 {
-    int             readable;
-    int             i;
-    char            ch;
+    int readable;
+    int i;
+    char ch;
 
     for (i = 0; i < (int)(strlen(cmdstr)); i++)
     {

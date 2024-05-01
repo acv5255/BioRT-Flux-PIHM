@@ -11,20 +11,20 @@ void ReadBedrock(const char *filename, ElementAttribute *atttbl,
     int lno = 0;
 
     br_file = fopen(filename, "r");
-    CheckFile(br_file, filename);
+    check_file(br_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading bedrock file */
     /* Read fbr boundary conditions */
-    atttbl->fbr_bc = (int **)malloc(nelem * sizeof(int *));
-    for (i = 0; i < nelem; i++)
+    atttbl->fbr_bc = (int **)malloc(num_elements * sizeof(int *));
+    for (i = 0; i < num_elements; i++)
     {
         atttbl->fbr_bc[i] = (int *)malloc(NUM_EDGE * sizeof(int));
     }
 
     /* Skip header line */
     NextLine(br_file, cmdstr, &lno);
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         NextLine(br_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d",

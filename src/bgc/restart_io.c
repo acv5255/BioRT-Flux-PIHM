@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void RestartInput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
-    const bgcic_struct *restart)
+                  const bgcic_struct *restart)
 {
     cs->leafc = restart->leafc;
     cs->leafc_storage = restart->leafc_storage;
@@ -84,7 +84,7 @@ void RestartInput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
 }
 
 void RestartOutput(const cstate_struct *cs, const nstate_struct *ns,
-    const epvar_struct *epv, bgcic_struct *restart)
+                   const epvar_struct *epv, bgcic_struct *restart)
 {
     restart->leafc = cs->leafc;
     restart->leafc_storage = cs->leafc_storage;
@@ -166,19 +166,19 @@ void RestartOutput(const cstate_struct *cs, const nstate_struct *ns,
     restart->offset_swi = epv->offset_swi;
 }
 
-void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
+void ReadBgcIc(const char *fn, MeshElement *elem, river_struct *river)
 {
-    FILE           *init_file;
-    int             i;
+    FILE *init_file;
+    int i;
 
     init_file = fopen(fn, "rb");
-    CheckFile(init_file, fn);
+    check_file(init_file, fn);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         fread(&elem[i].restart_input, sizeof(bgcic_struct), 1, init_file);
@@ -200,36 +200,36 @@ void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
     }
 
 #if !defined(_LUMPED_) && !defined(_LEACHING_)
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         fread(&river[i].restart_input, sizeof(river_bgcic_struct), 1,
-            init_file);
+              init_file);
     }
 #endif
 
     fclose(init_file);
 }
 
-void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
+void WriteBgcIc(const char *outputdir, MeshElement *elem, river_struct *river)
 {
-    int             i;
-    FILE           *restart_file;
-    char            restart_fn[MAXSTRING];
+    int i;
+    FILE *restart_file;
+    char restart_fn[MAXSTRING];
 
     sprintf(restart_fn, "%s/restart/%s.bgcic", outputdir, project);
 
     restart_file = fopen(restart_fn, "wb");
-    CheckFile(restart_file, restart_fn);
+    check_file(restart_file, restart_fn);
     PIHMprintf(VL_VERBOSE, "Writing BGC initial conditions.\n");
 
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         RestartOutput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
-            &elem[i].restart_output);
+                      &elem[i].restart_output);
 
         /* If initial conditions are obtained using accelerated spinup, adjust
          * soil C pool sizes if needed */
@@ -247,17 +247,17 @@ void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
         }
 
         fwrite(&(elem[i].restart_output), sizeof(bgcic_struct), 1,
-            restart_file);
+               restart_file);
     }
 
 #if !defined(_LUMPED_) && !defined(_LEACHING_)
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         river[i].restart_output.streamn = river[i].ns.streamn;
         river[i].restart_output.sminn = river[i].ns.sminn;
 
         fwrite(&(river[i].restart_output), sizeof(river_bgcic_struct), 1,
-            restart_file);
+               restart_file);
     }
 #endif
 

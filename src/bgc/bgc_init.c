@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
+void InitBgc(MeshElement *elem, const epctbl_struct *epctbl,
              const CalibrationParameters *cal)
 {
     int i;
@@ -11,7 +11,7 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         epc_ind = elem[i].attrib.lc_type - 1;
@@ -79,14 +79,14 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
     }
 }
 
-void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
+void InitBgcVar(MeshElement *elem, river_struct *river, N_Vector CV_Y)
 {
     int i;
 
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         RestartInput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
@@ -110,7 +110,7 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #endif
 
 #if !defined(_LUMPED_) && !defined(_LEACHING_)
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         river[i].ns.streamn = river[i].restart_input.streamn;
         river[i].ns.sminn = river[i].restart_input.sminn;

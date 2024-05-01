@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitTopo(elem_struct *elem, const MeshEntry *meshtbl)
+void init_topo(MeshElement *elem, const MeshEntry *meshtbl)
 {
     int i, j;
     double x[NUM_EDGE];
@@ -11,16 +11,16 @@ void InitTopo(elem_struct *elem, const MeshEntry *meshtbl)
     double zbed[NUM_EDGE];
 #endif
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         for (j = 0; j < NUM_EDGE; j++)
         {
-            x[j] = meshtbl->x[elem[i].node[j] - 1];
-            y[j] = meshtbl->y[elem[i].node[j] - 1];
-            zmin[j] = meshtbl->zmin[elem[i].node[j] - 1];
-            zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
+            x[j] = meshtbl->x[elem[i].node_ids[j] - 1];
+            y[j] = meshtbl->y[elem[i].node_ids[j] - 1];
+            zmin[j] = meshtbl->zmin[elem[i].node_ids[j] - 1];
+            zmax[j] = meshtbl->zmax[elem[i].node_ids[j] - 1];
 #if defined(_FBR_)
-            zbed[j] = meshtbl->zbed[elem[i].node[j] - 1];
+            zbed[j] = meshtbl->zbed[elem[i].node_ids[j] - 1];
 #endif
         }
 
@@ -49,7 +49,7 @@ void InitTopo(elem_struct *elem, const MeshEntry *meshtbl)
 }
 
 #if defined(_NOAH_)
-void CalcSlopeAspect(elem_struct *elem, const MeshEntry *meshtbl)
+void CalcSlopeAspect(MeshElement *elem, const MeshEntry *meshtbl)
 {
     const int XCOMP = 0;
     const int YCOMP = 1;
@@ -69,13 +69,13 @@ void CalcSlopeAspect(elem_struct *elem, const MeshEntry *meshtbl)
     int ind, ind1, ind2;
     int i, j, k;
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         for (j = 0; j < NUM_EDGE; j++)
         {
-            x[j] = meshtbl->x[elem[i].node[j] - 1];
-            y[j] = meshtbl->y[elem[i].node[j] - 1];
-            zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
+            x[j] = meshtbl->x[elem[i].node_ids[j] - 1];
+            y[j] = meshtbl->y[elem[i].node_ids[j] - 1];
+            zmax[j] = meshtbl->zmax[elem[i].node_ids[j] - 1];
         }
 
         edge_vector[0][XCOMP] = x[0] - x[2];
@@ -130,7 +130,7 @@ void CalcSlopeAspect(elem_struct *elem, const MeshEntry *meshtbl)
         }
 
         /* Consider every edge of every triangular grid */
-        for (j = 0; j < nelem; j++)
+        for (j = 0; j < num_elements; j++)
         {
             for (k = 0; k < NUM_EDGE; k++)
             {
@@ -149,12 +149,12 @@ void CalcSlopeAspect(elem_struct *elem, const MeshEntry *meshtbl)
                     nodes[1] = 1;
                     break;
                 }
-                x1 = meshtbl->x[elem[j].node[nodes[0]] - 1];
-                y1 = meshtbl->y[elem[j].node[nodes[0]] - 1];
-                z1 = meshtbl->zmax[elem[j].node[nodes[0]] - 1];
-                x2 = meshtbl->x[elem[j].node[nodes[1]] - 1];
-                y2 = meshtbl->y[elem[j].node[nodes[1]] - 1];
-                z2 = meshtbl->zmax[elem[j].node[nodes[1]] - 1];
+                x1 = meshtbl->x[elem[j].node_ids[nodes[0]] - 1];
+                y1 = meshtbl->y[elem[j].node_ids[nodes[0]] - 1];
+                z1 = meshtbl->zmax[elem[j].node_ids[nodes[0]] - 1];
+                x2 = meshtbl->x[elem[j].node_ids[nodes[1]] - 1];
+                y2 = meshtbl->y[elem[j].node_ids[nodes[1]] - 1];
+                z2 = meshtbl->zmax[elem[j].node_ids[nodes[1]] - 1];
 
                 xc = 0.5 * (x1 + x2);
                 yc = 0.5 * (y1 + y2);

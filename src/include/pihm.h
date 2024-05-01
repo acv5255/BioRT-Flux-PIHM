@@ -9,18 +9,19 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 #if defined(_WIN32) || defined(_WIN64)
-# include <windows.h>
-# include <direct.h>
-# include <io.h>
+#include <windows.h>
+#include <direct.h>
+#include <io.h>
 #else
-# include <unistd.h>
+#include <unistd.h>
 #endif
 #if defined(_OPENMP)
-# include <omp.h>
+#include <omp.h>
 #endif
 
-#define VERSION    "0.14.4-alpha"
+#define VERSION "0.14.4-alpha"
 
 /*
  * SUNDIAL Header Files
@@ -33,9 +34,9 @@
 
 /* Access to N_Vector */
 #if defined(_CVODE_OMP)
-# include "nvector/nvector_openmp.h"
+#include "nvector/nvector_openmp.h"
 #else
-# include "nvector/nvector_serial.h"
+#include "nvector/nvector_serial.h"
 #endif
 
 /* Definition of macros SUNSQR and EXP */
@@ -45,7 +46,7 @@
 #include "sundials/sundials_dense.h"
 
 #if defined(_NOAH_)
-# include "spa.h"
+#include "spa.h"
 #endif
 
 #include "custom_io.h"

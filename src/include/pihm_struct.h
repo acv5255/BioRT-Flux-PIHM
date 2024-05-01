@@ -84,7 +84,7 @@ typedef struct CalibrationParameters
     double dinf;
     double rzd;
     double dmac;
-    double porosity;
+    double porosity; // Porosity of the soil
     double alpha;
     double beta;
     double areafv;
@@ -268,7 +268,7 @@ typedef struct PihmData
     cninit_struct cninit;
 #endif
     Forcing forc;
-    elem_struct *elem;
+    MeshElement *elem;
     river_struct *river;
     CalibrationParameters cal;
     RunParameters ctrl;

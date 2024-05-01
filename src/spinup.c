@@ -56,7 +56,7 @@ void ResetSpinupStat(elem_struct *elem)
 #if defined(_OPENMP)
 #pragma omp parallel for
 #endif
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         elem[i].spinup.soilc = 0.0;
@@ -69,7 +69,7 @@ void ResetSpinupStat(elem_struct *elem)
 int CheckSteadyState(const elem_struct *elem, double total_area,
                      int first_cycle, int totalt, int spinyears)
 #else
-int CheckSteadyState(const elem_struct *elem, double total_area,
+int CheckSteadyState(const MeshElement *elem, double total_area,
                      int first_cycle, int spinyears)
 #endif
 {
@@ -91,7 +91,7 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
 #endif
     {
         totalw += (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity *

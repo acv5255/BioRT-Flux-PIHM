@@ -10,7 +10,7 @@ void ReadLai(const char *filename, Forcing *forc,
     int index;
     int lno = 0;
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         if (atttbl->lai[i] > 0)
         {
@@ -24,7 +24,7 @@ void ReadLai(const char *filename, Forcing *forc,
     if (read_lai)
     {
         lai_file = fopen(filename, "r");
-        CheckFile(lai_file, filename);
+        check_file(lai_file, filename);
         PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
         /* Start reading lai_file */

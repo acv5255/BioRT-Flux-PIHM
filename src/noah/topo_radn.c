@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-double TopoRadn(const topo_struct *topo, double sdir, double sdif,
+double TopoRadn(const Topology *topo, double sdir, double sdif,
                 double zenith, double azimuth180)
 {
     double incidence; /* Sun incidence angle (degree) */

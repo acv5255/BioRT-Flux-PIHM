@@ -13,20 +13,20 @@ void ReadCyclesCtrl(const char filename[], agtbl_struct *agtbl,
 
     /* Open simulation control file */
     cycles_fp = fopen(filename, "r");
-    CheckFile(cycles_fp, filename);
+    check_file(cycles_fp, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
-    agtbl->op = (int *)malloc(nelem * sizeof(int));
-    agtbl->rotsz = (int *)malloc(nelem * sizeof(int));
-    agtbl->auto_N = (int *)malloc(nelem * sizeof(int));
-    agtbl->auto_P = (int *)malloc(nelem * sizeof(int));
-    agtbl->auto_S = (int *)malloc(nelem * sizeof(int));
+    agtbl->op = (int *)malloc(num_elements * sizeof(int));
+    agtbl->rotsz = (int *)malloc(num_elements * sizeof(int));
+    agtbl->auto_N = (int *)malloc(num_elements * sizeof(int));
+    agtbl->auto_P = (int *)malloc(num_elements * sizeof(int));
+    agtbl->auto_S = (int *)malloc(num_elements * sizeof(int));
 
     /* Read simulation control file */
     FindLine(cycles_fp, "BOF", &lno, filename);
 
     NextLine(cycles_fp, cmdstr, &lno);
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         NextLine(cycles_fp, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d", &index, &agtbl->op[i],
@@ -164,7 +164,7 @@ void ReadSoilInit(const char filename[], SoilEntry *soiltbl)
      * Open soil initialization file
      */
     soil_fp = fopen(filename, "r");
-    CheckFile(soil_fp, filename);
+    check_file(soil_fp, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     soiltbl->totalLayers = (int *)malloc(soiltbl->number * sizeof(int));
@@ -276,21 +276,21 @@ void ReadMultOper(const agtbl_struct *agtbl, const epconst_struct epctbl[],
 //     return (exist);
 // }
 //
-// void ReadCyclesIC(char *fn, elem_struct *elem, river_struct *riv)
+// void ReadCyclesIC(char *fn, MeshElement *elem, river_struct *riv)
 //{
 //     FILE           *init_file;
 //     int             i;
 //
 //     init_file = fopen(fn, "rb");
-//     CheckFile(init_file, fn);
+//     check_file(init_file, fn);
 //     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 //
-//     for (i = 0; i < nelem; i++)
+//     for (i = 0; i < num_elements; i++)
 //     {
 //         fread(&elem[i].cycles_restart, sizeof(cyclesic_struct), 1, init_file);
 //     }
 //
-//     for (i = 0; i < nriver; i++)
+//     for (i = 0; i < num_river; i++)
 //     {
 //         fread(&riv[i].cycles_restart, sizeof(river_cyclesic_struct), 1,
 //             init_file);

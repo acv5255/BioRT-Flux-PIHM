@@ -70,8 +70,8 @@ void StartupScreen(void)
     }
 }
 
-void InitOutputFile(PrintStructure *print, const char *outputdir, int watbal,
-                    int ascii)
+void init_output_files(PrintStructure *print, const char *outputdir, int watbal,
+                       int ascii)
 {
     char ascii_fn[2 * MAXSTRING];
     char dat_fn[2 * MAXSTRING];
@@ -92,20 +92,20 @@ void InitOutputFile(PrintStructure *print, const char *outputdir, int watbal,
         strcpy(bin_mode, "wb");
     }
 
-    /* Initialize water balance file*/
+    /* initialize_data water balance file*/
     if (watbal)
     {
         sprintf(watbal_fn, "%s%s.watbal.plt", outputdir, project);
         print->watbal_file = fopen(watbal_fn, mode);
-        CheckFile(print->watbal_file, watbal_fn);
+        check_file(print->watbal_file, watbal_fn);
     }
 
-    /* Initialize cvode output files */
+    /* initialize_data cvode output files */
     if (debug_mode)
     {
         sprintf(perf_fn, "%s%s.cvode.log", outputdir, project);
         print->cvodeperf_file = fopen(perf_fn, mode);
-        CheckFile(print->cvodeperf_file, perf_fn);
+        check_file(print->cvodeperf_file, perf_fn);
         /* Print header lines */
         fprintf(print->cvodeperf_file,
                 "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
@@ -114,19 +114,19 @@ void InitOutputFile(PrintStructure *print, const char *outputdir, int watbal,
     }
 
     /*
-     * Initialize model variable output files
+     * initialize_data model variable output files
      */
     for (i = 0; i < print->nprint; i++)
     {
         sprintf(dat_fn, "%s.dat", print->varctrl[i].name);
         print->varctrl[i].datfile = fopen(dat_fn, bin_mode);
-        CheckFile(print->varctrl[i].datfile, dat_fn);
+        check_file(print->varctrl[i].datfile, dat_fn);
 
         if (ascii)
         {
             sprintf(ascii_fn, "%s.txt", print->varctrl[i].name);
             print->varctrl[i].txtfile = fopen(ascii_fn, mode);
-            CheckFile(print->varctrl[i].txtfile, ascii_fn);
+            check_file(print->varctrl[i].txtfile, ascii_fn);
         }
     }
 
@@ -139,7 +139,7 @@ void InitOutputFile(PrintStructure *print, const char *outputdir, int watbal,
 
             sprintf(dat_fn, "%s.plt", print->tp_varctrl[i].name);
             print->tp_varctrl[i].datfile = fopen(dat_fn, mode);
-            CheckFile(print->tp_varctrl[i].datfile, dat_fn);
+            check_file(print->tp_varctrl[i].datfile, dat_fn);
 
             if (print->tp_varctrl[i].intr == 0)
             {
@@ -193,7 +193,7 @@ void UpdPrintVar(PrintVariables *varctrl, int nprint, int module_step)
     }
 }
 
-void PrintData(PrintVariables *varctrl, int nprint, int t, int lapse, int ascii)
+void print_data(PrintVariables *varctrl, int nprint, int t, int lapse, int ascii)
 {
     int i;
     PihmTime pihm_time;
@@ -209,7 +209,7 @@ void PrintData(PrintVariables *varctrl, int nprint, int t, int lapse, int ascii)
         double outval;
         double outtime;
 
-        if (PrintNow(varctrl[i].intvl, lapse, &pihm_time))
+        if (print_now(varctrl[i].intvl, lapse, &pihm_time))
         {
             if (ascii)
             {
@@ -241,14 +241,14 @@ void PrintData(PrintVariables *varctrl, int nprint, int t, int lapse, int ascii)
     }
 }
 
-void PrintInit(const elem_struct *elem, const river_struct *river,
-               const char *outputdir, int t, int starttime, int endtime, int intvl)
+void print_init(const MeshElement *elem, const river_struct *river,
+                const char *outputdir, int t, int starttime, int endtime, int intvl)
 {
     PihmTime pihm_time;
 
     pihm_time = PIHMTime(t);
 
-    if (PrintNow(intvl, t - starttime, &pihm_time) || t == endtime)
+    if (print_now(intvl, t - starttime, &pihm_time) || t == endtime)
     {
         FILE *init_file;
         char file_name[2 * MAXSTRING];
@@ -258,9 +258,9 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
                 pihm_time.strshort);
 
         init_file = fopen(file_name, "wb");
-        CheckFile(init_file, file_name);
+        check_file(init_file, file_name);
 
-        for (i = 0; i < nelem; i++)
+        for (i = 0; i < num_elements; i++)
         {
 #if defined(_CYCLES_)
             fwrite(&elem[i].ws.flatResidueWater, sizeof(double), 1, init_file);
@@ -296,7 +296,7 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
 #endif
         }
 
-        for (i = 0; i < nriver; i++)
+        for (i = 0; i < num_river; i++)
         {
             fwrite(&river[i].ws.stage, sizeof(double), 1, init_file);
             fwrite(&river[i].ws.gw, sizeof(double), 1, init_file);
@@ -307,7 +307,7 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
     }
 }
 
-void PrintDataTecplot(PrintVariables *varctrl, int nprint, int t, int lapse)
+void print_data_tecplot(PrintVariables *varctrl, int nprint, int t, int lapse)
 {
     int i;
     PihmTime pihm_time;
@@ -322,7 +322,7 @@ void PrintDataTecplot(PrintVariables *varctrl, int nprint, int t, int lapse)
         double outval;
         double outtime;
 
-        if (PrintNow(varctrl[i].intvl, lapse, &pihm_time))
+        if (print_now(varctrl[i].intvl, lapse, &pihm_time))
         {
             outtime = (double)t;
 
@@ -409,8 +409,8 @@ void PrintDataTecplot(PrintVariables *varctrl, int nprint, int t, int lapse)
     }
 }
 
-void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
-               double cputime, double maxstep, FILE *perf_file)
+void print_perf(void *cvode_mem, int t, int starttime, double cputime_dt,
+                double cputime, double maxstep, FILE *perf_file)
 {
     static double dt;
     static long int nst0, nfe0, nni0, ncfn0, netf0;
@@ -420,23 +420,23 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
     /* Gets the cumulative number of internal steps taken by the solver (total
      * so far) */
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     /* Gets the number of calls to the user's right-hand side function */
     cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     /* Gets the number of nonlinear iterations performed */
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     /* Gets the number of nonlinear convergence failures that have occurred */
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     /* Gets the number of local error test failures that have occurred */
     cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f",
             t - starttime, cputime_dt, cputime, maxstep);
@@ -456,7 +456,7 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
 }
 
 void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
-                   const elem_struct *elem, const river_struct *river)
+                   const MeshElement *elem, const river_struct *river)
 {
     int i;
     double tot_src = 0.0, tot_snk = 0.0, tot_strg = 0.0;
@@ -468,7 +468,7 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
         fprintf(watbal_file, "%s\n", WB_HEADER);
     }
 
-    for (i = 0; i < nelem; i++)
+    for (i = 0; i < num_elements; i++)
     {
         tot_src += elem[i].wf.prcp * elem[i].topo.area * dt;
 #if defined(_NOAH_)
@@ -494,7 +494,7 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
 #endif
     }
 
-    for (i = 0; i < nriver; i++)
+    for (i = 0; i < num_river; i++)
     {
         tot_strg +=
             (river[i].ws.stage + river[i].ws.gw * river[i].matl.porosity) *
@@ -519,7 +519,7 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
     tot_strg_prev = tot_strg;
 }
 
-void PrintCVodeFinalStats(void *cvode_mem)
+void print_cvode_final_stats(void *cvode_mem)
 {
     int cv_flag;
     long int nst;
@@ -529,19 +529,19 @@ void PrintCVodeFinalStats(void *cvode_mem)
     long int ncfn;
 
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-    CheckCVodeFlag(cv_flag);
+    check_cvode_flag(cv_flag);
 
     PIHMprintf(VL_NORMAL, "\n");
     PIHMprintf(VL_NORMAL,
@@ -553,7 +553,7 @@ void PrintCVodeFinalStats(void *cvode_mem)
                nni, ncfn, netf);
 }
 
-int PrintNow(int intvl, int lapse, const PihmTime *pihm_time)
+int print_now(int intvl, int lapse, const PihmTime *pihm_time)
 {
     int print = 0;
 

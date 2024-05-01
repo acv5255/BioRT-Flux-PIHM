@@ -13,7 +13,7 @@ void ReadTecplot(const char *filename, RunParameters *ctrl)
     }
 
     tecplot_file = fopen(filename, "r");
-    CheckFile(tecplot_file, filename);
+    check_file(tecplot_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     NextLine(tecplot_file, cmdstr, &lno);
